@@ -1,0 +1,23 @@
+quiero un plan completo para la creación de un portal super rapido, empresarial que sea super seguro que no exponga nada de credencial o informacion sensible ne la plataforma o por las apis y si lo hace que sea codificado con algun grado de condificación no convencional para que sea dificl de decodificar incluso el login.
+
+Generación de items (formularios, con campos dinamicos) - las reglas se aplicaran despues en una fase 2 por ahorita quiero solo generación de formularios (el formulario podra publicarse para usuarios externos (o los roles que diga el admin configurable) - se le vinculara un flujo de n8n para poder llevar la generación del proceso donde tendremos tareas y solicitud de aprobaciones a una persona o grupo de personas, necesito que sea muy dinamico
+
+al enviar el fomrulario del portal se creara el registro en una tabla que llamaremos Registro de peticiones (luego cambiaremos el nombre), en donde entrada la versión del fomrulario ingresada por el usuario para poder ser procesada por mi grupo de areas y adminsitradores. (todo sera generado con IA) solo quiero dejar una base establecida.
+ - El formulario creado en el "back" al generar el registro en la tabla de "Registro de peticiones" se mandará llamar un contexto del flujo de n8n que se le asigne para poder llevar todo el flujo de tareas y aprobaciones.
+
+
+Necesito un sistema completo de rbac con menu super dinamico con roles (admin, usuario interno, usuario externo, curd para definicion de roles), algun lugar en el menu para administrar el rbac.
+
+Los usuarios internox, admin entraran a un dashboard.
+
+dame el mejor stack el mas rapido, el mejor visualmente el que mejor pueda modificar y adaptar la IA.
+
+necesito que se me genere una memoria.md para dejar un template listo para la generación de proximos proyecto y de ahi lo puedan generar, se utilizara una base de datos postgress todos los datos estan en:el archivo @.env quiero una estructura de proyecto super ordenada y escalable sera un proyecto empresarial que manejara millones de registros a la vez y miles de solicitudes al mismo timepo incluso de n8n.
+
+lo quiero sobre nodejs dame el mejor stack quiero que utilice animaciones con anime.js y que todo se adapte a mi logo de NADRO @log.png quiero todo super responsivo, adapta mis .windsurfrules para todo el proeycto@.windsurfrules  y que siempre al inciar por primera vez verifique la base de datos si existe ya que sera un template el que vamos a generar.
+
+el logo d enadro no se ve, esta como corrupto y requiero que el login tenga css animado con svg que hagan alucion a nadro @fetch  todo que cuadre con la paleta de colores super animado y empresarial quiero integrar tambien la libreria de anime.js, crea el skill y adaptalo al sistema en todo lo que se pueda quiero que se vea moderlo y empresarial animado
+
+genera un usuario admin/admin para probar todo
+al finalizar quiero que realices pruebas e2e super completas de todo el sitio frontend, backend y verificar que  los console logs no den errores ni warning
+apoyate de todos los skills @brainstorm.md
