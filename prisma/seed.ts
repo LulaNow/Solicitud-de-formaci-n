@@ -391,6 +391,13 @@ async function main() {
     { key: "appearance.scene_mode", value: "random", type: "string" },
     { key: "appearance.christmas_enabled", value: "false", type: "boolean" },
     { key: "appearance.snow_enabled", value: "false", type: "boolean" },
+    { key: "appearance.calendar_auto", value: "true", type: "boolean" },
+    { key: "appearance.event_reyes", value: "true", type: "boolean" },
+    { key: "appearance.event_valentine", value: "true", type: "boolean" },
+    { key: "appearance.event_patrias", value: "true", type: "boolean" },
+    { key: "appearance.event_halloween", value: "true", type: "boolean" },
+    { key: "appearance.event_muertos", value: "true", type: "boolean" },
+    { key: "appearance.event_christmas", value: "true", type: "boolean" },
   ];
 
   for (const s of settings) {

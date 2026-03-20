@@ -4,10 +4,109 @@ import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
 import "./logistics-scene.css";
 
-type Weather = "night" | "storm" | "sunny" | "snow" | "christmas";
-const RANDOM_BASE: Weather[] = ["night", "storm", "sunny"];
+type Scene =
+  | "night"
+  | "storm"
+  | "sunny"
+  | "snow"
+  | "christmas"
+  | "halloween"
+  | "muertos"
+  | "patrias"
+  | "valentine"
+  | "reyes";
 
-async function getAutoWeather(): Promise<Weather> {
+const ALL_SCENES: Scene[] = [
+  "night",
+  "storm",
+  "sunny",
+  "snow",
+  "christmas",
+  "halloween",
+  "muertos",
+  "patrias",
+  "valentine",
+  "reyes",
+];
+const RANDOM_BASE: Scene[] = ["night", "storm", "sunny"];
+
+interface CalendarEvent {
+  key: string;
+  scene: Scene;
+  startMonth: number;
+  startDay: number;
+  endMonth: number;
+  endDay: number;
+}
+
+const CALENDAR_EVENTS: CalendarEvent[] = [
+  {
+    key: "event_reyes",
+    scene: "reyes",
+    startMonth: 1,
+    startDay: 5,
+    endMonth: 1,
+    endDay: 6,
+  },
+  {
+    key: "event_valentine",
+    scene: "valentine",
+    startMonth: 2,
+    startDay: 13,
+    endMonth: 2,
+    endDay: 14,
+  },
+  {
+    key: "event_patrias",
+    scene: "patrias",
+    startMonth: 9,
+    startDay: 13,
+    endMonth: 9,
+    endDay: 16,
+  },
+  {
+    key: "event_halloween",
+    scene: "halloween",
+    startMonth: 10,
+    startDay: 25,
+    endMonth: 10,
+    endDay: 31,
+  },
+  {
+    key: "event_muertos",
+    scene: "muertos",
+    startMonth: 11,
+    startDay: 1,
+    endMonth: 11,
+    endDay: 2,
+  },
+  {
+    key: "event_christmas",
+    scene: "christmas",
+    startMonth: 12,
+    startDay: 15,
+    endMonth: 12,
+    endDay: 25,
+  },
+];
+
+function getCalendarScene(
+  enabledEvents: Record<string, boolean>,
+): Scene | null {
+  const now = new Date();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  for (const ev of CALENDAR_EVENTS) {
+    if (!enabledEvents[ev.key]) continue;
+    const afterStart =
+      m > ev.startMonth || (m === ev.startMonth && d >= ev.startDay);
+    const beforeEnd = m < ev.endMonth || (m === ev.endMonth && d <= ev.endDay);
+    if (afterStart && beforeEnd) return ev.scene;
+  }
+  return null;
+}
+
+async function getAutoWeather(): Promise<Scene> {
   const hour = new Date().getHours();
   const isDay = hour >= 6 && hour < 19;
 
@@ -37,7 +136,7 @@ async function getAutoWeather(): Promise<Weather> {
 
 export function LogisticsScene() {
   const [mounted, setMounted] = useState(false);
-  const [weather, setWeather] = useState<Weather>("night");
+  const [weather, setWeather] = useState<Scene>("night");
   const { data: config } = trpc.appearance.getSceneConfig.useQuery(undefined, {
     staleTime: 60_000,
     retry: false,
@@ -49,20 +148,24 @@ export function LogisticsScene() {
     if (!config) return;
     const mode = config.sceneMode;
 
+    // 1. Calendar auto-detection (highest priority when enabled)
+    if (config.calendarAuto) {
+      const calScene = getCalendarScene(config.calendarEvents);
+      if (calScene) {
+        setWeather(calScene);
+        return;
+      }
+    }
+
+    // 2. Explicit mode selection
     if (mode === "random") {
       setWeather(RANDOM_BASE[Math.floor(Math.random() * RANDOM_BASE.length)]);
     } else if (mode === "auto") {
       getAutoWeather().then(setWeather);
-    } else if (
-      ["night", "storm", "sunny", "snow", "christmas"].includes(mode)
-    ) {
-      setWeather(mode as Weather);
+    } else if (ALL_SCENES.includes(mode as Scene)) {
+      setWeather(mode as Scene);
     } else {
       setWeather(RANDOM_BASE[Math.floor(Math.random() * RANDOM_BASE.length)]);
-    }
-
-    if (config.christmasEnabled && mode !== "christmas") {
-      setWeather("christmas");
     }
   }, [config]);
 
@@ -101,6 +204,25 @@ export function LogisticsScene() {
       <div className="ls-xmas-lights" />
       <div className="ls-xmas-tree" />
       <div className="ls-xmas-star" />
+
+      {/* Halloween: bats + pumpkin */}
+      <div className="ls-bats" />
+      <div className="ls-pumpkin">🎃</div>
+
+      {/* Día de Muertos: cempasúchil + papel picado + calavera */}
+      <div className="ls-cempasuchil" />
+      <div className="ls-papel-picado" />
+      <div className="ls-calavera">💀</div>
+
+      {/* Fiestas Patrias: fireworks + tricolor */}
+      <div className="ls-fireworks" />
+      <div className="ls-tricolor" />
+
+      {/* San Valentín: hearts */}
+      <div className="ls-hearts" />
+
+      {/* Día de Reyes: Star of Bethlehem */}
+      <div className="ls-star-belen" />
 
       {/* Snow overlay (admin toggle — adds snow on any base scene) */}
       {showSnowOverlay && <div className="ls-snowfall" style={{ zIndex: 8 }} />}

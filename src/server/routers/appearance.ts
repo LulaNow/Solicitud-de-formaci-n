@@ -8,10 +8,26 @@ export const appearanceRouter = router({
       where: { key: { startsWith: "appearance." } },
     });
     const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+
+    const eventKeys = [
+      "event_reyes",
+      "event_valentine",
+      "event_patrias",
+      "event_halloween",
+      "event_muertos",
+      "event_christmas",
+    ];
+    const calendarEvents: Record<string, boolean> = {};
+    for (const ek of eventKeys) {
+      calendarEvents[ek] = map[`appearance.${ek}`] === "true";
+    }
+
     return {
       sceneMode: map["appearance.scene_mode"] || "random",
       christmasEnabled: map["appearance.christmas_enabled"] === "true",
       snowEnabled: map["appearance.snow_enabled"] === "true",
+      calendarAuto: map["appearance.calendar_auto"] === "true",
+      calendarEvents,
     };
   }),
 
@@ -28,7 +44,9 @@ export const appearanceRouter = router({
     .input(z.object({ key: z.string(), value: z.string() }))
     .mutation(async ({ ctx, input }) => {
       if (!input.key.startsWith("appearance.")) {
-        throw new Error("Solo se pueden modificar configuraciones de apariencia");
+        throw new Error(
+          "Solo se pueden modificar configuraciones de apariencia",
+        );
       }
       await ctx.prisma.appSetting.upsert({
         where: { key: input.key },
