@@ -2,7 +2,275 @@
   "folders": [
     {
       "path": ".",
+      "name": "NADRO Portal",
     },
   ],
-  "settings": {},
+  "settings": {
+    // Editor
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "never",
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.rulers": [80, 120],
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.inlineSuggest.enabled": true,
+    "editor.suggestSelection": "first",
+    "editor.quickSuggestions": {
+      "strings": true,
+    },
+
+    // Files
+    "files.exclude": {
+      "**/.next": true,
+      "**/node_modules": true,
+      "**/.git": false,
+    },
+    "files.watcherExclude": {
+      "**/.next/**": true,
+      "**/node_modules/**": true,
+    },
+    "files.associations": {
+      "*.css": "tailwindcss",
+    },
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+
+    // TypeScript
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "typescript.suggest.autoImports": true,
+    "typescript.inlayHints.parameterNames.enabled": "all",
+    "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+
+    // JavaScript
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "javascript.suggest.autoImports": true,
+
+    // Prettier
+    "prettier.requireConfig": true,
+    "prettier.singleQuote": false,
+    "prettier.trailingComma": "all",
+
+    // ESLint
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+    ],
+    "eslint.workingDirectories": [{ "mode": "auto" }],
+
+    // Tailwind CSS
+    "tailwindCSS.experimental.classRegex": [
+      ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+      ["cn\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ],
+    "tailwindCSS.includeLanguages": {
+      "typescript": "javascript",
+      "typescriptreact": "javascript",
+    },
+
+    // Prisma
+    "[prisma]": {
+      "editor.defaultFormatter": "Prisma.prisma",
+    },
+
+    // CSS
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+
+    // Search
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.next": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/.git": true,
+      "**/coverage": true,
+      "**/.turbo": true,
+    },
+
+    // Git
+    "git.ignoreLimitWarning": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+
+    // Terminal
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.fontSize": 13,
+
+    // Explorer
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+      "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.test.ts",
+      "*.tsx": "${capture}.test.tsx, ${capture}.stories.tsx",
+      "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, .npmrc, .nvmrc",
+      "tsconfig.json": "tsconfig.*.json",
+      ".env": ".env.*, .envrc",
+      "next.config.js": "next-env.d.ts, next.config.mjs",
+      "tailwind.config.ts": "postcss.config.js, tailwind.config.js",
+    },
+
+    // Emmet
+    "emmet.includeLanguages": {
+      "typescript": "html",
+      "typescriptreact": "html",
+    },
+
+    // Path Intellisense
+    "path-intellisense.mappings": {
+      "@": "${workspaceFolder}/src",
+    },
+  },
+  "extensions": {
+    "recommendations": [
+      // Core
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss",
+
+      // TypeScript
+      "yoavbls.pretty-ts-errors",
+
+      // Database
+      "prisma.prisma",
+
+      // Git
+      "eamodio.gitlens",
+
+      // Utilities
+      "christian-kohler.path-intellisense",
+      "usernamehw.errorlens",
+      "streetsidesoftware.code-spell-checker",
+      "gruntfuggly.todo-tree",
+
+      // Next.js
+      "unifiedjs.vscode-mdx",
+
+      // Testing
+      "ms-playwright.playwright",
+    ],
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "🚀 Dev Server",
+        "type": "shell",
+        "command": "npm run dev",
+        "problemMatcher": [],
+        "isBackground": true,
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true,
+        },
+      },
+      {
+        "label": "🗄️ Prisma Studio",
+        "type": "shell",
+        "command": "npm run db:studio",
+        "problemMatcher": [],
+        "isBackground": true,
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+        },
+      },
+      {
+        "label": "🌱 Database Seed",
+        "type": "shell",
+        "command": "npm run db:seed",
+        "problemMatcher": [],
+        "presentation": {
+          "reveal": "always",
+        },
+      },
+      {
+        "label": "🔄 Database Setup (Generate + Push + Seed)",
+        "type": "shell",
+        "command": "npm run db:setup",
+        "problemMatcher": [],
+        "presentation": {
+          "reveal": "always",
+        },
+      },
+      {
+        "label": "🏗️ Build Production",
+        "type": "shell",
+        "command": "npm run build",
+        "problemMatcher": [],
+        "presentation": {
+          "reveal": "always",
+        },
+      },
+      {
+        "label": "✅ Type Check",
+        "type": "shell",
+        "command": "npm run typecheck",
+        "problemMatcher": "$tsc",
+        "presentation": {
+          "reveal": "always",
+        },
+      },
+      {
+        "label": "🧪 Run Tests",
+        "type": "shell",
+        "command": "npm run test",
+        "problemMatcher": [],
+        "presentation": {
+          "reveal": "always",
+        },
+      },
+      {
+        "label": "🎭 E2E Tests (UI)",
+        "type": "shell",
+        "command": "npm run test:e2e:ui",
+        "problemMatcher": [],
+        "isBackground": true,
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+        },
+      },
+    ],
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "🐛 Next.js: Debug Server",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "skipFiles": ["<node_internals>/**"],
+        "console": "integratedTerminal",
+        "serverReadyAction": {
+          "pattern": "started server on .+, url: (https?://.+)",
+          "uriFormat": "%s",
+          "action": "debugWithChrome",
+        },
+      },
+      {
+        "name": "🌐 Next.js: Debug Client",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:3000",
+        "webRoot": "${workspaceFolder}",
+      },
+    ],
+  },
 }
