@@ -454,29 +454,27 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      {/* Save button */}
-      <div className="flex justify-end">
+      {/* Floating save button — always visible */}
+      <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={handleSave}
           disabled={updateSetting.isPending}
-          className="flex items-center gap-2 rounded-lg bg-brand-500 px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-brand-600 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-full bg-brand-500 px-5 py-3 text-sm font-medium text-white shadow-lg transition-all hover:bg-brand-600 hover:shadow-xl disabled:opacity-50"
         >
           {saved ? (
-            <>
-              <Check className="h-4 w-4" />
-              Guardado
-            </>
+            <Check className="h-5 w-5" />
           ) : updateSetting.isPending ? (
-            <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              Guardando...
-            </>
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
           ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Guardar cambios
-            </>
+            <Save className="h-5 w-5" />
           )}
+          <span className="hidden sm:inline">
+            {saved
+              ? "Guardado"
+              : updateSetting.isPending
+                ? "Guardando..."
+                : "Guardar"}
+          </span>
         </button>
       </div>
     </div>
