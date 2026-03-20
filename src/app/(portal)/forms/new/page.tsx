@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, ArrowLeft, Save, Edit2, X } from "lucide-react";
@@ -73,6 +73,11 @@ export default function NewFormPage() {
   // Drag and drop state
   const [draggedField, setDraggedField] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Resize state
+  const [resizingField, setResizingField] = useState<number | null>(null);
+  const [resizeStartX, setResizeStartX] = useState(0);
+  const [resizeStartWidth, setResizeStartWidth] = useState(0);
 
   const createForm = trpc.forms.create.useMutation({
     onSuccess: () => {
@@ -156,6 +161,58 @@ export default function NewFormPage() {
     setDraggedField(null);
     setDragOverIndex(null);
   };
+
+  // Resize handlers
+  const handleResizeStart = (e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setResizingField(index);
+    setResizeStartX(e.clientX);
+    setResizeStartWidth(fields[index].gridColumn || 12);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (resizingField === null) return;
+
+    const deltaX = e.clientX - resizeStartX;
+    const gridWidth = 12;
+    const pixelsPerColumn = 60; // Approximate
+    const columnChange = Math.round(deltaX / pixelsPerColumn);
+
+    let newWidth = resizeStartWidth + columnChange;
+
+    // Snap to valid widths: 3, 4, 6, 12
+    if (newWidth <= 3) newWidth = 3;
+    else if (newWidth <= 4) newWidth = 4;
+    else if (newWidth <= 6) newWidth = 6;
+    else newWidth = 12;
+
+    // Clamp between 3 and 12
+    newWidth = Math.max(3, Math.min(12, newWidth));
+
+    const newFields = [...fields];
+    newFields[resizingField] = {
+      ...newFields[resizingField],
+      gridColumn: newWidth,
+    };
+    setFields(newFields);
+  };
+
+  const handleResizeEnd = () => {
+    setResizingField(null);
+  };
+
+  // Add mouse event listeners for resize
+  useEffect(() => {
+    if (resizingField !== null) {
+      document.addEventListener("mousemove", handleResizeMove);
+      document.addEventListener("mouseup", handleResizeEnd);
+      return () => {
+        document.removeEventListener("mousemove", handleResizeMove);
+        document.removeEventListener("mouseup", handleResizeEnd);
+      };
+    }
+  }, [resizingField, resizeStartX, resizeStartWidth, fields]);
 
   // Organize fields into rows based on gridColumn
   const organizeFieldsIntoRows = () => {
@@ -300,8 +357,9 @@ export default function NewFormPage() {
           ) : (
             <div className="space-y-4">
               <div className="rounded-lg bg-blue-50 p-3 text-xs text-blue-700">
-                💡 <strong>Vista de Layout:</strong> Los campos se organizan
-                automáticamente en filas. Arrastra para reordenar.
+                💡 <strong>Editor Interactivo:</strong> Arrastra campos para
+                reordenar • Arrastra el borde derecho para cambiar ancho • Clic
+                en ✏️ para editar
               </div>
 
               {rows.map((row, rowIndex) => (
@@ -326,7 +384,7 @@ export default function NewFormPage() {
                           onDragOver={(e) => handleDragOver(e, fieldIndex)}
                           onDrop={(e) => handleDrop(e, fieldIndex)}
                           onDragEnd={handleDragEnd}
-                          className={`col-span-${colSpan} cursor-move rounded-lg border-2 bg-white p-3 transition-all ${
+                          className={`relative col-span-${colSpan} cursor-move rounded-lg border-2 bg-white p-3 transition-all ${
                             draggedField === fieldIndex
                               ? "border-brand-500 opacity-50"
                               : dragOverIndex === fieldIndex
@@ -381,6 +439,19 @@ export default function NewFormPage() {
                               </button>
                             </div>
                           </div>
+
+                          {/* Resize Handle */}
+                          {colSpan < 12 && (
+                            <div
+                              onMouseDown={(e) =>
+                                handleResizeStart(e, fieldIndex)
+                              }
+                              className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize group hover:bg-brand-500/20"
+                              title="Arrastra para cambiar ancho"
+                            >
+                              <div className="absolute right-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full bg-gray-300 transition-colors group-hover:bg-brand-500" />
+                            </div>
+                          )}
                         </div>
                       );
                     })}
