@@ -31,6 +31,8 @@ interface Field {
   options?: string[];
   defaultValue?: string;
   order: number;
+  gridColumn?: number; // 1-12 (Tailwind grid)
+  gridRow?: number;
 }
 
 const fieldTypes: { value: FieldType; label: string }[] = [
@@ -65,6 +67,7 @@ export default function NewFormPage() {
     type: "TEXT",
     required: false,
     order: 0,
+    gridColumn: 12, // Full width by default
   });
 
   const createForm = trpc.forms.create.useMutation({
@@ -89,6 +92,7 @@ export default function NewFormPage() {
       type: "TEXT",
       required: false,
       order: fields.length,
+      gridColumn: 12, // Full width by default
     });
     setEditingIndex(null);
     setIsModalOpen(true);
@@ -240,7 +244,7 @@ export default function NewFormPage() {
                   className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-brand-300 hover:shadow-sm"
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-900">
                         {field.label || "Sin etiqueta"}
                       </span>
@@ -253,6 +257,17 @@ export default function NewFormPage() {
                       {field.required && (
                         <span className="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700">
                           Obligatorio
+                        </span>
+                      )}
+                      {field.gridColumn && field.gridColumn < 12 && (
+                        <span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
+                          {field.gridColumn === 6
+                            ? "1/2"
+                            : field.gridColumn === 4
+                              ? "1/3"
+                              : field.gridColumn === 3
+                                ? "1/4"
+                                : `${field.gridColumn}/12`}
                         </span>
                       )}
                     </div>
@@ -452,6 +467,44 @@ export default function NewFormPage() {
                     />
                   </div>
                 )}
+
+                {/* Grid Layout Selector */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Ancho del Campo (Grid Layout)
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { cols: 12, label: "Ancho Completo", icon: "▬▬▬▬" },
+                      { cols: 6, label: "1/2 (Mitad)", icon: "▬▬ ▬▬" },
+                      { cols: 4, label: "1/3 (Tercio)", icon: "▬ ▬ ▬" },
+                      { cols: 3, label: "1/4 (Cuarto)", icon: "▬▬▬▬" },
+                    ].map((option) => (
+                      <button
+                        key={option.cols}
+                        type="button"
+                        onClick={() =>
+                          setModalField({
+                            ...modalField,
+                            gridColumn: option.cols,
+                          })
+                        }
+                        className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 text-xs transition-all ${
+                          modalField.gridColumn === option.cols
+                            ? "border-brand-500 bg-brand-50 text-brand-700"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                        }`}
+                      >
+                        <span className="text-lg">{option.icon}</span>
+                        <span className="font-medium">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Los campos se organizarán automáticamente en una cuadrícula
+                    de 12 columnas
+                  </p>
+                </div>
 
                 <div className="flex items-center gap-2">
                   <input
