@@ -85,7 +85,7 @@ export default function LoginPage() {
 
       <div
         ref={formRef}
-        className="relative z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/20 bg-white/80 p-8 shadow-2xl backdrop-blur-xl"
+        className="relative z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/20 bg-white/20 p-8 shadow-2xl backdrop-blur-xl"
       >
         <div ref={logoRef} className="text-center">
           <div className="relative mx-auto mb-6 h-20 w-48">
@@ -97,7 +97,7 @@ export default function LoginPage() {
               priority
             />
           </div>
-          <h2 className="login-element text-2xl font-bold text-gray-900">
+          <h2 className="login-element text-2xl font-bold text-white drop-shadow-sm">
             Salud a todo México
           </h2>
         </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-white/90"
               >
                 Usuario / Email
               </label>
@@ -127,14 +127,14 @@ export default function LoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="mt-1 block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition-all duration-200 focus:border-[#4D8B31] focus:ring-2 focus:ring-[#4D8B31]/20"
+                className="mt-1 block w-full rounded-xl border border-white/30 bg-white/90 px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-[#4D8B31] focus:ring-2 focus:ring-[#4D8B31]/20"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-white/90"
               >
                 Contraseña
               </label>
@@ -145,7 +145,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition-all duration-200 focus:border-[#4D8B31] focus:ring-2 focus:ring-[#4D8B31]/20"
+                className="mt-1 block w-full rounded-xl border border-white/30 bg-white/90 px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 focus:border-[#4D8B31] focus:ring-2 focus:ring-[#4D8B31]/20"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="login-element mt-4 text-center text-xs text-gray-500">
+        <p className="login-element mt-4 text-center text-xs text-white/50">
           NADRO Portal v1.0 — Todos los derechos reservados
         </p>
       </div>

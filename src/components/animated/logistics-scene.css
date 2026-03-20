@@ -1,12 +1,135 @@
 /* ═══ LOGISTICS SCENE ═══ */
+
+/* ── Weather Themes ── */
+.ls-night {
+  --sky-1: #080e1a;
+  --sky-2: #0f1d36;
+  --sky-3: #1a3460;
+  --sky-4: #243f65;
+}
+.ls-storm {
+  --sky-1: #0a0a16;
+  --sky-2: #151525;
+  --sky-3: #22223a;
+  --sky-4: #1a1a30;
+}
+.ls-sunny {
+  --sky-1: #2a7cc7;
+  --sky-2: #4a9ee0;
+  --sky-3: #72bdf5;
+  --sky-4: #9ad4ff;
+}
+
 .ls-sky {
   background: linear-gradient(
     180deg,
-    #080e1a 0%,
-    #0f1d36 35%,
-    #1a3460 70%,
-    #243f65 100%
+    var(--sky-1) 0%,
+    var(--sky-2) 35%,
+    var(--sky-3) 70%,
+    var(--sky-4) 100%
   );
+}
+
+/* ── Weather visibility ── */
+.ls-storm .ls-stars,
+.ls-sunny .ls-stars,
+.ls-storm .ls-moon,
+.ls-sunny .ls-moon {
+  display: none;
+}
+.ls-rain,
+.ls-lightning,
+.ls-sun {
+  display: none;
+}
+.ls-storm .ls-rain {
+  display: block;
+}
+.ls-storm .ls-lightning {
+  display: block;
+}
+.ls-sunny .ls-sun {
+  display: block;
+}
+
+/* ── City filter per weather ── */
+.ls-storm .ls-city {
+  filter: brightness(0.7) saturate(0.75);
+}
+.ls-sunny .ls-city {
+  filter: brightness(1.35) saturate(0.8);
+}
+
+/* ── Cloud overrides ── */
+.ls-storm .ls-cloud,
+.ls-storm .ls-cloud::before,
+.ls-storm .ls-cloud::after {
+  background: rgba(60, 60, 80, 0.35);
+}
+.ls-storm .ls-cloud--1 {
+  animation-duration: 20s;
+  opacity: 0.9;
+}
+.ls-storm .ls-cloud--2 {
+  animation-duration: 28s;
+  opacity: 0.7;
+}
+
+.ls-sunny .ls-cloud,
+.ls-sunny .ls-cloud::before,
+.ls-sunny .ls-cloud::after {
+  background: rgba(255, 255, 255, 0.55);
+}
+.ls-sunny .ls-cloud--1 {
+  animation-duration: 50s;
+  opacity: 0.9;
+}
+.ls-sunny .ls-cloud--2 {
+  animation-duration: 65s;
+  opacity: 0.75;
+}
+
+/* ── Hospital/Pharmacy per weather ── */
+.ls-sunny .ls-hospital {
+  background: linear-gradient(180deg, #2a5080, #224570);
+}
+.ls-sunny .ls-pharmacy {
+  background: linear-gradient(180deg, #2a6040, #226038);
+}
+.ls-sunny .ls-rooftop {
+  background: #3060a0;
+}
+.ls-storm .ls-hospital {
+  background: linear-gradient(180deg, #121830, #0e1425);
+}
+.ls-storm .ls-pharmacy {
+  background: linear-gradient(180deg, #0e2018, #0a1a14);
+}
+.ls-storm .ls-rooftop {
+  background: #141a30;
+}
+
+/* ── Road per weather ── */
+.ls-sunny .ls-road {
+  background: #4a4a62;
+}
+.ls-sunny .ls-sidewalk-top,
+.ls-sunny .ls-sidewalk-bottom {
+  background: #5a5a70;
+}
+.ls-sunny .ls-curb {
+  background: #3a3a50;
+}
+.ls-storm .ls-road {
+  background: #141424;
+  box-shadow: inset 0 2px 20px rgba(100, 120, 200, 0.08);
+}
+.ls-storm .ls-sidewalk-top,
+.ls-storm .ls-sidewalk-bottom {
+  background: #1a1a2a;
+}
+.ls-storm .ls-curb {
+  background: #0a0a16;
 }
 
 .ls-stars {
@@ -835,4 +958,279 @@
   100% {
     transform: translateX(-50%) scaleX(1);
   }
+}
+
+/* ═══════════════════════════════════════════════
+   WEATHER EFFECTS
+   ═══════════════════════════════════════════════ */
+
+/* ── Rain ── */
+.ls-rain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  overflow: hidden;
+}
+.ls-rain::before,
+.ls-rain::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  background-image: repeating-linear-gradient(
+    95deg,
+    transparent,
+    transparent 3px,
+    rgba(170, 190, 220, 0.15) 3px,
+    rgba(170, 190, 220, 0.15) 4px
+  );
+  background-size: 7px 100%;
+  animation: ls-rainFall 0.35s linear infinite;
+}
+.ls-rain::after {
+  background-image: repeating-linear-gradient(
+    98deg,
+    transparent,
+    transparent 5px,
+    rgba(170, 190, 220, 0.1) 5px,
+    rgba(170, 190, 220, 0.1) 6px
+  );
+  background-size: 11px 100%;
+  animation-duration: 0.5s;
+  animation-delay: -0.15s;
+}
+
+@keyframes ls-rainFall {
+  from {
+    background-position: 0 -20px;
+  }
+  to {
+    background-position: -4px 30px;
+  }
+}
+
+/* Wet road reflection for storm */
+.ls-storm .ls-road::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(100, 120, 200, 0.06) 0%,
+    rgba(100, 120, 200, 0.03) 100%
+  );
+  animation: ls-wetShimmer 3s ease-in-out infinite alternate;
+}
+@keyframes ls-wetShimmer {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+/* ── Lightning ── */
+.ls-lightning {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  animation: ls-flash1 5s ease-in-out infinite;
+}
+.ls-lightning::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  animation: ls-flash2 7s ease-in-out infinite;
+  animation-delay: -2.5s;
+}
+
+@keyframes ls-flash1 {
+  0%,
+  88%,
+  92%,
+  95%,
+  100% {
+    background: transparent;
+  }
+  89% {
+    background: rgba(200, 210, 255, 0.3);
+  }
+  90% {
+    background: transparent;
+  }
+  93% {
+    background: rgba(200, 210, 255, 0.2);
+  }
+  94% {
+    background: rgba(200, 210, 255, 0.05);
+  }
+}
+@keyframes ls-flash2 {
+  0%,
+  83%,
+  86%,
+  100% {
+    background: transparent;
+  }
+  84% {
+    background: rgba(220, 220, 255, 0.25);
+  }
+  85% {
+    background: rgba(220, 220, 255, 0.08);
+  }
+}
+
+/* ── Sun ── */
+.ls-sun {
+  position: absolute;
+  right: 12%;
+  top: 6%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff4c0 0%, #ffd700 50%, #f5a623 100%);
+  box-shadow:
+    0 0 40px 12px rgba(255, 215, 0, 0.35),
+    0 0 80px 30px rgba(255, 215, 0, 0.15),
+    0 0 140px 60px rgba(255, 215, 0, 0.06);
+  animation: ls-sunPulse 4s ease-in-out infinite alternate;
+}
+.ls-sun::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 240, 100, 0.12) 0%,
+    transparent 70%
+  );
+  animation: ls-sunRays 6s linear infinite;
+}
+
+@keyframes ls-sunPulse {
+  0% {
+    box-shadow:
+      0 0 40px 12px rgba(255, 215, 0, 0.35),
+      0 0 80px 30px rgba(255, 215, 0, 0.15),
+      0 0 140px 60px rgba(255, 215, 0, 0.06);
+  }
+  100% {
+    box-shadow:
+      0 0 50px 16px rgba(255, 215, 0, 0.4),
+      0 0 100px 40px rgba(255, 215, 0, 0.18),
+      0 0 160px 70px rgba(255, 215, 0, 0.08);
+  }
+}
+@keyframes ls-sunRays {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Extra storm clouds (3 more, faster, darker) ── */
+.ls-storm-cloud {
+  position: absolute;
+  width: 160px;
+  height: 36px;
+  background: rgba(40, 40, 60, 0.5);
+  border-radius: 36px;
+  animation: ls-drift linear infinite;
+  display: none;
+}
+.ls-storm .ls-storm-cloud {
+  display: block;
+}
+.ls-storm-cloud::before {
+  content: "";
+  position: absolute;
+  width: 70px;
+  height: 50px;
+  top: -24px;
+  left: 30px;
+  background: rgba(40, 40, 60, 0.45);
+  border-radius: 50%;
+}
+.ls-storm-cloud::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 38px;
+  top: -14px;
+  right: 25px;
+  background: rgba(40, 40, 60, 0.4);
+  border-radius: 50%;
+}
+.ls-storm-cloud--1 {
+  top: 5%;
+  left: -180px;
+  animation-duration: 15s;
+}
+.ls-storm-cloud--2 {
+  top: 14%;
+  left: -180px;
+  animation-duration: 22s;
+  animation-delay: -8s;
+  opacity: 0.8;
+}
+.ls-storm-cloud--3 {
+  top: 22%;
+  left: -180px;
+  animation-duration: 18s;
+  animation-delay: -12s;
+  opacity: 0.6;
+}
+
+/* ── Extra sunny clouds (bigger, brighter) ── */
+.ls-sunny-cloud {
+  position: absolute;
+  width: 140px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 32px;
+  animation: ls-drift linear infinite;
+  display: none;
+}
+.ls-sunny .ls-sunny-cloud {
+  display: block;
+}
+.ls-sunny-cloud::before {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 44px;
+  top: -20px;
+  left: 25px;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 50%;
+}
+.ls-sunny-cloud::after {
+  content: "";
+  position: absolute;
+  width: 46px;
+  height: 34px;
+  top: -12px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+}
+.ls-sunny-cloud--1 {
+  top: 12%;
+  left: -160px;
+  animation-duration: 55s;
+}
+.ls-sunny-cloud--2 {
+  top: 25%;
+  left: -160px;
+  animation-duration: 70s;
+  animation-delay: -25s;
+  opacity: 0.8;
 }

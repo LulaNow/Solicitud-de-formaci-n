@@ -3,19 +3,40 @@
 import { useState, useEffect } from "react";
 import "./logistics-scene.css";
 
+const WEATHERS = ["night", "storm", "sunny"] as const;
+
 export function LogisticsScene() {
   const [mounted, setMounted] = useState(false);
+  const [weather] = useState(
+    () => WEATHERS[Math.floor(Math.random() * WEATHERS.length)],
+  );
   useEffect(() => setMounted(true), []);
   if (!mounted) return <div className="absolute inset-0 bg-[#0b1120]" />;
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden select-none"
+      className={`ls-${weather} absolute inset-0 overflow-hidden select-none`}
       aria-hidden="true"
     >
       <div className="absolute inset-0 ls-sky" />
+
+      {/* Night: stars + moon */}
       <div className="ls-stars" />
       <div className="ls-moon" />
+
+      {/* Sunny: sun + bright clouds */}
+      <div className="ls-sun" />
+      <div className="ls-sunny-cloud ls-sunny-cloud--1" />
+      <div className="ls-sunny-cloud ls-sunny-cloud--2" />
+
+      {/* Storm: rain + lightning + dark clouds */}
+      <div className="ls-rain" />
+      <div className="ls-lightning" />
+      <div className="ls-storm-cloud ls-storm-cloud--1" />
+      <div className="ls-storm-cloud ls-storm-cloud--2" />
+      <div className="ls-storm-cloud ls-storm-cloud--3" />
+
+      {/* Shared clouds (styled per weather via CSS) */}
       <div className="ls-cloud ls-cloud--1" />
       <div className="ls-cloud ls-cloud--2" />
 
