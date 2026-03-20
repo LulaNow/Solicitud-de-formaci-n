@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, ArrowLeft, Save } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Save, Edit2, X } from "lucide-react";
 import Link from "next/link";
 
 type FieldType =
@@ -52,50 +52,26 @@ const fieldTypes: { value: FieldType; label: string }[] = [
 export default function NewFormPage() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [fields, setFields] = useState<Field[]>([]);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [modalField, setModalField] = useState<Field>({
+    label: "",
+    fieldKey: "",
+    type: "TEXT",
+    required: false,
+    order: 0,
+  });
 
   const createForm = trpc.forms.create.useMutation({
     onSuccess: () => {
       router.push("/forms");
     },
   });
-
-  const addField = () => {
-    setFields([
-      ...fields,
-      {
-        label: "",
-        fieldKey: "",
-        type: "TEXT",
-        required: false,
-        order: fields.length,
-      },
-    ]);
-  };
-
-  const updateField = (index: number, updates: Partial<Field>) => {
-    const newFields = [...fields];
-    newFields[index] = { ...newFields[index], ...updates };
-    setFields(newFields);
-  };
-
-  const removeField = (index: number) => {
-    setFields(fields.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createForm.mutate({
-      name,
-      slug,
-      description,
-      isPublic,
-      fields: fields.map((f, i) => ({ ...f, order: i })),
-    });
-  };
 
   const generateSlug = (text: string) => {
     return text
@@ -104,6 +80,58 @@ export default function NewFormPage() {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+  };
+
+  const openAddFieldModal = () => {
+    setModalField({
+      label: "",
+      fieldKey: "",
+      type: "TEXT",
+      required: false,
+      order: fields.length,
+    });
+    setEditingIndex(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditFieldModal = (index: number) => {
+    setModalField({ ...fields[index] });
+    setEditingIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingIndex(null);
+  };
+
+  const saveField = () => {
+    if (!modalField.label) return;
+
+    if (editingIndex !== null) {
+      const newFields = [...fields];
+      newFields[editingIndex] = modalField;
+      setFields(newFields);
+    } else {
+      setFields([...fields, { ...modalField, order: fields.length }]);
+    }
+    closeModal();
+  };
+
+  const removeField = (index: number) => {
+    setFields(fields.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const slug = generateSlug(name);
+    createForm.mutate({
+      name,
+      slug,
+      description,
+      isPublic,
+      fields: fields.map((f, i) => ({ ...f, order: i })),
+    });
   };
 
   return (
@@ -137,10 +165,7 @@ export default function NewFormPage() {
               <input
                 type="text"
                 value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (!slug) setSlug(generateSlug(e.target.value));
-                }}
+                onChange={(e) => setName(e.target.value)}
                 required
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                 placeholder="Ej: Solicitud de Materiales"
@@ -149,18 +174,13 @@ export default function NewFormPage() {
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Slug (URL) *
+                Slug (URL)
               </label>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(generateSlug(e.target.value))}
-                required
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                placeholder="solicitud-materiales"
-              />
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+                {generateSlug(name) || "se-generara-automaticamente"}
+              </div>
               <p className="mt-1 text-xs text-gray-500">
-                URL: /forms/submit/{slug || "slug"}
+                Se genera automáticamente desde el nombre del formulario
               </p>
             </div>
 
@@ -198,7 +218,7 @@ export default function NewFormPage() {
             <h2 className="text-lg font-semibold text-gray-900">Campos</h2>
             <button
               type="button"
-              onClick={addField}
+              onClick={openAddFieldModal}
               className="flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600"
             >
               <Plus className="h-4 w-4" />
@@ -213,153 +233,53 @@ export default function NewFormPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {fields.map((field, index) => (
                 <div
                   key={index}
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-brand-300 hover:shadow-sm"
                 >
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Campo #{index + 1}
-                    </span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-gray-900">
+                        {field.label || "Sin etiqueta"}
+                      </span>
+                      <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                        {
+                          fieldTypes.find((ft) => ft.value === field.type)
+                            ?.label
+                        }
+                      </span>
+                      {field.required && (
+                        <span className="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700">
+                          Obligatorio
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Key:{" "}
+                      <code className="rounded bg-gray-100 px-1">
+                        {field.fieldKey}
+                      </code>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openEditFieldModal(index)}
+                      className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-600"
+                      title="Editar campo"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
                     <button
                       type="button"
                       onClick={() => removeField(index)}
-                      className="text-red-600 transition-colors hover:text-red-700"
+                      className="rounded-lg p-2 text-gray-600 transition-colors hover:bg-red-50 hover:text-red-600"
+                      title="Eliminar campo"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Etiqueta *
-                      </label>
-                      <input
-                        type="text"
-                        value={field.label}
-                        onChange={(e) => {
-                          updateField(index, {
-                            label: e.target.value,
-                            fieldKey:
-                              field.fieldKey || generateSlug(e.target.value),
-                          });
-                        }}
-                        required
-                        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
-                        placeholder="Nombre del campo"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Key (identificador) *
-                      </label>
-                      <input
-                        type="text"
-                        value={field.fieldKey}
-                        onChange={(e) =>
-                          updateField(index, {
-                            fieldKey: generateSlug(e.target.value),
-                          })
-                        }
-                        required
-                        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
-                        placeholder="campo_nombre"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Tipo de Campo *
-                      </label>
-                      <select
-                        value={field.type}
-                        onChange={(e) =>
-                          updateField(index, { type: e.target.value as FieldType })
-                        }
-                        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
-                      >
-                        {fieldTypes.map((ft) => (
-                          <option key={ft.value} value={ft.value}>
-                            {ft.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Placeholder
-                      </label>
-                      <input
-                        type="text"
-                        value={field.placeholder || ""}
-                        onChange={(e) =>
-                          updateField(index, { placeholder: e.target.value })
-                        }
-                        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
-                        placeholder="Texto de ayuda"
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2">
-                      <label className="mb-1 block text-xs font-medium text-gray-600">
-                        Texto de Ayuda
-                      </label>
-                      <input
-                        type="text"
-                        value={field.helpText || ""}
-                        onChange={(e) =>
-                          updateField(index, { helpText: e.target.value })
-                        }
-                        className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
-                        placeholder="Descripción adicional del campo"
-                      />
-                    </div>
-
-                    {(field.type === "SELECT" ||
-                      field.type === "MULTI_SELECT" ||
-                      field.type === "RADIO") && (
-                      <div className="sm:col-span-2">
-                        <label className="mb-1 block text-xs font-medium text-gray-600">
-                          Opciones (una por línea)
-                        </label>
-                        <textarea
-                          value={(field.options || []).join("\n")}
-                          onChange={(e) =>
-                            updateField(index, {
-                              options: e.target.value
-                                .split("\n")
-                                .filter((o) => o.trim()),
-                            })
-                          }
-                          rows={3}
-                          className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
-                          placeholder="Opción 1&#10;Opción 2&#10;Opción 3"
-                        />
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2 sm:col-span-2">
-                      <input
-                        type="checkbox"
-                        id={`required-${index}`}
-                        checked={field.required}
-                        onChange={(e) =>
-                          updateField(index, { required: e.target.checked })
-                        }
-                        className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-                      />
-                      <label
-                        htmlFor={`required-${index}`}
-                        className="text-xs text-gray-700"
-                      >
-                        Campo obligatorio
-                      </label>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -377,7 +297,7 @@ export default function NewFormPage() {
           </Link>
           <button
             type="submit"
-            disabled={createForm.isPending || !name || !slug || fields.length === 0}
+            disabled={createForm.isPending || !name || fields.length === 0}
             className="flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
           >
             {createForm.isPending ? (
@@ -402,6 +322,178 @@ export default function NewFormPage() {
           </div>
         )}
       </form>
+
+      {/* Modal para agregar/editar campo */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {editingIndex !== null ? "Editar Campo" : "Nuevo Campo"}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Etiqueta del Campo *
+                  </label>
+                  <input
+                    type="text"
+                    value={modalField.label}
+                    onChange={(e) => {
+                      const label = e.target.value;
+                      setModalField({
+                        ...modalField,
+                        label,
+                        fieldKey: generateSlug(label),
+                      });
+                    }}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    placeholder="Ej: Nombre completo"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Key (Identificador)
+                  </label>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+                    {modalField.fieldKey || "se-generara-automaticamente"}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Se genera automáticamente desde la etiqueta
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Tipo de Campo *
+                  </label>
+                  <select
+                    value={modalField.type}
+                    onChange={(e) =>
+                      setModalField({
+                        ...modalField,
+                        type: e.target.value as FieldType,
+                      })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                  >
+                    {fieldTypes.map((ft) => (
+                      <option key={ft.value} value={ft.value}>
+                        {ft.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Placeholder
+                  </label>
+                  <input
+                    type="text"
+                    value={modalField.placeholder || ""}
+                    onChange={(e) =>
+                      setModalField({
+                        ...modalField,
+                        placeholder: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    placeholder="Texto de ejemplo en el campo"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Texto de Ayuda
+                  </label>
+                  <input
+                    type="text"
+                    value={modalField.helpText || ""}
+                    onChange={(e) =>
+                      setModalField({ ...modalField, helpText: e.target.value })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    placeholder="Descripción adicional del campo"
+                  />
+                </div>
+
+                {(modalField.type === "SELECT" ||
+                  modalField.type === "MULTI_SELECT" ||
+                  modalField.type === "RADIO") && (
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Opciones (una por línea)
+                    </label>
+                    <textarea
+                      value={(modalField.options || []).join("\n")}
+                      onChange={(e) =>
+                        setModalField({
+                          ...modalField,
+                          options: e.target.value
+                            .split("\n")
+                            .filter((o) => o.trim()),
+                        })
+                      }
+                      rows={5}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                      placeholder="Opción 1&#10;Opción 2&#10;Opción 3"
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="modal-required"
+                    checked={modalField.required}
+                    onChange={(e) =>
+                      setModalField({
+                        ...modalField,
+                        required: e.target.checked,
+                      })
+                    }
+                    className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  />
+                  <label
+                    htmlFor="modal-required"
+                    className="text-sm text-gray-700"
+                  >
+                    Campo obligatorio
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 border-t border-gray-200 p-4">
+              <button
+                onClick={closeModal}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveField}
+                disabled={!modalField.label}
+                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
+              >
+                {editingIndex !== null ? "Guardar Cambios" : "Agregar Campo"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
