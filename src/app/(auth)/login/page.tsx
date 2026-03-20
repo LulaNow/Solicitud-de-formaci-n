@@ -85,7 +85,7 @@ export default function LoginPage() {
 
       <div
         ref={formRef}
-        className="relative z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/20 bg-white/20 p-8 shadow-2xl backdrop-blur-xl"
+        className="relative z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/20 bg-white/20 p-8 shadow-2xl backdrop-blur-md"
       >
         <div ref={logoRef} className="text-center">
           <div className="relative mx-auto mb-6 h-20 w-48">

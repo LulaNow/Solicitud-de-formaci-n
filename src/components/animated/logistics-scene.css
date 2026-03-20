@@ -63,6 +63,7 @@
 }
 
 .ls-sky {
+  will-change: auto;
   background: linear-gradient(
     180deg,
     var(--sky-1) 0%,
@@ -328,6 +329,8 @@
   background: rgba(255, 255, 255, 0.04);
   border-radius: 24px;
   animation: ls-drift linear infinite;
+  will-change: transform;
+  contain: layout style;
 }
 .ls-cloud::before,
 .ls-cloud::after {
@@ -367,6 +370,8 @@
   left: 0;
   right: 0;
   height: 50%;
+  contain: layout style;
+  will-change: filter;
 }
 .ls-bldg {
   position: absolute;
@@ -713,11 +718,12 @@
 .ls-traffic {
   position: absolute;
   bottom: 48px;
-  left: -50px;
+  left: 0;
   width: 32px;
   height: 14px;
   border-radius: 3px 3px 1px 1px;
   z-index: 4;
+  will-change: transform;
 }
 .ls-traffic::before {
   content: "";
@@ -759,11 +765,12 @@
 .ls-truck {
   position: absolute;
   bottom: 64px;
-  left: calc(100% + 40px);
+  left: 0;
   width: 100px;
   height: 42px;
   z-index: 6;
   animation: ls-truckCycle 28s linear infinite;
+  will-change: transform, opacity;
 }
 .ls-truck__cargo {
   position: absolute;
@@ -847,12 +854,13 @@
 .ls-person {
   position: absolute;
   bottom: 102px;
-  left: calc(100% + 40px);
+  left: 0;
   width: 8px;
   height: 20px;
   z-index: 7;
   animation: ls-personCycle 28s ease-in-out infinite;
   opacity: 0;
+  will-change: transform, opacity;
 }
 .ls-person__head {
   position: absolute;
@@ -922,48 +930,48 @@
 
 @keyframes ls-trafficLR {
   0% {
-    left: -50px;
+    transform: translateX(-50px);
   }
   100% {
-    left: calc(100% + 50px);
+    transform: translateX(calc(100vw + 50px));
   }
 }
 
 @keyframes ls-truckCycle {
   0% {
-    left: calc(100% + 40px);
+    transform: translateX(calc(100vw + 40px));
     opacity: 0;
   }
   1% {
-    left: calc(100% + 40px);
+    transform: translateX(calc(100vw + 40px));
     opacity: 1;
   }
   8% {
-    left: calc(78% - 100px);
+    transform: translateX(calc(78vw - 100px));
     opacity: 1;
   }
   28% {
-    left: calc(78% - 100px);
+    transform: translateX(calc(78vw - 100px));
     opacity: 1;
   }
   42% {
-    left: calc(35% - 20px);
+    transform: translateX(calc(35vw - 20px));
     opacity: 1;
   }
   62% {
-    left: calc(35% - 20px);
+    transform: translateX(calc(35vw - 20px));
     opacity: 1;
   }
   78% {
-    left: -150px;
+    transform: translateX(-150px);
     opacity: 1;
   }
   79% {
-    left: -150px;
+    transform: translateX(-150px);
     opacity: 0;
   }
   100% {
-    left: calc(100% + 40px);
+    transform: translateX(calc(100vw + 40px));
     opacity: 0;
   }
 }
@@ -972,76 +980,63 @@
   0%,
   7% {
     opacity: 0;
-    left: calc(78% - 60px);
-    bottom: 102px;
+    transform: translate(calc(78vw - 60px), 0);
   }
   8% {
     opacity: 1;
-    left: calc(78% - 60px);
-    bottom: 102px;
+    transform: translate(calc(78vw - 60px), 0);
   }
   14% {
     opacity: 1;
-    left: calc(78% - 45px);
-    bottom: 108px;
+    transform: translate(calc(78vw - 45px), -6px);
   }
   16% {
     opacity: 0;
-    left: calc(78% - 45px);
-    bottom: 108px;
+    transform: translate(calc(78vw - 45px), -6px);
   }
   20% {
     opacity: 0;
-    left: calc(78% - 45px);
-    bottom: 108px;
+    transform: translate(calc(78vw - 45px), -6px);
   }
   22% {
     opacity: 1;
-    left: calc(78% - 45px);
-    bottom: 108px;
+    transform: translate(calc(78vw - 45px), -6px);
   }
   28% {
     opacity: 1;
-    left: calc(78% - 60px);
-    bottom: 102px;
+    transform: translate(calc(78vw - 60px), 0);
   }
   29% {
     opacity: 0;
-    left: calc(78% - 60px);
+    transform: translate(calc(78vw - 60px), 0);
   }
   41% {
     opacity: 0;
-    left: calc(35% + 10px);
-    bottom: 102px;
+    transform: translate(calc(35vw + 10px), 0);
   }
   42% {
     opacity: 1;
-    left: calc(35% + 10px);
-    bottom: 102px;
+    transform: translate(calc(35vw + 10px), 0);
   }
   48% {
     opacity: 1;
-    left: calc(35% + 31px);
-    bottom: 108px;
+    transform: translate(calc(35vw + 31px), -6px);
   }
   50% {
     opacity: 0;
-    left: calc(35% + 31px);
+    transform: translate(calc(35vw + 31px), -6px);
   }
   54% {
     opacity: 0;
-    left: calc(35% + 31px);
-    bottom: 108px;
+    transform: translate(calc(35vw + 31px), -6px);
   }
   56% {
     opacity: 1;
-    left: calc(35% + 31px);
-    bottom: 108px;
+    transform: translate(calc(35vw + 31px), -6px);
   }
   62% {
     opacity: 1;
-    left: calc(35% + 10px);
-    bottom: 102px;
+    transform: translate(calc(35vw + 10px), 0);
   }
   63% {
     opacity: 0;
@@ -1123,6 +1118,7 @@
   pointer-events: none;
   z-index: 8;
   overflow: hidden;
+  contain: strict;
 }
 .ls-rain::before,
 .ls-rain::after {
@@ -1246,6 +1242,7 @@
   height: 56px;
   border-radius: 50%;
   background: radial-gradient(circle, #fff4c0 0%, #ffd700 50%, #f5a623 100%);
+  will-change: box-shadow;
   box-shadow:
     0 0 40px 12px rgba(255, 215, 0, 0.35),
     0 0 80px 30px rgba(255, 215, 0, 0.15),
@@ -1397,6 +1394,7 @@
   pointer-events: none;
   z-index: 8;
   overflow: hidden;
+  contain: strict;
 }
 .ls-snowfall::before,
 .ls-snowfall::after {
@@ -1770,6 +1768,7 @@
   pointer-events: none;
   z-index: 7;
   overflow: hidden;
+  contain: strict;
 }
 .ls-bats::before,
 .ls-bats::after {
@@ -1864,6 +1863,7 @@
   pointer-events: none;
   z-index: 8;
   overflow: hidden;
+  contain: strict;
 }
 .ls-cempasuchil::before,
 .ls-cempasuchil::after {
@@ -2030,6 +2030,7 @@
   pointer-events: none;
   z-index: 7;
   overflow: hidden;
+  contain: strict;
 }
 .ls-fireworks::before {
   content: "";
@@ -2145,6 +2146,7 @@
   pointer-events: none;
   z-index: 8;
   overflow: hidden;
+  contain: strict;
 }
 .ls-hearts::before,
 .ls-hearts::after {
@@ -2354,4 +2356,60 @@
 }
 .ls-reyes .ls-road {
   background: #0f1525;
+}
+
+/* ═══════════════════════════════════════════════
+   REDUCED MOTION (accessibility + low-end GPU)
+   ═══════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .ls-cloud,
+  .ls-storm-cloud,
+  .ls-sunny-cloud,
+  .ls-rain::before,
+  .ls-rain::after,
+  .ls-snowfall::before,
+  .ls-snowfall::after,
+  .ls-cempasuchil::before,
+  .ls-cempasuchil::after,
+  .ls-hearts::before,
+  .ls-hearts::after,
+  .ls-bats::before,
+  .ls-bats::after,
+  .ls-fireworks::before,
+  .ls-fireworks::after,
+  .ls-xmas-lights::before,
+  .ls-sun::before,
+  .ls-lightning,
+  .ls-lightning::after,
+  .ls-traffic,
+  .ls-truck,
+  .ls-person,
+  .ls-papel-picado,
+  .ls-pumpkin,
+  .ls-calavera,
+  .ls-star-belen,
+  .ls-stars,
+  .ls-door,
+  .ls-bldg--win-a::after,
+  .ls-bldg--win-b::after,
+  .ls-wingrid--warm,
+  .ls-wingrid--green,
+  .ls-truck__headlight,
+  .ls-person__box {
+    animation: none !important;
+  }
+  .ls-snowfall::before,
+  .ls-snowfall::after,
+  .ls-cempasuchil::before,
+  .ls-cempasuchil::after,
+  .ls-hearts::before,
+  .ls-hearts::after,
+  .ls-rain::before,
+  .ls-rain::after {
+    opacity: 0.4;
+  }
+  .ls-truck {
+    transform: translateX(calc(50vw - 50px));
+    opacity: 1;
+  }
 }
