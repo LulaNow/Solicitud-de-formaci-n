@@ -85,7 +85,7 @@ export default function LoginPage() {
 
       <div
         ref={formRef}
-        className="relative z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-white/95 p-8 shadow-2xl backdrop-blur-md"
+        className="relative z-10 w-full max-w-md space-y-8 rounded-2xl border border-white/20 bg-white/80 p-8 shadow-2xl backdrop-blur-xl"
       >
         <div ref={logoRef} className="text-center">
           <div className="relative mx-auto mb-6 h-20 w-48">
@@ -98,11 +98,8 @@ export default function LoginPage() {
             />
           </div>
           <h2 className="login-element text-2xl font-bold text-gray-900">
-            Portal Empresarial
+            Salud a todo México
           </h2>
-          <p className="login-element mt-2 text-sm text-gray-600">
-            Logística y distribución farmacéutica
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">

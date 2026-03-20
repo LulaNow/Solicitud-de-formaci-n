@@ -1,0 +1,838 @@
+/* ═══ LOGISTICS SCENE ═══ */
+.ls-sky {
+  background: linear-gradient(
+    180deg,
+    #080e1a 0%,
+    #0f1d36 35%,
+    #1a3460 70%,
+    #243f65 100%
+  );
+}
+
+.ls-stars {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  top: 0;
+  left: 0;
+  box-shadow:
+    80px 22px 0 1px rgba(255, 255, 255, 0.55),
+    220px 45px 0 0 rgba(255, 255, 255, 0.4),
+    370px 18px 0 1px rgba(255, 255, 255, 0.5),
+    510px 58px 0 0 rgba(255, 255, 255, 0.35),
+    660px 30px 0 1px rgba(255, 255, 255, 0.5),
+    800px 12px 0 0 rgba(255, 255, 255, 0.45),
+    950px 48px 0 1px rgba(255, 255, 255, 0.4),
+    130px 75px 0 0 rgba(255, 255, 255, 0.3),
+    430px 85px 0 0 rgba(255, 255, 255, 0.35),
+    720px 72px 0 1px rgba(255, 255, 255, 0.5),
+    1100px 25px 0 0 rgba(255, 255, 255, 0.4),
+    1250px 60px 0 1px rgba(255, 255, 255, 0.45),
+    290px 100px 0 0 rgba(255, 255, 255, 0.3),
+    860px 95px 0 0 rgba(255, 255, 255, 0.35);
+  animation: ls-twinkle 5s ease-in-out infinite alternate;
+}
+
+.ls-moon {
+  position: absolute;
+  right: 11%;
+  top: 7%;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e8e4d4;
+  box-shadow:
+    0 0 30px 6px rgba(232, 228, 212, 0.2),
+    inset -5px -3px 0 0 #d4cfbb;
+}
+
+.ls-cloud {
+  position: absolute;
+  width: 100px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 24px;
+  animation: ls-drift linear infinite;
+}
+.ls-cloud::before,
+.ls-cloud::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 50%;
+}
+.ls-cloud::before {
+  width: 44px;
+  height: 34px;
+  top: -16px;
+  left: 16px;
+}
+.ls-cloud::after {
+  width: 34px;
+  height: 26px;
+  top: -8px;
+  right: 14px;
+}
+.ls-cloud--1 {
+  top: 10%;
+  left: -120px;
+  animation-duration: 70s;
+}
+.ls-cloud--2 {
+  top: 20%;
+  left: -120px;
+  animation-duration: 95s;
+  animation-delay: -30s;
+  opacity: 0.5;
+}
+
+.ls-city {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+}
+.ls-bldg {
+  position: absolute;
+  bottom: 110px;
+  border-radius: 2px 2px 0 0;
+}
+
+.ls-bldg--win-a::after,
+.ls-bldg--win-b::after {
+  content: "";
+  position: absolute;
+  inset: 10% 12% 6% 12%;
+}
+.ls-bldg--win-a::after {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 70%,
+      rgba(255, 210, 80, 0.5) 70%,
+      rgba(255, 210, 80, 0.5) 82%,
+      transparent 82%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60%,
+      rgba(255, 210, 80, 0.5) 60%,
+      rgba(255, 210, 80, 0.5) 80%,
+      transparent 80%
+    );
+  animation: ls-windowFlicker 7s ease-in-out infinite alternate;
+}
+.ls-bldg--win-b::after {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 68%,
+      rgba(160, 200, 255, 0.35) 68%,
+      rgba(160, 200, 255, 0.35) 80%,
+      transparent 80%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 55%,
+      rgba(160, 200, 255, 0.35) 55%,
+      rgba(160, 200, 255, 0.35) 78%,
+      transparent 78%
+    );
+  animation: ls-windowFlicker 9s ease-in-out infinite alternate;
+  animation-delay: -3s;
+}
+
+.ls-hospital {
+  background: linear-gradient(180deg, #1b3558, #162c4a);
+  box-shadow: 0 0 30px rgba(30, 70, 130, 0.25);
+  z-index: 2;
+}
+.ls-rooftop {
+  position: absolute;
+  top: -6px;
+  left: 10%;
+  right: 10%;
+  height: 6px;
+  background: #1f3a5c;
+  border-radius: 2px 2px 0 0;
+}
+.ls-pharmacy {
+  background: linear-gradient(180deg, #1a3d30, #16332a);
+  box-shadow: 0 0 20px rgba(77, 139, 49, 0.18);
+  z-index: 2;
+}
+.ls-awning {
+  position: absolute;
+  bottom: -6px;
+  left: -4px;
+  right: -4px;
+  height: 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    #2e7d32 0,
+    #2e7d32 8px,
+    #4d8b31 8px,
+    #4d8b31 16px
+  );
+  border-radius: 0 0 3px 3px;
+}
+
+.ls-wingrid {
+  position: absolute;
+  inset: 14% 10% 5% 10%;
+}
+.ls-wingrid--warm {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 16%,
+      rgba(255, 215, 80, 0.65) 16%,
+      rgba(255, 215, 80, 0.65) 22%,
+      transparent 22%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 18%,
+      rgba(255, 215, 80, 0.65) 18%,
+      rgba(255, 215, 80, 0.65) 32%,
+      transparent 32%
+    );
+  animation: ls-windowFlicker 6s ease-in-out infinite alternate;
+}
+.ls-wingrid--green {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 20%,
+      rgba(180, 230, 180, 0.5) 20%,
+      rgba(180, 230, 180, 0.5) 30%,
+      transparent 30%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 16%,
+      rgba(180, 230, 180, 0.5) 16%,
+      rgba(180, 230, 180, 0.5) 36%,
+      transparent 36%
+    );
+  animation: ls-windowFlicker 5s ease-in-out infinite alternate;
+  animation-delay: -2s;
+}
+
+.ls-cross {
+  position: absolute;
+  top: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+}
+.ls-cross::before,
+.ls-cross::after {
+  content: "";
+  position: absolute;
+  border-radius: 1px;
+}
+.ls-cross::before {
+  left: 50%;
+  top: 0;
+  width: 30%;
+  height: 100%;
+  transform: translateX(-50%);
+}
+.ls-cross::after {
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 30%;
+  transform: translateY(-50%);
+}
+.ls-cross--red::before,
+.ls-cross--red::after {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+}
+.ls-cross--green::before,
+.ls-cross--green::after {
+  background: #4d8b31;
+  box-shadow: 0 0 8px rgba(77, 139, 49, 0.6);
+}
+
+.ls-label {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+.ls-label--green {
+  color: rgba(139, 195, 74, 0.6);
+}
+
+/* ── Doors ── */
+.ls-door {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 18px;
+  background: #0d1a2e;
+  border-radius: 2px 2px 0 0;
+  transform-origin: left bottom;
+  z-index: 1;
+}
+.ls-door--hospital {
+  animation: ls-doorHospital 28s ease-in-out infinite;
+}
+.ls-door--pharmacy {
+  animation: ls-doorPharmacy 28s ease-in-out infinite;
+}
+
+/* ── Road ── */
+.ls-sidewalk-top {
+  position: absolute;
+  bottom: 102px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #252538;
+}
+.ls-road {
+  position: absolute;
+  bottom: 38px;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #1e1e30;
+}
+.ls-road-lines {
+  position: absolute;
+  bottom: 68px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 28px,
+    rgba(255, 200, 0, 0.45) 28px,
+    rgba(255, 200, 0, 0.45) 56px
+  );
+}
+.ls-sidewalk-bottom {
+  position: absolute;
+  bottom: 30px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #252538;
+}
+.ls-curb {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: #12121f;
+}
+
+.ls-lamp {
+  position: absolute;
+  bottom: 110px;
+  width: 2px;
+  height: 40px;
+  background: #444;
+  z-index: 3;
+}
+.ls-lamp::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -4px;
+  width: 10px;
+  height: 5px;
+  background: #666;
+  border-radius: 2px;
+}
+.ls-lamp::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -16px;
+  width: 34px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 20%,
+    rgba(255, 230, 150, 0.12) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.ls-tree {
+  position: absolute;
+  bottom: 110px;
+  width: 4px;
+  height: 18px;
+  background: #2a1e14;
+  z-index: 3;
+}
+.ls-tree::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: -8px;
+  width: 20px;
+  height: 18px;
+  border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(ellipse at 50% 60%, #2a6b1c, #18440e);
+}
+
+.ls-parked {
+  position: absolute;
+  bottom: 52px;
+  width: 36px;
+  height: 16px;
+  background: #3a4868;
+  border-radius: 3px 3px 1px 1px;
+  z-index: 3;
+}
+.ls-parked::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 6px;
+  right: 6px;
+  height: 8px;
+  background: #3a4868;
+  border-radius: 3px 3px 0 0;
+}
+.ls-parked::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #111;
+  box-shadow: 20px 0 0 0 #111;
+}
+
+/* ── Traffic cars (bottom lane, L→R) ── */
+.ls-traffic {
+  position: absolute;
+  bottom: 48px;
+  left: -50px;
+  width: 32px;
+  height: 14px;
+  border-radius: 3px 3px 1px 1px;
+  z-index: 4;
+}
+.ls-traffic::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 5px;
+  right: 5px;
+  height: 7px;
+  border-radius: 3px 3px 0 0;
+  background: inherit;
+}
+.ls-traffic::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #111;
+  box-shadow: 18px 0 0 0 #111;
+}
+.ls-traffic--1 {
+  background: #5a3a3a;
+  animation: ls-trafficLR 9s linear infinite;
+}
+.ls-traffic--2 {
+  background: #3a4a5a;
+  animation: ls-trafficLR 12s linear infinite;
+  animation-delay: -4s;
+}
+.ls-traffic--3 {
+  background: #4a4a3a;
+  animation: ls-trafficLR 7.5s linear infinite;
+  animation-delay: -7s;
+}
+
+/* ═══ NADRO TRUCK ═══ */
+.ls-truck {
+  position: absolute;
+  bottom: 64px;
+  left: calc(100% + 40px);
+  width: 100px;
+  height: 42px;
+  z-index: 6;
+  animation: ls-truckCycle 28s linear infinite;
+}
+.ls-truck__cargo {
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  width: 58px;
+  height: 36px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.ls-truck__cargo-inner {
+  position: absolute;
+  inset: 2px;
+  background: #4d8b31;
+  border-radius: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ls-truck__brand {
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.ls-truck__cabin {
+  position: absolute;
+  left: 0;
+  bottom: 6px;
+  width: 32px;
+  height: 28px;
+  background: linear-gradient(135deg, #2e7d32, #256b2a);
+  border-radius: 6px 2px 2px 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.ls-truck__windshield {
+  position: absolute;
+  top: 4px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(135, 206, 235, 0.45),
+    rgba(135, 206, 235, 0.25)
+  );
+  border-radius: 3px 1px 1px 1px;
+}
+.ls-truck__wheel {
+  position: absolute;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #333 40%, #111 60%);
+  border: 1.5px solid #444;
+}
+.ls-truck__wheel--rear {
+  right: 8px;
+}
+.ls-truck__wheel--front {
+  left: 8px;
+}
+.ls-truck__headlight {
+  position: absolute;
+  bottom: 10px;
+  left: -8px;
+  width: 16px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 240, 120, 0.45) 0%,
+    transparent 70%
+  );
+  animation: ls-headlightPulse 2.5s ease-in-out infinite alternate;
+}
+
+/* ═══ DELIVERY PERSON ═══ */
+.ls-person {
+  position: absolute;
+  bottom: 102px;
+  left: calc(100% + 40px);
+  width: 8px;
+  height: 20px;
+  z-index: 7;
+  animation: ls-personCycle 28s ease-in-out infinite;
+  opacity: 0;
+}
+.ls-person__head {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d4a574;
+}
+.ls-person__body {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: 8px;
+  height: 14px;
+  background: #2e7d32;
+  border-radius: 2px 2px 1px 1px;
+}
+.ls-person__box {
+  position: absolute;
+  top: 8px;
+  right: -6px;
+  width: 8px;
+  height: 6px;
+  background: #c4a46c;
+  border-radius: 1px;
+  animation: ls-boxVis 28s ease-in-out infinite;
+}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes ls-twinkle {
+  0% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ls-drift {
+  from {
+    transform: translateX(-160px);
+  }
+  to {
+    transform: translateX(calc(100vw + 160px));
+  }
+}
+@keyframes ls-windowFlicker {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.72;
+  }
+}
+@keyframes ls-headlightPulse {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes ls-trafficLR {
+  0% {
+    left: -50px;
+  }
+  100% {
+    left: calc(100% + 50px);
+  }
+}
+
+@keyframes ls-truckCycle {
+  0% {
+    left: calc(100% + 40px);
+    opacity: 0;
+  }
+  1% {
+    left: calc(100% + 40px);
+    opacity: 1;
+  }
+  8% {
+    left: calc(78% - 100px);
+    opacity: 1;
+  }
+  28% {
+    left: calc(78% - 100px);
+    opacity: 1;
+  }
+  42% {
+    left: calc(35% - 20px);
+    opacity: 1;
+  }
+  62% {
+    left: calc(35% - 20px);
+    opacity: 1;
+  }
+  78% {
+    left: -150px;
+    opacity: 1;
+  }
+  79% {
+    left: -150px;
+    opacity: 0;
+  }
+  100% {
+    left: calc(100% + 40px);
+    opacity: 0;
+  }
+}
+
+@keyframes ls-personCycle {
+  0%,
+  7% {
+    opacity: 0;
+    left: calc(78% - 60px);
+    bottom: 102px;
+  }
+  8% {
+    opacity: 1;
+    left: calc(78% - 60px);
+    bottom: 102px;
+  }
+  14% {
+    opacity: 1;
+    left: calc(78% - 45px);
+    bottom: 108px;
+  }
+  16% {
+    opacity: 0;
+    left: calc(78% - 45px);
+    bottom: 108px;
+  }
+  20% {
+    opacity: 0;
+    left: calc(78% - 45px);
+    bottom: 108px;
+  }
+  22% {
+    opacity: 1;
+    left: calc(78% - 45px);
+    bottom: 108px;
+  }
+  28% {
+    opacity: 1;
+    left: calc(78% - 60px);
+    bottom: 102px;
+  }
+  29% {
+    opacity: 0;
+    left: calc(78% - 60px);
+  }
+  41% {
+    opacity: 0;
+    left: calc(35% + 10px);
+    bottom: 102px;
+  }
+  42% {
+    opacity: 1;
+    left: calc(35% + 10px);
+    bottom: 102px;
+  }
+  48% {
+    opacity: 1;
+    left: calc(35% + 31px);
+    bottom: 108px;
+  }
+  50% {
+    opacity: 0;
+    left: calc(35% + 31px);
+  }
+  54% {
+    opacity: 0;
+    left: calc(35% + 31px);
+    bottom: 108px;
+  }
+  56% {
+    opacity: 1;
+    left: calc(35% + 31px);
+    bottom: 108px;
+  }
+  62% {
+    opacity: 1;
+    left: calc(35% + 10px);
+    bottom: 102px;
+  }
+  63% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ls-boxVis {
+  0%,
+  8% {
+    opacity: 1;
+  }
+  16% {
+    opacity: 0;
+  }
+  28%,
+  42% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes ls-doorHospital {
+  0%,
+  13% {
+    transform: translateX(-50%) scaleX(1);
+  }
+  15% {
+    transform: translateX(-50%) scaleX(0.15);
+  }
+  21% {
+    transform: translateX(-50%) scaleX(0.15);
+  }
+  23% {
+    transform: translateX(-50%) scaleX(1);
+  }
+  100% {
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+@keyframes ls-doorPharmacy {
+  0%,
+  47% {
+    transform: translateX(-50%) scaleX(1);
+  }
+  49% {
+    transform: translateX(-50%) scaleX(0.15);
+  }
+  55% {
+    transform: translateX(-50%) scaleX(0.15);
+  }
+  57% {
+    transform: translateX(-50%) scaleX(1);
+  }
+  100% {
+    transform: translateX(-50%) scaleX(1);
+  }
+}
