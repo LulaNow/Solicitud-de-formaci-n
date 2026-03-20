@@ -158,14 +158,17 @@ function Toggle({
 }) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
       onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
         enabled ? activeColor : "bg-gray-300"
       }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          enabled ? "translate-x-5" : "translate-x-0.5"
+        className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+          enabled ? "translate-x-6" : "translate-x-1"
         }`}
       />
     </button>
