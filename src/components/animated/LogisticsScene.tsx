@@ -1,17 +1,75 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { trpc } from "@/lib/trpc/client";
 import "./logistics-scene.css";
 
-const WEATHERS = ["night", "storm", "sunny"] as const;
+type Weather = "night" | "storm" | "sunny" | "snow" | "christmas";
+const RANDOM_BASE: Weather[] = ["night", "storm", "sunny"];
+
+async function getAutoWeather(): Promise<Weather> {
+  const hour = new Date().getHours();
+  const isDay = hour >= 6 && hour < 19;
+
+  try {
+    const pos = await new Promise<GeolocationPosition>((res, rej) =>
+      navigator.geolocation.getCurrentPosition(res, rej, { timeout: 3000 }),
+    );
+    const { latitude, longitude } = pos.coords;
+    const resp = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`,
+    );
+    if (resp.ok) {
+      const data = await resp.json();
+      const code: number = data.current_weather?.weathercode ?? 0;
+      if (code >= 71 && code <= 77) return "snow";
+      if (code >= 85 && code <= 86) return "snow";
+      if (code >= 95) return "storm";
+      if (code >= 51 && code <= 67) return "storm";
+      if (code >= 80 && code <= 82) return "storm";
+    }
+  } catch {
+    /* geolocation/fetch failed — fall back to time-based */
+  }
+
+  return isDay ? "sunny" : "night";
+}
 
 export function LogisticsScene() {
   const [mounted, setMounted] = useState(false);
-  const [weather] = useState(
-    () => WEATHERS[Math.floor(Math.random() * WEATHERS.length)],
-  );
+  const [weather, setWeather] = useState<Weather>("night");
+  const { data: config } = trpc.appearance.getSceneConfig.useQuery(undefined, {
+    staleTime: 60_000,
+    retry: false,
+  });
+
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!config) return;
+    const mode = config.sceneMode;
+
+    if (mode === "random") {
+      setWeather(RANDOM_BASE[Math.floor(Math.random() * RANDOM_BASE.length)]);
+    } else if (mode === "auto") {
+      getAutoWeather().then(setWeather);
+    } else if (
+      ["night", "storm", "sunny", "snow", "christmas"].includes(mode)
+    ) {
+      setWeather(mode as Weather);
+    } else {
+      setWeather(RANDOM_BASE[Math.floor(Math.random() * RANDOM_BASE.length)]);
+    }
+
+    if (config.christmasEnabled && mode !== "christmas") {
+      setWeather("christmas");
+    }
+  }, [config]);
+
   if (!mounted) return <div className="absolute inset-0 bg-[#0b1120]" />;
+
+  const showSnowOverlay =
+    config?.snowEnabled && weather !== "snow" && weather !== "christmas";
 
   return (
     <div
@@ -20,7 +78,7 @@ export function LogisticsScene() {
     >
       <div className="absolute inset-0 ls-sky" />
 
-      {/* Night: stars + moon */}
+      {/* Night / Christmas: stars + moon */}
       <div className="ls-stars" />
       <div className="ls-moon" />
 
@@ -35,6 +93,17 @@ export function LogisticsScene() {
       <div className="ls-storm-cloud ls-storm-cloud--1" />
       <div className="ls-storm-cloud ls-storm-cloud--2" />
       <div className="ls-storm-cloud ls-storm-cloud--3" />
+
+      {/* Snow / Christmas: snowfall */}
+      <div className="ls-snowfall" />
+
+      {/* Christmas: lights + tree + star */}
+      <div className="ls-xmas-lights" />
+      <div className="ls-xmas-tree" />
+      <div className="ls-xmas-star" />
+
+      {/* Snow overlay (admin toggle — adds snow on any base scene) */}
+      {showSnowOverlay && <div className="ls-snowfall" style={{ zIndex: 8 }} />}
 
       {/* Shared clouds (styled per weather via CSS) */}
       <div className="ls-cloud ls-cloud--1" />

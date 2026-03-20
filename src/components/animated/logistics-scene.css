@@ -19,6 +19,18 @@
   --sky-3: #72bdf5;
   --sky-4: #9ad4ff;
 }
+.ls-snow {
+  --sky-1: #8a9ab0;
+  --sky-2: #9caabb;
+  --sky-3: #b0bcc8;
+  --sky-4: #c8d2dc;
+}
+.ls-christmas {
+  --sky-1: #06091a;
+  --sky-2: #0e1830;
+  --sky-3: #162040;
+  --sky-4: #1e2850;
+}
 
 .ls-sky {
   background: linear-gradient(
@@ -33,13 +45,18 @@
 /* ── Weather visibility ── */
 .ls-storm .ls-stars,
 .ls-sunny .ls-stars,
+.ls-snow .ls-stars,
 .ls-storm .ls-moon,
-.ls-sunny .ls-moon {
+.ls-sunny .ls-moon,
+.ls-snow .ls-moon {
   display: none;
 }
 .ls-rain,
 .ls-lightning,
-.ls-sun {
+.ls-sun,
+.ls-snowfall,
+.ls-xmas-lights,
+.ls-xmas-tree {
   display: none;
 }
 .ls-storm .ls-rain {
@@ -51,6 +68,20 @@
 .ls-sunny .ls-sun {
   display: block;
 }
+.ls-snow .ls-snowfall,
+.ls-christmas .ls-snowfall {
+  display: block;
+}
+.ls-christmas .ls-xmas-lights,
+.ls-christmas .ls-xmas-tree {
+  display: block;
+}
+.ls-christmas .ls-stars {
+  display: block;
+}
+.ls-christmas .ls-moon {
+  display: block;
+}
 
 /* ── City filter per weather ── */
 .ls-storm .ls-city {
@@ -58,6 +89,12 @@
 }
 .ls-sunny .ls-city {
   filter: brightness(1.35) saturate(0.8);
+}
+.ls-snow .ls-city {
+  filter: brightness(1.15) saturate(0.6);
+}
+.ls-christmas .ls-city {
+  filter: saturate(1.1);
 }
 
 /* ── Cloud overrides ── */
@@ -1233,4 +1270,376 @@
   animation-duration: 70s;
   animation-delay: -25s;
   opacity: 0.8;
+}
+
+/* ═══════════════════════════════════════════════
+   SNOW EFFECTS
+   ═══════════════════════════════════════════════ */
+
+.ls-snowfall {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8;
+  overflow: hidden;
+}
+.ls-snowfall::before,
+.ls-snowfall::after {
+  content: "";
+  position: absolute;
+  top: -60px;
+  left: 0;
+  width: 100%;
+  height: calc(100% + 60px);
+  background-image:
+    radial-gradient(2px 2px at 40px 30px, #fff 50%, transparent 50%),
+    radial-gradient(
+      3px 3px at 120px 80px,
+      rgba(255, 255, 255, 0.9) 50%,
+      transparent 50%
+    ),
+    radial-gradient(2px 2px at 200px 50px, #fff 50%, transparent 50%),
+    radial-gradient(
+      3px 3px at 280px 120px,
+      rgba(255, 255, 255, 0.85) 50%,
+      transparent 50%
+    ),
+    radial-gradient(2px 2px at 360px 20px, #fff 50%, transparent 50%),
+    radial-gradient(
+      2px 2px at 440px 100px,
+      rgba(255, 255, 255, 0.9) 50%,
+      transparent 50%
+    ),
+    radial-gradient(3px 3px at 520px 60px, #fff 50%, transparent 50%),
+    radial-gradient(
+      2px 2px at 600px 130px,
+      rgba(255, 255, 255, 0.85) 50%,
+      transparent 50%
+    ),
+    radial-gradient(3px 3px at 680px 40px, #fff 50%, transparent 50%),
+    radial-gradient(
+      2px 2px at 760px 110px,
+      rgba(255, 255, 255, 0.9) 50%,
+      transparent 50%
+    ),
+    radial-gradient(2px 2px at 840px 70px, #fff 50%, transparent 50%),
+    radial-gradient(
+      3px 3px at 920px 25px,
+      rgba(255, 255, 255, 0.85) 50%,
+      transparent 50%
+    ),
+    radial-gradient(2px 2px at 1000px 90px, #fff 50%, transparent 50%),
+    radial-gradient(
+      3px 3px at 1080px 55px,
+      rgba(255, 255, 255, 0.9) 50%,
+      transparent 50%
+    );
+  background-size: 1120px 160px;
+  animation: ls-snowFall 6s linear infinite;
+}
+.ls-snowfall::after {
+  background-image:
+    radial-gradient(
+      3px 3px at 60px 40px,
+      rgba(255, 255, 255, 0.7) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      2px 2px at 150px 90px,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      4px 4px at 250px 20px,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      2px 2px at 340px 70px,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      3px 3px at 430px 110px,
+      rgba(255, 255, 255, 0.65) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      2px 2px at 530px 50px,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      4px 4px at 620px 30px,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      2px 2px at 710px 80px,
+      rgba(255, 255, 255, 0.75) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      3px 3px at 800px 120px,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 50%
+    ),
+    radial-gradient(
+      2px 2px at 900px 60px,
+      rgba(255, 255, 255, 0.8) 50%,
+      transparent 50%
+    );
+  background-size: 960px 140px;
+  animation-duration: 9s;
+  animation-delay: -3s;
+}
+
+@keyframes ls-snowFall {
+  from {
+    transform: translateY(-160px);
+  }
+  to {
+    transform: translateY(160px);
+  }
+}
+
+/* Snow on rooftops */
+.ls-snow .ls-hospital::after,
+.ls-christmas .ls-hospital::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -2px;
+  right: -2px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 3px;
+  z-index: 3;
+}
+.ls-snow .ls-pharmacy::after,
+.ls-christmas .ls-pharmacy::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -2px;
+  right: -2px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+  z-index: 3;
+}
+
+/* Snow clouds (overcast gray) */
+.ls-snow .ls-cloud,
+.ls-snow .ls-cloud::before,
+.ls-snow .ls-cloud::after {
+  background: rgba(180, 190, 200, 0.35);
+}
+.ls-snow .ls-cloud--1 {
+  animation-duration: 40s;
+  opacity: 0.9;
+}
+.ls-snow .ls-cloud--2 {
+  animation-duration: 55s;
+  opacity: 0.7;
+}
+
+/* Snow road overlay */
+.ls-snow .ls-road {
+  background: #3a3e50;
+}
+.ls-snow .ls-sidewalk-top,
+.ls-snow .ls-sidewalk-bottom {
+  background: #4a5060;
+}
+
+/* ═══════════════════════════════════════════════
+   CHRISTMAS / NAVIDAD NADRO
+   ═══════════════════════════════════════════════ */
+
+/* Christmas lights string — positioned above buildings */
+.ls-xmas-lights {
+  position: absolute;
+  bottom: 270px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  z-index: 3;
+}
+.ls-xmas-lights::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(4px 4px at 5% 50%, #ff3333 50%, transparent 50%),
+    radial-gradient(4px 4px at 10% 50%, #33ff33 50%, transparent 50%),
+    radial-gradient(4px 4px at 15% 50%, #ffdd33 50%, transparent 50%),
+    radial-gradient(4px 4px at 20% 50%, #ff3333 50%, transparent 50%),
+    radial-gradient(4px 4px at 25% 50%, #3399ff 50%, transparent 50%),
+    radial-gradient(4px 4px at 30% 50%, #33ff33 50%, transparent 50%),
+    radial-gradient(4px 4px at 35% 50%, #ffdd33 50%, transparent 50%),
+    radial-gradient(4px 4px at 40% 50%, #ff3333 50%, transparent 50%),
+    radial-gradient(4px 4px at 45% 50%, #33ff33 50%, transparent 50%),
+    radial-gradient(4px 4px at 50% 50%, #3399ff 50%, transparent 50%),
+    radial-gradient(4px 4px at 55% 50%, #ffdd33 50%, transparent 50%),
+    radial-gradient(4px 4px at 60% 50%, #ff3333 50%, transparent 50%),
+    radial-gradient(4px 4px at 65% 50%, #33ff33 50%, transparent 50%),
+    radial-gradient(4px 4px at 70% 50%, #ffdd33 50%, transparent 50%),
+    radial-gradient(4px 4px at 75% 50%, #3399ff 50%, transparent 50%),
+    radial-gradient(4px 4px at 80% 50%, #ff3333 50%, transparent 50%),
+    radial-gradient(4px 4px at 85% 50%, #33ff33 50%, transparent 50%),
+    radial-gradient(4px 4px at 90% 50%, #ffdd33 50%, transparent 50%),
+    radial-gradient(4px 4px at 95% 50%, #ff3333 50%, transparent 50%);
+  animation: ls-xmasFlicker 1.5s ease-in-out infinite alternate;
+}
+@keyframes ls-xmasFlicker {
+  0% {
+    opacity: 0.7;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.3);
+  }
+  100% {
+    opacity: 0.75;
+    filter: brightness(0.9);
+  }
+}
+
+/* Christmas tree */
+.ls-xmas-tree {
+  position: absolute;
+  bottom: 110px;
+  left: 28%;
+  width: 0;
+  height: 0;
+  z-index: 3;
+}
+.ls-xmas-tree::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 40px solid #1a5c1a;
+  filter: drop-shadow(0 0 6px rgba(0, 80, 0, 0.3));
+}
+.ls-xmas-tree::after {
+  content: "";
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 30px solid #1f6b1f;
+  filter: drop-shadow(0 0 4px rgba(0, 80, 0, 0.2));
+}
+
+/* Tree star */
+.ls-xmas-star {
+  position: absolute;
+  bottom: 168px;
+  left: calc(28% - 3px);
+  width: 8px;
+  height: 8px;
+  background: #ffd700;
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+  animation: ls-starGlow 2s ease-in-out infinite alternate;
+  display: none;
+}
+.ls-christmas .ls-xmas-star {
+  display: block;
+}
+@keyframes ls-starGlow {
+  0% {
+    filter: brightness(1) drop-shadow(0 0 2px #ffd700);
+  }
+  100% {
+    filter: brightness(1.5) drop-shadow(0 0 6px #ffd700);
+  }
+}
+
+/* Christmas cloud overrides (thin wispy) */
+.ls-christmas .ls-cloud,
+.ls-christmas .ls-cloud::before,
+.ls-christmas .ls-cloud::after {
+  background: rgba(255, 255, 255, 0.06);
+}
+.ls-christmas .ls-cloud--1 {
+  animation-duration: 60s;
+  opacity: 0.6;
+}
+.ls-christmas .ls-cloud--2 {
+  animation-duration: 80s;
+  opacity: 0.4;
+}
+
+/* Warm window glow for Christmas */
+.ls-christmas .ls-bldg--win-a::after {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 70%,
+      rgba(255, 180, 60, 0.6) 70%,
+      rgba(255, 180, 60, 0.6) 82%,
+      transparent 82%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60%,
+      rgba(255, 180, 60, 0.6) 60%,
+      rgba(255, 180, 60, 0.6) 80%,
+      transparent 80%
+    );
+}
+.ls-christmas .ls-bldg--win-b::after {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 68%,
+      rgba(255, 100, 100, 0.4) 68%,
+      rgba(255, 100, 100, 0.4) 80%,
+      transparent 80%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 55%,
+      rgba(100, 255, 100, 0.35) 55%,
+      rgba(100, 255, 100, 0.35) 78%,
+      transparent 78%
+    );
+}
+
+/* Christmas hospital/pharmacy accents */
+.ls-christmas .ls-hospital {
+  box-shadow: 0 0 30px rgba(200, 30, 30, 0.15);
+}
+.ls-christmas .ls-pharmacy {
+  box-shadow: 0 0 20px rgba(30, 200, 30, 0.15);
+}
+.ls-christmas .ls-road {
+  background: #1a1a2c;
 }

@@ -7,6 +7,7 @@ import { requestsRouter } from "./requests";
 import { menusRouter } from "./menus";
 import { tasksRouter } from "./tasks";
 import { mfaRouter } from "./mfa";
+import { appearanceRouter } from "./appearance";
 
 export const appRouter = router({
   users: usersRouter,
@@ -17,6 +18,7 @@ export const appRouter = router({
   menus: menusRouter,
   tasks: tasksRouter,
   mfa: mfaRouter,
+  appearance: appearanceRouter,
 });
 
 export type AppRouter = typeof appRouter;
