@@ -79,8 +79,11 @@ export default function NewFormPage() {
   const [resizeStartX, setResizeStartX] = useState(0);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
 
+  const utils = trpc.useUtils();
+
   const createForm = trpc.forms.create.useMutation({
     onSuccess: () => {
+      utils.forms.list.invalidate();
       router.push("/forms");
     },
   });
