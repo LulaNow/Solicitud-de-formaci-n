@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
-import "./logistics-scene.css";
 
 type Scene =
   | "night"
@@ -14,7 +13,12 @@ type Scene =
   | "muertos"
   | "patrias"
   | "valentine"
-  | "reyes";
+  | "reyes"
+  | "constitucion"
+  | "bandera"
+  | "juarez"
+  | "cincodemayo"
+  | "revolucion";
 
 const ALL_SCENES: Scene[] = [
   "night",
@@ -27,6 +31,11 @@ const ALL_SCENES: Scene[] = [
   "patrias",
   "valentine",
   "reyes",
+  "constitucion",
+  "bandera",
+  "juarez",
+  "cincodemayo",
+  "revolucion",
 ];
 const RANDOM_BASE: Scene[] = ["night", "storm", "sunny"];
 
@@ -49,12 +58,44 @@ const CALENDAR_EVENTS: CalendarEvent[] = [
     endDay: 6,
   },
   {
+    key: "event_constitucion",
+    scene: "constitucion",
+    startMonth: 2,
+    startDay: 4,
+    endMonth: 2,
+    endDay: 5,
+  },
+  {
     key: "event_valentine",
     scene: "valentine",
     startMonth: 2,
     startDay: 13,
     endMonth: 2,
     endDay: 14,
+  },
+  {
+    key: "event_bandera",
+    scene: "bandera",
+    startMonth: 2,
+    startDay: 23,
+    endMonth: 2,
+    endDay: 24,
+  },
+  {
+    key: "event_juarez",
+    scene: "juarez",
+    startMonth: 3,
+    startDay: 20,
+    endMonth: 3,
+    endDay: 21,
+  },
+  {
+    key: "event_cincodemayo",
+    scene: "cincodemayo",
+    startMonth: 5,
+    startDay: 4,
+    endMonth: 5,
+    endDay: 5,
   },
   {
     key: "event_patrias",
@@ -79,6 +120,14 @@ const CALENDAR_EVENTS: CalendarEvent[] = [
     startDay: 1,
     endMonth: 11,
     endDay: 2,
+  },
+  {
+    key: "event_revolucion",
+    scene: "revolucion",
+    startMonth: 11,
+    startDay: 19,
+    endMonth: 11,
+    endDay: 20,
   },
   {
     key: "event_christmas",
@@ -143,6 +192,24 @@ export function LogisticsScene() {
   });
 
   useEffect(() => setMounted(true), []);
+
+  // Dynamic CSS loading - only load the active scene's CSS
+  useEffect(() => {
+    const linkId = `scene-css-${weather}`;
+    const existingLink = document.getElementById(linkId);
+
+    if (!existingLink) {
+      // Remove all other scene CSS
+      document.querySelectorAll('[id^="scene-css-"]').forEach(el => el.remove());
+
+      // Load only the active scene CSS
+      const link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      link.href = `/styles/scenes/${weather}.css`;
+      document.head.appendChild(link);
+    }
+  }, [weather]);
 
   useEffect(() => {
     if (!config) return;
@@ -223,6 +290,22 @@ export function LogisticsScene() {
 
       {/* Día de Reyes: Star of Bethlehem */}
       <div className="ls-star-belen" />
+
+      {/* Día de la Constitución */}
+      <div className="ls-mexican-flag" />
+
+      {/* Día de la Bandera */}
+      <div className="ls-eagle" />
+
+      {/* Benito Juárez */}
+      <div className="ls-benito-juarez" />
+
+      {/* Cinco de Mayo */}
+      <div className="ls-cannon" />
+      <div className="ls-sombrero" />
+
+      {/* Revolución Mexicana */}
+      {/* Uses ls-sombrero, ls-cannon, ls-mexican-flag already defined */}
 
       {/* Snow overlay (admin toggle — adds snow on any base scene) */}
       {showSnowOverlay && <div className="ls-snowfall" style={{ zIndex: 8 }} />}

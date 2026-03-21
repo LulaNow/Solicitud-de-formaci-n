@@ -1,0 +1,55 @@
+/* Fiestas Patrias - 15-16 de Septiembre */
+@import './base.css';
+
+.ls-patrias .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #006847 0%,
+    #FFFFFF 50%,
+    #CE1126 100%
+  );
+}
+
+.ls-patrias .ls-fireworks,
+.ls-patrias .ls-tricolor {
+  opacity: 1;
+}
+
+.ls-patrias .ls-fireworks {
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(206, 17, 38, 0.4) 0%, transparent 3%),
+    radial-gradient(circle at 80% 40%, rgba(0, 104, 71, 0.4) 0%, transparent 3%),
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.5) 0%, transparent 2%);
+  animation: ls-fireworksBurst 3s infinite;
+  contain: strict;
+}
+
+@keyframes ls-fireworksBurst {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.ls-patrias .ls-tricolor {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 150px;
+  background: linear-gradient(to right, #006847 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #CE1126 66.66%);
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: ls-flagWave 2s infinite ease-in-out;
+}
+
+@keyframes ls-flagWave {
+  0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+  50% { transform: translateX(-50%) rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-patrias .ls-fireworks,
+  .ls-patrias .ls-tricolor {
+    animation: none;
+  }
+}

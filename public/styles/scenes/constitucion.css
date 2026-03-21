@@ -1,0 +1,45 @@
+/* Día de la Constitución - 5 de Febrero */
+@import './base.css';
+
+.ls-constitucion .ls-sky {
+  background: linear-gradient(
+    135deg,
+    #006847 0%,
+    #FFFFFF 50%,
+    #CE1126 100%
+  );
+}
+
+.ls-constitucion .ls-mexican-flag {
+  opacity: 1;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 80px;
+  background: linear-gradient(to right, #006847 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #CE1126 66.66%);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  animation: ls-constitutionWave 3s infinite ease-in-out;
+}
+
+.ls-constitucion .ls-mexican-flag::after {
+  content: '📜';
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes ls-constitutionWave {
+  0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+  50% { transform: translateX(-50%) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-constitucion .ls-mexican-flag {
+    animation: none;
+  }
+}

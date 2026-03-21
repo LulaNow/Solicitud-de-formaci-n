@@ -1,0 +1,83 @@
+/* San Valentín - Elegante y Romántico (NO estilo motel) */
+@import './base.css';
+
+.ls-valentine .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #ffeef8 0%,
+    #ffe0f0 30%,
+    #ffd4e8 60%,
+    #ffc8e0 100%
+  );
+}
+
+.ls-valentine .ls-hearts {
+  opacity: 1;
+  inset: 0;
+  overflow: hidden;
+  contain: strict;
+}
+
+.ls-valentine .ls-hearts::before,
+.ls-valentine .ls-hearts::after {
+  content: '♥';
+  position: absolute;
+  font-size: 1.5rem;
+  color: rgba(255, 105, 180, 0.3);
+  animation: ls-floatHeart 15s infinite ease-in-out;
+}
+
+.ls-valentine .ls-hearts::before {
+  left: 20%;
+  top: -10%;
+  animation-delay: 0s;
+  font-size: 2rem;
+  color: rgba(255, 182, 193, 0.4);
+}
+
+.ls-valentine .ls-hearts::after {
+  right: 25%;
+  top: -15%;
+  animation-delay: 7s;
+  font-size: 1.8rem;
+  color: rgba(255, 105, 180, 0.35);
+}
+
+/* Corazones adicionales sutiles */
+@keyframes ls-floatHeart {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(50vh) rotate(180deg) scale(1.2);
+    opacity: 0.3;
+  }
+  90% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Pétalos de rosa sutiles */
+.ls-valentine .ls-hearts::after {
+  content: '🌸';
+  left: 60%;
+  animation-delay: 3s;
+  font-size: 1.2rem;
+  opacity: 0.25;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-valentine .ls-hearts::before,
+  .ls-valentine .ls-hearts::after {
+    animation: none;
+    opacity: 0.2;
+  }
+}

@@ -1,0 +1,70 @@
+/* Día de la Revolución - 20 de Noviembre */
+@import './base.css';
+
+.ls-revolucion .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #8B4513 0%,
+    #A0522D 30%,
+    #CD853F 60%,
+    #DEB887 100%
+  );
+}
+
+.ls-revolucion .ls-sombrero,
+.ls-revolucion .ls-mexican-flag,
+.ls-revolucion .ls-cannon {
+  opacity: 1;
+}
+
+.ls-revolucion .ls-sombrero {
+  top: 20%;
+  left: 30%;
+  font-size: 4rem;
+  animation: ls-revolucionSombrero 5s infinite ease-in-out;
+}
+
+.ls-revolucion .ls-sombrero::before {
+  content: '🎩';
+  filter: hue-rotate(20deg) drop-shadow(0 6px 15px rgba(0, 0, 0, 0.5));
+}
+
+.ls-revolucion .ls-mexican-flag {
+  top: 15%;
+  right: 25%;
+  width: 100px;
+  height: 70px;
+  background: linear-gradient(to right, #006847 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #CE1126 66.66%);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation: ls-revolucionFlag 2.5s infinite ease-in-out;
+}
+
+.ls-revolucion .ls-cannon {
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3.5rem;
+}
+
+.ls-revolucion .ls-cannon::before {
+  content: '⚔️';
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes ls-revolucionSombrero {
+  0%, 100% { transform: rotate(-8deg) translateY(0); }
+  50% { transform: rotate(8deg) translateY(-10px); }
+}
+
+@keyframes ls-revolucionFlag {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-revolucion .ls-sombrero,
+  .ls-revolucion .ls-mexican-flag {
+    animation: none;
+  }
+}

@@ -1,0 +1,66 @@
+/* Día de la Bandera - 24 de Febrero */
+@import './base.css';
+
+.ls-bandera .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #87CEEB 0%,
+    #B0E0E6 100%
+  );
+}
+
+.ls-bandera .ls-mexican-flag,
+.ls-bandera .ls-eagle {
+  opacity: 1;
+}
+
+.ls-bandera .ls-mexican-flag {
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 100px;
+  background: linear-gradient(to right, #006847 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #CE1126 66.66%);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: ls-banderaWave 2.5s infinite ease-in-out;
+}
+
+.ls-bandera .ls-mexican-flag::before {
+  content: '🦅';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.ls-bandera .ls-eagle {
+  top: 60%;
+  left: 30%;
+  font-size: 3rem;
+  animation: ls-eagleFly 8s infinite ease-in-out;
+}
+
+.ls-bandera .ls-eagle::before {
+  content: '🦅';
+}
+
+@keyframes ls-banderaWave {
+  0%, 100% { transform: translateX(-50%) rotate(-4deg) scale(1); }
+  50% { transform: translateX(-50%) rotate(4deg) scale(1.05); }
+}
+
+@keyframes ls-eagleFly {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(40vw, -20px); }
+  100% { transform: translate(0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-bandera .ls-mexican-flag,
+  .ls-bandera .ls-eagle {
+    animation: none;
+  }
+}

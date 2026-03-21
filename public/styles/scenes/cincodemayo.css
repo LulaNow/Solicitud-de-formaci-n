@@ -1,0 +1,76 @@
+/* Batalla de Puebla - 5 de Mayo */
+@import './base.css';
+
+.ls-cincodemayo .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #006847 0%,
+    #FFFFFF 30%,
+    #CE1126 60%,
+    #8B4513 100%
+  );
+}
+
+.ls-cincodemayo .ls-cannon,
+.ls-cincodemayo .ls-sombrero,
+.ls-cincodemayo .ls-mexican-flag {
+  opacity: 1;
+}
+
+.ls-cincodemayo .ls-cannon {
+  bottom: 20%;
+  left: 20%;
+  font-size: 3rem;
+  animation: ls-cannonFire 4s infinite;
+}
+
+.ls-cincodemayo .ls-cannon::before {
+  content: '💥';
+}
+
+.ls-cincodemayo .ls-sombrero {
+  top: 15%;
+  right: 20%;
+  font-size: 4rem;
+  animation: ls-sombreroSpin 6s infinite ease-in-out;
+}
+
+.ls-cincodemayo .ls-sombrero::before {
+  content: '🎩';
+  filter: hue-rotate(30deg) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.ls-cincodemayo .ls-mexican-flag {
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 80px;
+  background: linear-gradient(to right, #006847 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #CE1126 66.66%);
+  border-radius: 6px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  animation: ls-cincoFlag 2s infinite ease-in-out;
+}
+
+@keyframes ls-cannonFire {
+  0%, 90%, 100% { transform: scale(1); opacity: 1; }
+  95% { transform: scale(1.5); opacity: 0.7; }
+}
+
+@keyframes ls-sombreroSpin {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+
+@keyframes ls-cincoFlag {
+  0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+  50% { transform: translateX(-50%) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-cincodemayo .ls-cannon,
+  .ls-cincodemayo .ls-sombrero,
+  .ls-cincodemayo .ls-mexican-flag {
+    animation: none;
+  }
+}

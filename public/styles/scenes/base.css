@@ -1,0 +1,58 @@
+/* Base styles for all scenes */
+.ls-night,
+.ls-storm,
+.ls-sunny,
+.ls-snow,
+.ls-christmas,
+.ls-halloween,
+.ls-muertos,
+.ls-patrias,
+.ls-valentine,
+.ls-reyes,
+.ls-constitucion,
+.ls-bandera,
+.ls-juarez,
+.ls-cincodemayo,
+.ls-revolucion {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: background-color 1s ease;
+}
+
+.ls-sky {
+  position: absolute;
+  inset: 0;
+  transition: background 1s ease;
+}
+
+/* Hide all elements by default */
+.ls-stars,
+.ls-moon,
+.ls-sun,
+.ls-sunny-cloud,
+.ls-rain,
+.ls-lightning,
+.ls-storm-cloud,
+.ls-snowfall,
+.ls-xmas-lights,
+.ls-xmas-tree,
+.ls-xmas-star,
+.ls-bats,
+.ls-pumpkin,
+.ls-cempasuchil,
+.ls-papel-picado,
+.ls-calavera,
+.ls-fireworks,
+.ls-tricolor,
+.ls-hearts,
+.ls-star-belen,
+.ls-mexican-flag,
+.ls-eagle,
+.ls-benito-juarez,
+.ls-sombrero,
+.ls-cannon {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
