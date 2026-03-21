@@ -22,6 +22,7 @@ const fieldSchema = z.object({
   validation: z.any().optional(),
   defaultValue: z.string().optional(),
   order: z.number().default(0),
+  gridColumn: z.number().min(1).max(12).default(12),
 });
 
 export const formsRouter = router({
@@ -95,6 +96,7 @@ export const formsRouter = router({
         options: f.options,
         defaultValue: f.defaultValue,
         order: f.order,
+        gridColumn: f.gridColumn,
       })),
     };
   }),

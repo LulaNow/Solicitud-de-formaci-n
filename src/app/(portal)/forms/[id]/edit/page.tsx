@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useRouter, useParams } from "next/navigation";
-import { Plus, Trash2, ArrowLeft, Save, Edit2, X } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Save, Edit2, X, Globe, Copy, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 type FieldType =
@@ -93,6 +93,13 @@ export default function EditFormPage() {
     },
   });
 
+  const publishForm = trpc.forms.publish.useMutation({
+    onSuccess: () => {
+      utils.forms.getById.invalidate(formId);
+      utils.forms.list.invalidate();
+    },
+  });
+
   useEffect(() => {
     if (form) {
       setName(form.name);
@@ -113,7 +120,7 @@ export default function EditFormPage() {
             : undefined,
           defaultValue: f.defaultValue || undefined,
           order: f.order,
-          gridColumn: 12,
+          gridColumn: f.gridColumn ?? 12,
         }))
       );
     }
@@ -311,12 +318,36 @@ export default function EditFormPage() {
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Editar Formulario</h1>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Editar Formulario</h1>
+            {form && (
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                form.status === 'PUBLISHED'
+                  ? 'bg-green-100 text-green-700'
+                  : form.status === 'ARCHIVED'
+                    ? 'bg-gray-100 text-gray-600'
+                    : 'bg-yellow-100 text-yellow-700'
+              }`}>
+                {form.status === 'PUBLISHED' ? '✅ Publicado' : form.status === 'ARCHIVED' ? 'Archivado' : '📝 Borrador'}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-gray-500">
             Modifica los campos y configuración del formulario
           </p>
         </div>
+        {form && form.status !== 'PUBLISHED' && (
+          <button
+            type="button"
+            onClick={() => publishForm.mutate(formId)}
+            disabled={publishForm.isPending}
+            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+          >
+            <Globe className="h-4 w-4" />
+            {publishForm.isPending ? 'Publicando...' : 'Publicar'}
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -367,17 +398,55 @@ export default function EditFormPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="isPublic"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-              />
-              <label htmlFor="isPublic" className="text-sm text-gray-700">
-                Formulario público (no requiere autenticación)
-              </label>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isPublic"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                />
+                <label htmlFor="isPublic" className="text-sm text-gray-700">
+                  Formulario público (no requiere autenticación)
+                </label>
+              </div>
+
+              {isPublic && (
+                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-semibold text-green-800">Formulario Público Activo</span>
+                  </div>
+                  <p className="text-xs text-green-700 mb-2">
+                    Los usuarios externos pueden acceder a este formulario sin iniciar sesión usando la siguiente URL:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 rounded bg-white px-3 py-1.5 text-sm text-green-800 border border-green-200 truncate">
+                      {typeof window !== 'undefined' ? window.location.origin : ''}/f/{form.slug}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/f/${form.slug}`);
+                      }}
+                      className="rounded-lg border border-green-300 bg-white p-1.5 text-green-600 hover:bg-green-100 transition-colors"
+                      title="Copiar URL"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                    <a
+                      href={`/f/${form.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg border border-green-300 bg-white p-1.5 text-green-600 hover:bg-green-100 transition-colors"
+                      title="Abrir formulario"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

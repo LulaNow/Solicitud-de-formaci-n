@@ -26,7 +26,7 @@ export default function PublicFormPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form) return;
-    
+
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -138,13 +138,18 @@ export default function PublicFormPage() {
               </div>
             )}
 
-            <div className="space-y-6">
-              {form.fields.map((field) => (
-                <div key={field.id}>
+            <div className="grid grid-cols-12 gap-x-4 gap-y-6">
+              {form.fields.map((field) => {
+                const colSpan = (field as any).gridColumn || 12;
+                return (
+                <div key={field.id} style={{ gridColumn: `span ${colSpan} / span ${colSpan}` }}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     {field.label}
                     {field.required && <span className="text-red-500 ml-1">*</span>}
                   </label>
+                  {field.helpText && (
+                    <p className="text-xs text-gray-500 mb-2">{field.helpText}</p>
+                  )}
 
                   {field.type === "TEXT" && (
                     <input
@@ -160,6 +165,28 @@ export default function PublicFormPage() {
                   {field.type === "EMAIL" && (
                     <input
                       type="email"
+                      required={field.required}
+                      placeholder={field.placeholder || ""}
+                      value={(formData[field.fieldKey] as string) || ""}
+                      onChange={(e) => handleInputChange(field.fieldKey, e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                  )}
+
+                  {field.type === "PHONE" && (
+                    <input
+                      type="tel"
+                      required={field.required}
+                      placeholder={field.placeholder || ""}
+                      value={(formData[field.fieldKey] as string) || ""}
+                      onChange={(e) => handleInputChange(field.fieldKey, e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                  )}
+
+                  {field.type === "URL" && (
+                    <input
+                      type="url"
                       required={field.required}
                       placeholder={field.placeholder || ""}
                       value={(formData[field.fieldKey] as string) || ""}
@@ -206,6 +233,43 @@ export default function PublicFormPage() {
                     </select>
                   )}
 
+                  {field.type === "MULTI_SELECT" && field.options && (
+                    <select
+                      multiple
+                      required={field.required}
+                      value={formData[field.fieldKey] ? String(formData[field.fieldKey]).split(",") : []}
+                      onChange={(e) => {
+                        const selected = Array.from(e.target.selectedOptions, (o) => o.value).join(",");
+                        handleInputChange(field.fieldKey, selected);
+                      }}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all min-h-[100px]"
+                    >
+                      {(field.options as string[]).map((opt: string, i: number) => (
+                        <option key={i} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {field.type === "RADIO" && field.options && (
+                    <div className="space-y-2">
+                      {(field.options as string[]).map((opt: string, i: number) => (
+                        <label key={i} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name={field.fieldKey}
+                            value={opt}
+                            checked={formData[field.fieldKey] === opt}
+                            onChange={(e) => handleInputChange(field.fieldKey, e.target.value)}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="text-sm text-gray-700">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
                   {field.type === "CHECKBOX" && (
                     <div className="flex items-center">
                       <input
@@ -228,8 +292,28 @@ export default function PublicFormPage() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                     />
                   )}
+
+                  {field.type === "DATETIME" && (
+                    <input
+                      type="datetime-local"
+                      required={field.required}
+                      value={(formData[field.fieldKey] as string) || ""}
+                      onChange={(e) => handleInputChange(field.fieldKey, e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    />
+                  )}
+
+                  {field.type === "FILE" && (
+                    <input
+                      type="file"
+                      required={field.required}
+                      onChange={(e) => handleInputChange(field.fieldKey, e.target.files?.[0]?.name || "")}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    />
+                  )}
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-8 flex justify-end">

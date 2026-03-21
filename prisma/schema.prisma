@@ -168,6 +168,7 @@ model FormField {
   validation   Json?
   defaultValue String?   @map("default_value")
   order        Int       @default(0)
+  gridColumn   Int       @default(12) @map("grid_column")
 
   @@unique([formId, fieldKey])
   @@map("form_fields")
