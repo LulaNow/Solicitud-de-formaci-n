@@ -21,7 +21,21 @@ export default function ServicePortalPage() {
   });
 
   const popularItems = items?.slice(0, 6) || [];
-  const availableForms = publicForms?.items.filter(f => f.isPublic) || [];
+
+  // Filter forms by search query
+  const availableForms = publicForms?.items.filter(f => {
+    if (!f.isPublic) return false;
+    if (!searchQuery) return true;
+
+    const query = searchQuery.toLowerCase();
+    return (
+      f.name.toLowerCase().includes(query) ||
+      f.description?.toLowerCase().includes(query) ||
+      f.slug.toLowerCase().includes(query)
+    );
+  }) || [];
+
+  const hasResults = (items && items.length > 0) || availableForms.length > 0;
 
   // Check if portal is disabled
   if (configLoading) {
@@ -211,7 +225,7 @@ export default function ServicePortalPage() {
               </Link>
             ))}
           </div>
-        ) : (
+        ) : !searchQuery || availableForms.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -221,7 +235,7 @@ export default function ServicePortalPage() {
               Intenta con otra búsqueda o categoría
             </p>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Public Forms Section */}
@@ -229,8 +243,12 @@ export default function ServicePortalPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900">Formularios Disponibles</h2>
-              <p className="text-gray-600 mt-1">Completa formularios de solicitud y registro</p>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {searchQuery ? `Formularios encontrados (${availableForms.length})` : 'Formularios Disponibles'}
+              </h2>
+              <p className="text-gray-600 mt-1">
+                {searchQuery ? `Resultados para "${searchQuery}"` : 'Completa formularios de solicitud y registro'}
+              </p>
             </div>
           </div>
 
