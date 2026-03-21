@@ -79,8 +79,11 @@ export const formsRouter = router({
     return {
       id: form.id,
       name: form.name,
+      slug: form.slug,
       description: form.description,
       version: form.version,
+      isPublic: form.isPublic,
+      n8nWebhookUrl: form.n8nWebhookUrl,
       fields: form.fields.map((f) => ({
         id: f.id,
         label: f.label,
