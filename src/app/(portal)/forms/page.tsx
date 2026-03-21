@@ -73,10 +73,21 @@ export default function FormsPage() {
                     <td className="px-4 py-3 text-gray-500">{formatDate(form.createdAt)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
-                        <Link href={`/forms/${form.id}`} className="rounded-sm p-1.5 text-gray-400 hover:bg-surface-alt hover:text-gray-600">
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                        <Link href={`/forms/${form.id}/edit`} className="rounded-sm p-1.5 text-gray-400 hover:bg-surface-alt hover:text-gray-600">
+                        {form.status === 'PUBLISHED' && (
+                          <Link
+                            href={`/f/${form.slug}`}
+                            target="_blank"
+                            className="rounded-sm p-1.5 text-gray-400 hover:bg-surface-alt hover:text-gray-600"
+                            title="Ver formulario público"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Link>
+                        )}
+                        <Link
+                          href={`/forms/${form.id}/edit`}
+                          className="rounded-sm p-1.5 text-gray-400 hover:bg-surface-alt hover:text-gray-600"
+                          title="Editar formulario"
+                        >
                           <Edit2 className="h-4 w-4" />
                         </Link>
                       </div>

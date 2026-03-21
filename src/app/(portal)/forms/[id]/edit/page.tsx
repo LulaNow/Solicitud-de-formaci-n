@@ -60,6 +60,7 @@ export default function EditFormPage() {
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [roleSearchQuery, setRoleSearchQuery] = useState("");
   const [fields, setFields] = useState<Field[]>([]);
 
   const { data: form, isLoading } = trpc.forms.getById.useQuery(formId);
@@ -426,36 +427,73 @@ export default function EditFormPage() {
 
                   {!isPublic && (
                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                      <label className="mb-2 block text-sm font-semibold text-blue-900">
-                        🔐 Acceso Restringido por Roles
-                      </label>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-sm font-semibold text-blue-900">
+                          🔐 Acceso Restringido por Roles
+                        </label>
+                        {selectedRoles.length > 0 && (
+                          <span className="rounded-full bg-blue-600 px-2 py-0.5 text-xs font-medium text-white">
+                            {selectedRoles.length} seleccionado{selectedRoles.length !== 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-blue-700 mb-3">
                         Selecciona qué roles pueden acceder a este formulario (usuarios deben estar logeados):
                       </p>
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {roles?.map((role) => (
-                          <label key={role.id} className="flex items-center gap-2 cursor-pointer hover:bg-blue-100 p-2 rounded">
-                            <input
-                              type="checkbox"
-                              checked={selectedRoles.includes(role.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedRoles([...selectedRoles, role.id]);
-                                } else {
-                                  setSelectedRoles(selectedRoles.filter(id => id !== role.id));
-                                }
-                              }}
-                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-blue-900 font-medium">{role.name}</span>
-                            {role.description && (
-                              <span className="text-xs text-blue-600">- {role.description}</span>
-                            )}
-                          </label>
-                        ))}
+
+                      {roles && roles.length > 5 && (
+                        <div className="mb-3">
+                          <input
+                            type="text"
+                            placeholder="🔍 Buscar roles..."
+                            value={roleSearchQuery}
+                            onChange={(e) => setRoleSearchQuery(e.target.value)}
+                            className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                          />
+                        </div>
+                      )}
+
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
+                        {roles
+                          ?.filter(role =>
+                            roleSearchQuery === "" ||
+                            role.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                            role.description?.toLowerCase().includes(roleSearchQuery.toLowerCase())
+                          )
+                          .map((role) => (
+                            <label key={role.id} className="flex items-center gap-2 cursor-pointer hover:bg-blue-100 p-2 rounded transition-colors">
+                              <input
+                                type="checkbox"
+                                checked={selectedRoles.includes(role.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedRoles([...selectedRoles, role.id]);
+                                  } else {
+                                    setSelectedRoles(selectedRoles.filter(id => id !== role.id));
+                                  }
+                                }}
+                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                              <div className="flex-1">
+                                <span className="text-sm text-blue-900 font-medium">{role.name}</span>
+                                {role.description && (
+                                  <span className="block text-xs text-blue-600">{role.description}</span>
+                                )}
+                              </div>
+                            </label>
+                          ))}
+                        {roles && roleSearchQuery && roles.filter(role =>
+                          role.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                          role.description?.toLowerCase().includes(roleSearchQuery.toLowerCase())
+                        ).length === 0 && (
+                          <p className="text-center text-sm text-blue-600 py-4">
+                            No se encontraron roles con "{roleSearchQuery}"
+                          </p>
+                        )}
                       </div>
+
                       {selectedRoles.length === 0 && (
-                        <p className="mt-2 text-xs text-orange-600 font-medium">
+                        <p className="mt-3 text-xs text-orange-600 font-medium">
                           ⚠️ Sin roles seleccionados, solo admins podrán acceder
                         </p>
                       )}
