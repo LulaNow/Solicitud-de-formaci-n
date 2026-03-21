@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
 import "./logistics-scene.css";
+import { SceneSelectorPopup } from "./SceneSelectorPopup";
 
 type Scene =
   | "night"
@@ -227,6 +228,7 @@ async function getAutoWeather(): Promise<Scene> {
 export function LogisticsScene() {
   const [mounted, setMounted] = useState(false);
   const [weather, setWeather] = useState<Scene>("night");
+  const [manualOverride, setManualOverride] = useState<Scene | null>(null);
   const { data: config } = trpc.appearance.getSceneConfig.useQuery(undefined, {
     staleTime: 60_000,
     retry: false,
@@ -234,7 +236,31 @@ export function LogisticsScene() {
 
   useEffect(() => setMounted(true), []);
 
+  // Handle manual scene selection from popup
+  const handleSceneChange = (scene: Scene) => {
+    setManualOverride(scene);
+    setWeather(scene);
+    // Store in localStorage for persistence
+    if (typeof window !== "undefined") {
+      localStorage.setItem("manual_scene_override", scene);
+    }
+  };
+
+  // Check for manual override on mount
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("manual_scene_override");
+      if (stored && ALL_SCENES.includes(stored as Scene)) {
+        setManualOverride(stored as Scene);
+        setWeather(stored as Scene);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // If manual override is active, don't auto-change
+    if (manualOverride) return;
+
     if (!config) return;
     const mode = config.sceneMode;
 
@@ -467,6 +493,12 @@ export function LogisticsScene() {
           <div className="ls-person__box" />
         </div>
       </div>
+
+      {/* Scene Selector Popup - Ctrl/Cmd + Shift + B */}
+      <SceneSelectorPopup
+        currentScene={weather}
+        onSceneChange={handleSceneChange}
+      />
     </div>
   );
 }
