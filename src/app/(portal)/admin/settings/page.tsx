@@ -185,11 +185,19 @@ export default function AdminSettingsPage() {
     onSuccess: () => refetch(),
   });
 
+  const { data: portalConfig, refetch: refetchPortal } = trpc.servicePortal.getPortalConfig.useQuery();
+  const updatePortalConfig = trpc.servicePortal.updatePortalConfig.useMutation({
+    onSuccess: () => refetchPortal(),
+  });
+
   const [sceneMode, setSceneMode] = useState("random");
   const [snowEnabled, setSnowEnabled] = useState(false);
   const [calendarAuto, setCalendarAuto] = useState(false);
   const [events, setEvents] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState(false);
+
+  const [portalEnabled, setPortalEnabled] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState("");
 
   useEffect(() => {
     if (!settings) return;
@@ -203,8 +211,23 @@ export default function AdminSettingsPage() {
     setEvents(ev);
   }, [settings]);
 
+  useEffect(() => {
+    if (!portalConfig) return;
+    setPortalEnabled(portalConfig.enabled);
+    setMaintenanceMessage(portalConfig.maintenanceMessage || "");
+  }, [portalConfig]);
+
   function toggleEvent(key: string) {
     setEvents((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  async function handleSavePortal() {
+    await updatePortalConfig.mutateAsync({
+      enabled: portalEnabled,
+      maintenanceMessage: maintenanceMessage || undefined,
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   }
 
   async function handleSave() {
@@ -252,6 +275,89 @@ export default function AdminSettingsPage() {
         <p className="text-sm text-gray-500">
           Controla la apariencia del fondo animado en la página de login
         </p>
+      </div>
+
+      {/* Portal Público Configuration */}
+      <div className="mb-8 rounded-lg border border-border bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Settings className="h-5 w-5 text-indigo-600" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              Portal Público
+            </h2>
+          </div>
+          <a
+            href="/portal"
+            target="_blank"
+            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+          >
+            Ver Portal →
+          </a>
+        </div>
+        <p className="mb-4 text-sm text-gray-500">
+          Controla la disponibilidad del portal público de servicios y formularios en <code className="bg-gray-100 px-1 py-0.5 rounded">/portal</code>
+        </p>
+
+        {/* Portal Enable/Disable Toggle */}
+        <div className="mb-4 flex items-center justify-between rounded-lg border-2 border-dashed border-indigo-200 bg-indigo-50 p-4">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${portalEnabled ? 'bg-green-100' : 'bg-red-100'}`}>
+              <span className="text-xl">{portalEnabled ? '✅' : '🚧'}</span>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-gray-900">
+                {portalEnabled ? 'Portal Habilitado' : 'Portal en Mantenimiento'}
+              </div>
+              <div className="text-xs text-gray-500">
+                {portalEnabled
+                  ? 'Los usuarios pueden acceder al portal y formularios públicos'
+                  : 'Los usuarios verán un mensaje de mantenimiento'}
+              </div>
+            </div>
+          </div>
+          <Toggle
+            enabled={portalEnabled}
+            onChange={() => setPortalEnabled(!portalEnabled)}
+            activeColor="bg-green-500"
+          />
+        </div>
+
+        {/* Maintenance Message */}
+        {!portalEnabled && (
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+            <label className="mb-2 block text-sm font-medium text-gray-900">
+              Mensaje de Mantenimiento
+            </label>
+            <textarea
+              value={maintenanceMessage}
+              onChange={(e) => setMaintenanceMessage(e.target.value)}
+              rows={3}
+              className="w-full rounded-lg border border-orange-300 bg-white px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+              placeholder="El portal está temporalmente deshabilitado. Por favor, intenta más tarde o contacta al administrador."
+            />
+            <p className="mt-2 text-xs text-gray-500">
+              Este mensaje se mostrará a los usuarios cuando intenten acceder al portal
+            </p>
+          </div>
+        )}
+
+        {/* Save Button for Portal Config */}
+        <div className="mt-4 flex items-center justify-end gap-3">
+          {saved && (
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <Check className="h-4 w-4" />
+              <span>Guardado</span>
+            </div>
+          )}
+          <button
+            onClick={handleSavePortal}
+            disabled={updatePortalConfig.isPending}
+            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            {updatePortalConfig.isPending ? 'Guardando...' : 'Guardar Configuración del Portal'}
+          </button>
+        </div>
       </div>
 
       {/* Scene Mode */}
