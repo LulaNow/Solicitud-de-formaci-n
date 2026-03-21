@@ -1,0 +1,297 @@
+{
+  "name": "Incident Approval Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "incident-workflow",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-incident",
+      "name": "Webhook - Incident Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "incident-workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.data.priority}}",
+              "operation": "contains",
+              "value2": "Crítica"
+            }
+          ]
+        }
+      },
+      "id": "if-critical",
+      "name": "¿Es Crítico?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-1",
+              "name": "assignedTo",
+              "value": "soporte-critico@empresa.com",
+              "type": "string"
+            },
+            {
+              "id": "assign-2",
+              "name": "sla",
+              "value": "1 hora",
+              "type": "string"
+            },
+            {
+              "id": "assign-3",
+              "name": "priority_level",
+              "value": "P1",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-critical",
+      "name": "Asignar Equipo Crítico",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign-4",
+              "name": "assignedTo",
+              "value": "={{$json.data.department === 'Tecnología' ? 'soporte-ti@empresa.com' : 'soporte-general@empresa.com'}}",
+              "type": "string"
+            },
+            {
+              "id": "assign-5",
+              "name": "sla",
+              "value": "={{$json.data.priority.includes('Alta') ? '4 horas' : '24 horas'}}",
+              "type": "string"
+            },
+            {
+              "id": "assign-6",
+              "name": "priority_level",
+              "value": "={{$json.data.priority.includes('Alta') ? 'P2' : 'P3'}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "set-normal",
+      "name": "Asignar Equipo Normal",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [650, 400]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": "appXXXXXXXXXXXXXX",
+        "table": "Incidents",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "incident_id": "={{$json.registryId}}",
+            "reporter_name": "={{$json.data.reporter_name}}",
+            "reporter_email": "={{$json.data.reporter_email}}",
+            "department": "={{$json.data.department}}",
+            "incident_type": "={{$json.data.incident_type}}",
+            "priority": "={{$json.priority_level}}",
+            "description": "={{$json.data.description}}",
+            "location": "={{$json.data.location}}",
+            "assigned_to": "={{$json.assignedTo}}",
+            "sla": "={{$json.sla}}",
+            "status": "Open",
+            "created_at": "={{$json.submittedAt}}"
+          }
+        }
+      },
+      "id": "airtable-create",
+      "name": "Crear Ticket en Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [850, 300],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "incidents@empresa.com",
+        "toEmail": "={{$json.assignedTo}}",
+        "subject": "🚨 Nuevo Incidente [{{$json.priority_level}}]: {{$json.data.incident_type}}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }\n    .container { max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }\n    .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }\n    .field { margin-bottom: 15px; }\n    .field-label { font-weight: bold; color: #667eea; }\n    .priority-critical { background: #fee; border-left: 4px solid #f00; padding: 10px; margin: 10px 0; }\n    .priority-high { background: #fef3e0; border-left: 4px solid #ff9800; padding: 10px; margin: 10px 0; }\n    .priority-medium { background: #fff9e0; border-left: 4px solid #ffc107; padding: 10px; margin: 10px 0; }\n    .footer { background: #333; color: white; padding: 15px; text-align: center; border-radius: 0 0 8px 8px; }\n    .button { display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin: 10px 0; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      <h1>🚨 Nuevo Incidente Asignado</h1>\n      <p>Se ha reportado un nuevo incidente que requiere tu atención</p>\n    </div>\n    \n    <div class=\"content\">\n      <div class=\"priority-{{$json.priority_level === 'P1' ? 'critical' : $json.priority_level === 'P2' ? 'high' : 'medium'}}\">\n        <strong>Prioridad:</strong> {{$json.data.priority}}<br>\n        <strong>SLA:</strong> {{$json.sla}}\n      </div>\n      \n      <div class=\"field\">\n        <div class=\"field-label\">Reportado por:</div>\n        {{$json.data.reporter_name}} ({{$json.data.reporter_email}})\n      </div>\n      \n      <div class=\"field\">\n        <div class=\"field-label\">Departamento:</div>\n        {{$json.data.department}}\n      </div>\n      \n      <div class=\"field\">\n        <div class=\"field-label\">Tipo de Incidente:</div>\n        {{$json.data.incident_type}}\n      </div>\n      \n      <div class=\"field\">\n        <div class=\"field-label\">Ubicación:</div>\n        {{$json.data.location}}\n      </div>\n      \n      <div class=\"field\">\n        <div class=\"field-label\">Descripción:</div>\n        <p>{{$json.data.description}}</p>\n      </div>\n      \n      {{#if $json.data.impact}}\n      <div class=\"field\">\n        <div class=\"field-label\">Impacto:</div>\n        <ul>\n          {{#each $json.data.impact}}\n          <li>{{this}}</li>\n          {{/each}}\n        </ul>\n      </div>\n      {{/if}}\n      \n      <div class=\"field\">\n        <div class=\"field-label\">Fecha del Incidente:</div>\n        {{$json.data.incident_date}} {{$json.data.incident_time}}\n      </div>\n      \n      <a href=\"https://portal.empresa.com/incidents/{{$json.registryId}}\" class=\"button\">\n        Ver Detalles del Incidente\n      </a>\n    </div>\n    \n    <div class=\"footer\">\n      <p>Sistema de Gestión de Incidentes • Empresa © 2026</p>\n      <p style=\"font-size: 12px;\">ID del Incidente: {{$json.registryId}}</p>\n    </div>\n  </div>\n</body>\n</html>"
+      },
+      "id": "email-assigned",
+      "name": "Email a Responsable",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "incidents@empresa.com",
+        "toEmail": "={{$json.data.reporter_email}}",
+        "subject": "✅ Incidente Recibido - Ticket #{{$json.registryId}}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\n<html>\n<body style=\"font-family: Arial, sans-serif;\">\n  <div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">\n    <h2 style=\"color: #667eea;\">✅ Tu incidente ha sido recibido</h2>\n    <p>Hola {{$json.data.reporter_name}},</p>\n    <p>Hemos recibido tu reporte de incidente y ya está siendo procesado por nuestro equipo.</p>\n    \n    <div style=\"background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 20px 0;\">\n      <p><strong>Número de Ticket:</strong> #{{$json.registryId}}</p>\n      <p><strong>Tipo:</strong> {{$json.data.incident_type}}</p>\n      <p><strong>Prioridad:</strong> {{$json.data.priority}}</p>\n      <p><strong>SLA de Respuesta:</strong> {{$json.sla}}</p>\n    </div>\n    \n    <p>Recibirás actualizaciones sobre el estado de tu incidente a este correo.</p>\n    \n    <p style=\"margin-top: 30px; color: #666; font-size: 12px;\">\n      Si tienes preguntas, responde a este correo o contacta a soporte@empresa.com\n    </p>\n  </div>\n</body>\n</html>"
+      },
+      "id": "email-reporter",
+      "name": "Email Confirmación a Reportante",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1050, 450],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "#incidents",
+        "text": "🚨 *Nuevo Incidente Reportado*\n\n*Prioridad:* {{$json.data.priority}}\n*Tipo:* {{$json.data.incident_type}}\n*Reportado por:* {{$json.data.reporter_name}} ({{$json.data.department}})\n*Asignado a:* {{$json.assignedTo}}\n*SLA:* {{$json.sla}}\n\n*Descripción:*\n{{$json.data.description}}\n\n<https://portal.empresa.com/incidents/{{$json.registryId}}|Ver Detalles>",
+        "otherOptions": {}
+      },
+      "id": "slack-notify",
+      "name": "Notificar en Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1050, 150],
+      "credentials": {
+        "slackApi": {
+          "id": "3",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Incidente recibido y procesado correctamente\",\n  \"ticketId\": \"{{$json.registryId}}\",\n  \"assignedTo\": \"{{$json.assignedTo}}\",\n  \"sla\": \"{{$json.sla}}\"\n}",
+        "options": {}
+      },
+      "id": "respond-webhook",
+      "name": "Responder al Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook - Incident Form": {
+      "main": [
+        [
+          {
+            "node": "¿Es Crítico?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Es Crítico?": {
+      "main": [
+        [
+          {
+            "node": "Asignar Equipo Crítico",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Asignar Equipo Normal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignar Equipo Crítico": {
+      "main": [
+        [
+          {
+            "node": "Crear Ticket en Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Asignar Equipo Normal": {
+      "main": [
+        [
+          {
+            "node": "Crear Ticket en Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear Ticket en Airtable": {
+      "main": [
+        [
+          {
+            "node": "Email a Responsable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Confirmación a Reportante",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notificar en Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email a Responsable": {
+      "main": [
+        [
+          {
+            "node": "Responder al Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-03-21T23:00:00.000Z",
+  "versionId": "1"
+}
