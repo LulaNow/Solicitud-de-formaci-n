@@ -59,9 +59,11 @@ export default function EditFormPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [fields, setFields] = useState<Field[]>([]);
 
   const { data: form, isLoading } = trpc.forms.getById.useQuery(formId);
+  const { data: roles } = trpc.roles.list.useQuery();
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,6 +110,7 @@ export default function EditFormPage() {
       setName(form.name);
       setDescription(form.description || "");
       setIsPublic(form.isPublic);
+      setSelectedRoles(form.roleAccess?.map(ra => ra.roleId) || []);
       setFields(
         form.fields.map((f) => ({
           label: f.label,
@@ -287,6 +290,7 @@ export default function EditFormPage() {
       name,
       description,
       isPublic,
+      roleIds: selectedRoles,
       fields: fields.map((f, i) => ({ ...f, order: i })),
     });
   };
@@ -401,18 +405,63 @@ export default function EditFormPage() {
               />
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isPublic"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-                />
-                <label htmlFor="isPublic" className="text-sm text-gray-700">
-                  Formulario público (no requiere autenticación)
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-900">
+                  Control de Acceso
                 </label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="isPublic"
+                      checked={isPublic}
+                      onChange={(e) => setIsPublic(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                    />
+                    <label htmlFor="isPublic" className="text-sm text-gray-700">
+                      🌐 Acceso público (cualquier persona sin login)
+                    </label>
+                  </div>
+
+                  {!isPublic && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                      <label className="mb-2 block text-sm font-semibold text-blue-900">
+                        🔐 Acceso Restringido por Roles
+                      </label>
+                      <p className="text-xs text-blue-700 mb-3">
+                        Selecciona qué roles pueden acceder a este formulario (usuarios deben estar logeados):
+                      </p>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {roles?.map((role) => (
+                          <label key={role.id} className="flex items-center gap-2 cursor-pointer hover:bg-blue-100 p-2 rounded">
+                            <input
+                              type="checkbox"
+                              checked={selectedRoles.includes(role.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedRoles([...selectedRoles, role.id]);
+                                } else {
+                                  setSelectedRoles(selectedRoles.filter(id => id !== role.id));
+                                }
+                              }}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-blue-900 font-medium">{role.name}</span>
+                            {role.description && (
+                              <span className="text-xs text-blue-600">- {role.description}</span>
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                      {selectedRoles.length === 0 && (
+                        <p className="mt-2 text-xs text-orange-600 font-medium">
+                          ⚠️ Sin roles seleccionados, solo admins podrán acceder
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {isPublic && (

@@ -71,11 +71,30 @@ export const formsRouter = router({
   getBySlug: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const form = await ctx.prisma.formDefinition.findUnique({
       where: { slug: input, status: "PUBLISHED" },
-      include: { fields: { orderBy: { order: "asc" } } },
+      include: {
+        fields: { orderBy: { order: "asc" } },
+        roleAccess: { include: { role: true } },
+      },
     });
     if (!form) throw new TRPCError({ code: "NOT_FOUND", message: "Formulario no encontrado" });
-    if (!form.isPublic && !ctx.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "Acceso no autorizado" });
+
+    if (!form.isPublic) {
+      if (!ctx.user) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Acceso no autorizado" });
+      }
+
+      const userRoles = await ctx.prisma.userRole.findMany({
+        where: { userId: ctx.user.id },
+        select: { roleId: true },
+      });
+      const userRoleIds = userRoles.map(ur => ur.roleId);
+      const allowedRoleIds = form.roleAccess.map(ra => ra.roleId);
+
+      const hasAccess = allowedRoleIds.length === 0 || allowedRoleIds.some(roleId => userRoleIds.includes(roleId));
+
+      if (!hasAccess) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "No tienes permisos para acceder a este formulario" });
+      }
     }
     return {
       id: form.id,
