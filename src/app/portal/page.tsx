@@ -61,11 +61,16 @@ export default function ServicePortalPage() {
   return (
     <PortalLayout>
       {/* Hero Section */}
-      <div className="mb-8 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="mb-8 rounded-2xl bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 text-white shadow-xl">
+        <div className="px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            <h1 className="text-5xl font-bold mb-4">Portal de Servicios</h1>
-            <p className="text-xl text-indigo-100 mb-8">
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg">
+                <span className="text-4xl font-bold text-white">N</span>
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold mb-4 tracking-tight">Portal de Servicios NADRO</h1>
+            <p className="text-xl text-emerald-50 mb-8 max-w-2xl mx-auto">
               Solicita materiales, equipos y servicios de forma rápida y sencilla
             </p>
 
@@ -77,9 +82,9 @@ export default function ServicePortalPage() {
                   placeholder="¿Qué necesitas hoy? Busca materiales, equipos, servicios..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-6 py-4 rounded-full text-gray-900 text-lg shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/50"
+                  className="w-full rounded-xl border-2 border-white/30 bg-white/10 px-4 py-3.5 text-white placeholder-white/70 backdrop-blur-sm focus:border-white focus:outline-none focus:ring-2 focus:ring-white/50"
                 />
-                <button className="absolute right-2 top-2 bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition-colors">
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg bg-white px-6 py-2.5 text-sm font-semibold text-emerald-700 shadow-md transition-all hover:bg-emerald-50 hover:shadow-lg">
                   🔍 Buscar
                 </button>
               </div>
@@ -104,7 +109,7 @@ export default function ServicePortalPage() {
               onClick={() => setSelectedCategory(null)}
               className={`p-6 rounded-xl transition-all shadow-lg hover:shadow-xl ${
                 selectedCategory === null
-                  ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white"
+                  ? "bg-gradient-to-br from-emerald-600 to-green-700 text-white"
                   : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
@@ -118,7 +123,7 @@ export default function ServicePortalPage() {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`p-6 rounded-xl transition-all shadow-lg hover:shadow-xl ${
                   selectedCategory === category.id
-                    ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white"
+                    ? "bg-gradient-to-br from-emerald-600 to-green-700 text-white"
                     : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
                 style={{
@@ -142,7 +147,7 @@ export default function ServicePortalPage() {
           {selectedCategory && (
             <button
               onClick={() => setSelectedCategory(null)}
-              className="text-indigo-600 hover:text-indigo-700 font-semibold"
+              className="text-emerald-600 hover:text-emerald-700 font-semibold"
             >
               Ver todos →
             </button>
@@ -164,14 +169,14 @@ export default function ServicePortalPage() {
                 className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group"
               >
                 {item.image && (
-                  <div className="h-48 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                  <div className="h-48 bg-gradient-to-br from-emerald-50 to-green-100 flex items-center justify-center">
                     <span className="text-6xl">{item.icon || "📦"}</span>
                   </div>
                 )}
 
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
                       {item.name}
                     </h3>
                     {!item.isAvailable && (

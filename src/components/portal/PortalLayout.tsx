@@ -54,13 +54,14 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   <Menu className="h-5 w-5" />
                 )}
               </button>
-              <Link href="/portal" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600">
-                  <span className="text-lg font-bold text-white">N</span>
+              <Link href="/portal" className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-green-700 shadow-md">
+                  <span className="text-xl font-bold text-white">N</span>
                 </div>
-                <span className="hidden text-lg font-semibold text-gray-900 sm:block">
-                  Portal de Servicios
-                </span>
+                <div className="hidden sm:block">
+                  <div className="text-lg font-bold text-emerald-700">NADRO</div>
+                  <div className="text-xs text-gray-500">Portal de Servicios</div>
+                </div>
               </Link>
             </div>
 
@@ -75,7 +76,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                     href={item.href}
                     className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                       isActive
-                        ? "bg-indigo-50 text-indigo-700"
+                        ? "bg-emerald-50 text-emerald-700 shadow-sm"
                         : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }`}
                   >
@@ -93,7 +94,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-sm">
                     <span className="text-sm font-semibold">
                       {user.name?.charAt(0).toUpperCase() || "U"}
                     </span>
@@ -109,7 +110,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+                  className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700"
                 >
                   <User className="h-4 w-4" />
                   Iniciar Sesión
@@ -168,7 +169,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                         isActive
-                          ? "bg-indigo-50 text-indigo-700"
+                          ? "bg-emerald-50 text-emerald-700 shadow-sm"
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
