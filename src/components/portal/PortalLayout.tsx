@@ -34,7 +34,10 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const { data: user } = trpc.auth.me.useQuery();
+  const { data: user } = trpc.users.me.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
