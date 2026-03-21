@@ -4,31 +4,50 @@ import { router, publicProcedure, adminProcedure } from "../trpc";
 export const appearanceRouter = router({
   // Public — used by login page (no auth required)
   getSceneConfig: publicProcedure.query(async ({ ctx }) => {
-    const settings = await ctx.prisma.appSetting.findMany({
-      where: { key: { startsWith: "appearance." } },
-    });
-    const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+    try {
+      const settings = await ctx.prisma.appSetting.findMany({
+        where: { key: { startsWith: "appearance." } },
+      });
+      const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
 
-    const eventKeys = [
-      "event_reyes",
-      "event_valentine",
-      "event_patrias",
-      "event_halloween",
-      "event_muertos",
-      "event_christmas",
-    ];
-    const calendarEvents: Record<string, boolean> = {};
-    for (const ek of eventKeys) {
-      calendarEvents[ek] = map[`appearance.${ek}`] === "true";
+      const eventKeys = [
+        "event_reyes",
+        "event_valentine",
+        "event_patrias",
+        "event_halloween",
+        "event_muertos",
+        "event_christmas",
+      ];
+      const calendarEvents: Record<string, boolean> = {};
+      for (const ek of eventKeys) {
+        calendarEvents[ek] = map[`appearance.${ek}`] === "true";
+      }
+
+      return {
+        sceneMode: map["appearance.scene_mode"] || "random",
+        christmasEnabled: map["appearance.christmas_enabled"] === "true",
+        snowEnabled: map["appearance.snow_enabled"] === "true",
+        calendarAuto: map["appearance.calendar_auto"] === "true",
+        calendarEvents,
+      };
+    } catch (error) {
+      // Return default values if database is unavailable
+      console.error("Error fetching appearance config:", error);
+      return {
+        sceneMode: "random",
+        christmasEnabled: false,
+        snowEnabled: false,
+        calendarAuto: true,
+        calendarEvents: {
+          event_reyes: true,
+          event_valentine: true,
+          event_patrias: true,
+          event_halloween: true,
+          event_muertos: true,
+          event_christmas: true,
+        },
+      };
     }
-
-    return {
-      sceneMode: map["appearance.scene_mode"] || "random",
-      christmasEnabled: map["appearance.christmas_enabled"] === "true",
-      snowEnabled: map["appearance.snow_enabled"] === "true",
-      calendarAuto: map["appearance.calendar_auto"] === "true",
-      calendarEvents,
-    };
   }),
 
   // Admin — get all appearance settings
