@@ -1,0 +1,129 @@
+// ============================================
+// SERVICE PORTAL - CATALOG
+// ============================================
+
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?  // Emoji or icon name
+  color       String?  // Hex color for UI
+  order       Int      @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items ServiceItem[]
+
+  @@map("service_categories")
+}
+
+model ServiceItem {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  shortDescription String  @map("short_description")
+  description     String?
+  icon            String?
+  image           String?
+  categoryId      String   @map("category_id")
+  category        ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  // Form association
+  formId          String?  @map("form_id")
+  form            FormDefinition? @relation(fields: [formId], references: [id], onDelete: SetNull)
+  
+  // Pricing & availability
+  price           Float?
+  estimatedTime   String?  @map("estimated_time") // "2-3 días", "Inmediato", etc.
+  isAvailable     Boolean  @default(true) @map("is_available")
+  requiresApproval Boolean @default(false) @map("requires_approval")
+  
+  // Metadata
+  tags            String[] // Para búsqueda
+  order           Int      @default(0)
+  viewCount       Int      @default(0) @map("view_count")
+  requestCount    Int      @default(0) @map("request_count")
+  
+  // Publishing
+  isPublished     Boolean  @default(false) @map("is_published")
+  publishedAt     DateTime? @map("published_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  requests ServiceRequest[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isPublished, isAvailable])
+  @@map("service_items")
+}
+
+model ServiceRequest {
+  id          String   @id @default(cuid())
+  itemId      String   @map("item_id")
+  item        ServiceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  // Requester info (puede ser usuario autenticado o externo)
+  userId      String?  @map("user_id")
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  // External requester (si no está autenticado)
+  requesterName  String? @map("requester_name")
+  requesterEmail String? @map("requester_email")
+  requesterPhone String? @map("requester_phone")
+  
+  // Form data
+  formData    Json     @map("form_data")
+  
+  // Status tracking
+  status      ServiceRequestStatus @default(PENDING)
+  priority    ServiceRequestPriority @default(MEDIUM)
+  
+  // Assignment
+  assignedToId String? @map("assigned_to_id")
+  assignedTo   User?   @relation("ServiceRequestAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  // Tracking
+  submittedAt DateTime @default(now()) @map("submitted_at")
+  reviewedAt  DateTime? @map("reviewed_at")
+  completedAt DateTime? @map("completed_at")
+  
+  // Notes
+  notes       String?
+  internalNotes String? @map("internal_notes")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([itemId])
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt])
+  @@map("service_requests")
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  REVIEWING
+  APPROVED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ServiceRequestPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Add to User model relations:
+// serviceRequests ServiceRequest[]
+// assignedServiceRequests ServiceRequest[] @relation("ServiceRequestAssignee")
+
+// Add to FormDefinition model relations:
+// serviceItems ServiceItem[]
