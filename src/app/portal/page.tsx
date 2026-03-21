@@ -8,6 +8,7 @@ export default function ServicePortalPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const { data: portalConfig, isLoading: configLoading } = trpc.servicePortal.getPortalConfig.useQuery();
   const { data: categories, isLoading: categoriesLoading } = trpc.servicePortal.getCategories.useQuery();
   const { data: items, isLoading: itemsLoading } = trpc.servicePortal.getItems.useQuery({
     categoryId: selectedCategory || undefined,
@@ -15,6 +16,41 @@ export default function ServicePortalPage() {
   });
 
   const popularItems = items?.slice(0, 6) || [];
+
+  // Check if portal is disabled
+  if (configLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Cargando portal...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!portalConfig?.enabled) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-12 max-w-2xl w-full text-center">
+          <div className="text-8xl mb-6">🚧</div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Portal en Mantenimiento
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            {portalConfig?.maintenanceMessage ||
+              "El portal de servicios está temporalmente deshabilitado. Por favor, intenta más tarde o contacta al administrador."}
+          </p>
+          <div className="bg-indigo-50 rounded-lg p-6">
+            <p className="text-sm text-gray-700">
+              <strong>¿Necesitas ayuda urgente?</strong><br />
+              Contacta a soporte: soporte@mdm-materiales.com
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -26,7 +62,7 @@ export default function ServicePortalPage() {
             <p className="text-xl text-indigo-100 mb-8">
               Solicita materiales, equipos y servicios de forma rápida y sencilla
             </p>
-            
+
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
@@ -49,7 +85,7 @@ export default function ServicePortalPage() {
       {/* Categories */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Categorías</h2>
-        
+
         {categoriesLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
@@ -69,7 +105,7 @@ export default function ServicePortalPage() {
               <div className="text-4xl mb-2">📦</div>
               <div className="font-semibold">Todos</div>
             </button>
-            
+
             {categories?.map((category) => (
               <button
                 key={category.id}
@@ -126,7 +162,7 @@ export default function ServicePortalPage() {
                     <span className="text-6xl">{item.icon || "📦"}</span>
                   </div>
                 )}
-                
+
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
@@ -138,11 +174,11 @@ export default function ServicePortalPage() {
                       </span>
                     )}
                   </div>
-                  
+
                   <p className="text-gray-600 mb-4 line-clamp-2">
                     {item.shortDescription}
                   </p>
-                  
+
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-4">
                       {item.estimatedTime && (
@@ -196,7 +232,7 @@ export default function ServicePortalPage() {
                 Ver solicitudes →
               </Link>
             </div>
-            
+
             <div className="text-center">
               <div className="text-5xl mb-4">💬</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -212,7 +248,7 @@ export default function ServicePortalPage() {
                 Obtener ayuda →
               </Link>
             </div>
-            
+
             <div className="text-center">
               <div className="text-5xl mb-4">📚</div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">
