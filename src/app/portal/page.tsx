@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { trpc } from "@/lib/trpc/client";
+import PortalLayout from "@/components/portal/PortalLayout";
 
 export default function ServicePortalPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,9 +59,9 @@ export default function ServicePortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <PortalLayout>
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
+      <div className="mb-8 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-5xl font-bold mb-4">Portal de Servicios</h1>
@@ -335,16 +336,6 @@ export default function ServicePortalPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="bg-gray-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-gray-400">
-              Portal de Servicios • MDM Materiales © 2026
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    </PortalLayout>
   );
 }

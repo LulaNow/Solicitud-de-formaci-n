@@ -16,12 +16,117 @@ Este es un **template profesional** para portales públicos de clientes. Diseña
 └── page.tsx                     # Vista de formulario público
 
 /components/portal/              # Componentes reutilizables del portal
+├── PortalLayout.tsx             # ⭐ Layout principal con header ServiceNow-style
 ├── Hero.tsx                     # Sección hero con gradiente
 ├── ServiceCard.tsx              # Card de servicio/producto
 ├── CategoryGrid.tsx             # Grid de categorías
 ├── SearchBar.tsx                # Barra de búsqueda
 ├── QuickActions.tsx             # Acciones rápidas
 └── PortalFooter.tsx             # Footer del portal
+```
+
+## 🎨 PortalLayout - Header ServiceNow Style
+
+**Componente principal**: `src/components/portal/PortalLayout.tsx`
+
+### Características del Header:
+
+#### 1. **Sticky Header**
+- Fijo en la parte superior (sticky top-0)
+- Sombra sutil para profundidad
+- Fondo blanco con borde inferior
+
+#### 2. **Logo y Branding**
+- Logo con gradiente indigo → purple
+- Nombre del portal
+- Link a home (`/portal`)
+
+#### 3. **Navegación Desktop**
+- Items con iconos (Lucide React)
+- Highlight del item activo
+- Hover effects suaves
+
+**Items de navegación:**
+- 🏠 Inicio (`/portal`)
+- 📄 Formularios (`/portal/forms`)
+- 📋 Mis Solicitudes (`/portal/my-requests`)
+- 💬 Soporte (`/portal/support`)
+- 📚 Base de Conocimiento (`/portal/kb`)
+
+#### 4. **Menú de Usuario**
+- Avatar con inicial del usuario
+- Nombre y email
+- Dropdown con opciones:
+  - Mi Perfil
+  - Cerrar Sesión
+- Si no está logeado: botón "Iniciar Sesión"
+
+#### 5. **Navegación Mobile**
+- Hamburger menu (< 1024px)
+- Slide-in menu con todos los items
+- Cierra automáticamente al navegar
+
+#### 6. **Container Central**
+- Max width: 7xl (1280px)
+- Padding responsive
+- Fondo gris claro (bg-gray-50)
+
+#### 7. **Footer**
+- Texto centrado
+- Año dinámico
+- Borde superior sutil
+
+### Uso del PortalLayout
+
+```tsx
+import PortalLayout from "@/components/portal/PortalLayout";
+
+export default function MyPortalPage() {
+  return (
+    <PortalLayout>
+      {/* Tu contenido aquí */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Mi Página</h1>
+        <p>Contenido de la página...</p>
+      </div>
+    </PortalLayout>
+  );
+}
+```
+
+**Ventajas:**
+- ✅ Header y footer consistentes en todas las páginas
+- ✅ Navegación automática con highlight de página activa
+- ✅ Información de usuario siempre visible
+- ✅ Responsive (mobile + desktop)
+- ✅ Container central con max-width automático
+
+### Personalización del Layout
+
+**Agregar nuevos items de navegación:**
+
+Editar `src/components/portal/PortalLayout.tsx`:
+
+```tsx
+const NAV_ITEMS = [
+  { href: "/portal", label: "Inicio", icon: Home },
+  { href: "/portal/forms", label: "Formularios", icon: FileText },
+  { href: "/portal/catalogo", label: "Catálogo", icon: ShoppingCart }, // ⭐ Nuevo
+  // ... más items
+];
+```
+
+**Cambiar colores del header:**
+
+```tsx
+// Logo gradient
+className="bg-gradient-to-br from-indigo-600 to-purple-600"
+
+// Active item
+className="bg-indigo-50 text-indigo-700"
+
+// Avatar gradient
+className="bg-gradient-to-br from-indigo-500 to-purple-500"
 ```
 
 ## 🎨 Diseño y Estilo
