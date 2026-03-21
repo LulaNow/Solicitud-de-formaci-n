@@ -18,7 +18,11 @@ type Scene =
   | "bandera"
   | "juarez"
   | "cincodemayo"
-  | "revolucion";
+  | "revolucion"
+  | "newyear"
+  | "laborday"
+  | "guadalupe"
+  | "holyweek";
 
 const ALL_SCENES: Scene[] = [
   "night",
@@ -36,6 +40,10 @@ const ALL_SCENES: Scene[] = [
   "juarez",
   "cincodemayo",
   "revolucion",
+  "newyear",
+  "laborday",
+  "guadalupe",
+  "holyweek",
 ];
 const RANDOM_BASE: Scene[] = ["night", "storm", "sunny"];
 
@@ -49,6 +57,14 @@ interface CalendarEvent {
 }
 
 const CALENDAR_EVENTS: CalendarEvent[] = [
+  {
+    key: "event_newyear",
+    scene: "newyear",
+    startMonth: 1,
+    startDay: 1,
+    endMonth: 1,
+    endDay: 1,
+  },
   {
     key: "event_reyes",
     scene: "reyes",
@@ -90,6 +106,22 @@ const CALENDAR_EVENTS: CalendarEvent[] = [
     endDay: 21,
   },
   {
+    key: "event_holyweek",
+    scene: "holyweek",
+    startMonth: 3,
+    startDay: 25,
+    endMonth: 4,
+    endDay: 5,
+  },
+  {
+    key: "event_laborday",
+    scene: "laborday",
+    startMonth: 5,
+    startDay: 1,
+    endMonth: 5,
+    endDay: 1,
+  },
+  {
     key: "event_cincodemayo",
     scene: "cincodemayo",
     startMonth: 5,
@@ -128,6 +160,14 @@ const CALENDAR_EVENTS: CalendarEvent[] = [
     startDay: 19,
     endMonth: 11,
     endDay: 20,
+  },
+  {
+    key: "event_guadalupe",
+    scene: "guadalupe",
+    startMonth: 12,
+    startDay: 11,
+    endMonth: 12,
+    endDay: 12,
   },
   {
     key: "event_christmas",

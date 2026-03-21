@@ -1,0 +1,36 @@
+/* Nieve - Snow Scene */
+@import './base.css';
+
+.ls-snow .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #d0d8e0 0%,
+    #e0e6ed 30%,
+    #ecf0f5 60%,
+    #f5f7fa 100%
+  );
+}
+
+.ls-snow .ls-snowfall {
+  opacity: 1;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle, white 1px, transparent 1px),
+    radial-gradient(circle, white 1px, transparent 1px),
+    radial-gradient(circle, white 2px, transparent 2px);
+  background-size: 100px 100px, 150px 150px, 200px 200px;
+  background-position: 0 0, 50px 50px, 100px 100px;
+  animation: ls-snowfall 20s linear infinite;
+  contain: strict;
+}
+
+@keyframes ls-snowfall {
+  0% { background-position: 0 0, 50px 50px, 100px 100px; }
+  100% { background-position: 0 200px, 50px 250px, 100px 300px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-snow .ls-snowfall {
+    animation: none;
+  }
+}

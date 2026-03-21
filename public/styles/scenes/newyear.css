@@ -1,0 +1,55 @@
+/* Año Nuevo - 1 de Enero */
+@import './base.css';
+
+.ls-newyear .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #0a0a2e 0%,
+    #16213e 30%,
+    #0f3460 60%,
+    #533483 100%
+  );
+}
+
+.ls-newyear .ls-fireworks {
+  opacity: 1;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(255, 215, 0, 0.6) 0%, transparent 4%),
+    radial-gradient(circle at 70% 30%, rgba(255, 105, 180, 0.6) 0%, transparent 4%),
+    radial-gradient(circle at 50% 60%, rgba(0, 191, 255, 0.6) 0%, transparent 4%),
+    radial-gradient(circle at 20% 70%, rgba(50, 205, 50, 0.6) 0%, transparent 4%),
+    radial-gradient(circle at 80% 50%, rgba(255, 69, 0, 0.6) 0%, transparent 4%);
+  animation: ls-newyearFireworks 2s infinite;
+  contain: strict;
+}
+
+@keyframes ls-newyearFireworks {
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.ls-newyear .ls-stars {
+  opacity: 1;
+  inset: 0;
+  background: 
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 60%, white, transparent);
+  background-size: 200px 200px;
+  animation: ls-twinkle 3s infinite;
+}
+
+@keyframes ls-twinkle {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-newyear .ls-fireworks,
+  .ls-newyear .ls-stars {
+    animation: none;
+  }
+}

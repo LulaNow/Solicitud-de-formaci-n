@@ -1,0 +1,86 @@
+/* Tormenta - Storm Scene */
+@import './base.css';
+
+.ls-storm .ls-sky {
+  background: linear-gradient(
+    to bottom,
+    #1a1a2e 0%,
+    #2d2d44 30%,
+    #3f3f5a 60%,
+    #4a4a66 100%
+  );
+}
+
+.ls-storm .ls-rain,
+.ls-storm .ls-lightning,
+.ls-storm .ls-storm-cloud {
+  opacity: 1;
+}
+
+.ls-storm .ls-rain {
+  inset: 0;
+  background-image: 
+    linear-gradient(transparent 0%, transparent 50%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 100%);
+  background-size: 2px 20px;
+  animation: ls-rainfall 0.5s linear infinite;
+  contain: strict;
+}
+
+.ls-storm .ls-lightning {
+  inset: 0;
+  background: rgba(255, 255, 255, 0);
+  animation: ls-flash 4s infinite;
+  pointer-events: none;
+}
+
+.ls-storm .ls-storm-cloud {
+  background: radial-gradient(ellipse at center, rgba(60, 60, 80, 0.8), transparent);
+  border-radius: 50%;
+}
+
+.ls-storm .ls-storm-cloud--1 {
+  top: 10%;
+  left: 20%;
+  width: 150px;
+  height: 60px;
+  animation: ls-cloudDrift 20s infinite ease-in-out;
+}
+
+.ls-storm .ls-storm-cloud--2 {
+  top: 15%;
+  right: 25%;
+  width: 180px;
+  height: 70px;
+  animation: ls-cloudDrift 25s infinite ease-in-out 5s;
+}
+
+.ls-storm .ls-storm-cloud--3 {
+  top: 20%;
+  left: 50%;
+  width: 160px;
+  height: 65px;
+  animation: ls-cloudDrift 22s infinite ease-in-out 10s;
+}
+
+@keyframes ls-rainfall {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 20px; }
+}
+
+@keyframes ls-flash {
+  0%, 90%, 100% { background: rgba(255, 255, 255, 0); }
+  92%, 94% { background: rgba(255, 255, 255, 0.3); }
+}
+
+@keyframes ls-cloudDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(30px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ls-storm .ls-rain,
+  .ls-storm .ls-lightning,
+  .ls-storm .ls-storm-cloud {
+    animation: none;
+  }
+}
