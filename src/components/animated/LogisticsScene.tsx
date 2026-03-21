@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
 import "./logistics-scene.css";
+import "./holiday-scenes.css";
 import { SceneSelectorPopup } from "./SceneSelectorPopup";
 
 type Scene =
@@ -316,52 +317,72 @@ export function LogisticsScene() {
       {/* Snow / Christmas: snowfall */}
       <div className="ls-snowfall" />
 
-      {/* Christmas: lights + tree + star + Santa */}
+      {/* Christmas: lights + tree + star + CSS Santa Sleigh */}
       <div className="ls-xmas-lights" />
       <div className="ls-xmas-tree" />
       <div className="ls-xmas-star" />
-      <div className="ls-santa">🎅🦌</div>
+      <div className="ls-santa">
+        <div className="ls-santa__sleigh" />
+        <div className="ls-santa__figure" />
+        <div className="ls-santa__bag" />
+        <div className="ls-santa__reindeer" />
+        <div className="ls-santa__legs" />
+        <div className="ls-santa__nose" />
+      </div>
 
-      {/* New Year: year counter + fireworks */}
-      <div className="ls-year-counter">{new Date().getFullYear() + 1}</div>
+      {/* New Year: banner + confetti */}
+      <div className="ls-newyear-banner">
+        <span className="ls-newyear-banner__greeting">¡Feliz Año Nuevo!</span>
+        <span className="ls-newyear-banner__year">{new Date().getFullYear() + 1}</span>
+      </div>
+      <div className="ls-confetti" />
 
-      {/* Halloween: bats + pumpkin */}
+      {/* Halloween: bats + pumpkin + skulls + spider + fog */}
       <div className="ls-bats" />
       <div className="ls-pumpkin">🎃</div>
+      <div className="ls-halloween-skulls" />
+      <div className="ls-spider-web" />
+      <div className="ls-halloween-fog" />
 
       {/* Día de Muertos: cempasúchil + papel picado + calavera */}
       <div className="ls-cempasuchil" />
       <div className="ls-papel-picado" />
       <div className="ls-calavera">💀</div>
 
-      {/* Fiestas Patrias: fireworks + tricolor */}
+      {/* Fiestas Patrias: fireworks + tricolor + bell */}
       <div className="ls-fireworks" />
       <div className="ls-tricolor" />
+      <div className="ls-patrias-bell" />
 
-      {/* San Valentín: hearts */}
+      {/* San Valentín: hearts + extras + cupid */}
       <div className="ls-hearts" />
+      <div className="ls-valentine-extras" />
+      <div className="ls-cupid" />
 
-      {/* Virgen de Guadalupe: roses */}
+      {/* Virgen de Guadalupe: rays + candles + roses */}
+      <div className="ls-guadalupe-rays" />
+      <div className="ls-guadalupe-candles" />
       <div className="ls-roses" />
+
+      {/* Semana Santa: cross + dove */}
+      <div className="ls-holyweek-cross" />
+      <div className="ls-holyweek-dove" />
+
+      {/* Constitución: scroll */}
+      <div className="ls-constitucion-scroll" />
+
+      {/* Bandera: flag */}
+      <div className="ls-bandera-flag" />
+
+      {/* Juárez: banner */}
+      <div className="ls-juarez-banner" />
+
+      {/* Reyes: camels + gifts */}
+      <div className="ls-reyes-camels" />
+      <div className="ls-reyes-gifts" />
 
       {/* Día de Reyes: Star of Bethlehem */}
       <div className="ls-star-belen" />
-
-      {/* Día de la Constitución */}
-      <div className="ls-mexican-flag" />
-
-      {/* Día de la Bandera */}
-      <div className="ls-eagle" />
-
-      {/* Benito Juárez */}
-      <div className="ls-benito-juarez" />
-
-      {/* Cinco de Mayo */}
-      <div className="ls-cannon" />
-      <div className="ls-sombrero" />
-
-      {/* Revolución Mexicana */}
-      {/* Uses ls-sombrero, ls-cannon, ls-mexican-flag already defined */}
 
       {/* Snow overlay (admin toggle — adds snow on any base scene) */}
       {showSnowOverlay && <div className="ls-snowfall" style={{ zIndex: 8 }} />}

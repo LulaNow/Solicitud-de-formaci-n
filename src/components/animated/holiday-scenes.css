@@ -1,0 +1,387 @@
+/* ═══ HOLIDAY SCENES - MEGA REDESIGN ═══ */
+
+/* ── Fireworks ── */
+.ls-fireworks {
+  position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden;
+}
+.ls-fireworks::before, .ls-fireworks::after {
+  content: ""; position: absolute; width: 6px; height: 6px; border-radius: 50%;
+  animation: ls-fireworkBurst 4s ease-out infinite;
+}
+.ls-fireworks::before {
+  top: 10%; left: 20%;
+  box-shadow: 0 0 0 0 rgba(0,180,50,0.8), 8px -12px 0 0 rgba(255,255,255,0.7), -10px -8px 0 0 rgba(206,17,38,0.8), 12px 4px 0 0 rgba(0,180,50,0.6), -6px 10px 0 0 rgba(255,255,255,0.6);
+  animation-duration: 3.5s;
+}
+.ls-fireworks::after {
+  top: 8%; right: 25%;
+  box-shadow: 0 0 0 0 rgba(206,17,38,0.8), -8px -14px 0 0 rgba(0,180,50,0.7), 10px -10px 0 0 rgba(255,255,255,0.8), -14px 2px 0 0 rgba(206,17,38,0.6), 6px 8px 0 0 rgba(0,180,50,0.6);
+  animation-duration: 4.5s; animation-delay: -2s;
+}
+@keyframes ls-fireworkBurst {
+  0% { opacity: 0; transform: scale(0); }
+  20% { opacity: 1; transform: scale(1); }
+  40% { opacity: 1; transform: scale(3); }
+  100% { opacity: 0; transform: scale(5); }
+}
+
+/* ── Tricolor banner ── */
+.ls-tricolor {
+  position: absolute; top: 0; left: 0; right: 0; height: 6px; z-index: 3;
+  background: linear-gradient(90deg, #006847 0%, #006847 33%, #fff 33%, #fff 66%, #ce1126 66%, #ce1126 100%);
+  animation: ls-tricolorPulse 3s ease-in-out infinite;
+}
+@keyframes ls-tricolorPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+/* ── Falling hearts (base) ── */
+.ls-hearts {
+  position: absolute; inset: 0; pointer-events: none; z-index: 7; overflow: hidden; contain: strict;
+}
+.ls-hearts::before, .ls-hearts::after {
+  content: ""; position: absolute; top: -40px; left: 0; width: 100%; height: calc(100% + 40px);
+  background-image:
+    radial-gradient(5px 5px at 80px 30px, #ff4081 50%, transparent 50%),
+    radial-gradient(4px 4px at 200px 70px, #e91e63 50%, transparent 50%),
+    radial-gradient(6px 6px at 340px 40px, #ff4081 50%, transparent 50%),
+    radial-gradient(4px 4px at 480px 90px, #e91e63 50%, transparent 50%),
+    radial-gradient(5px 5px at 620px 20px, #ff4081 50%, transparent 50%),
+    radial-gradient(4px 4px at 760px 60px, #e91e63 50%, transparent 50%),
+    radial-gradient(6px 6px at 900px 50px, #ff4081 50%, transparent 50%);
+  background-size: 1000px 120px; animation: ls-heartFall 7s linear infinite;
+}
+.ls-hearts::after {
+  background-image:
+    radial-gradient(4px 4px at 60px 50px, #e91e63 50%, transparent 50%),
+    radial-gradient(6px 6px at 180px 20px, #ff4081 50%, transparent 50%),
+    radial-gradient(4px 4px at 320px 80px, #e91e63 50%, transparent 50%),
+    radial-gradient(5px 5px at 450px 30px, #ff4081 50%, transparent 50%),
+    radial-gradient(4px 4px at 590px 100px, #e91e63 50%, transparent 50%),
+    radial-gradient(6px 6px at 720px 40px, #ff4081 50%, transparent 50%);
+  background-size: 800px 130px; animation-duration: 10s; animation-delay: -4s;
+}
+@keyframes ls-heartFall { from { transform: translateY(-120px); } to { transform: translateY(130px); } }
+
+/* Valentine overrides */
+.ls-valentine .ls-moon {
+  background: radial-gradient(circle, #ffb6c1 30%, #ff69b4 60%, #db7093 100%);
+  box-shadow: 0 0 40px rgba(255,105,180,0.4); display: block;
+}
+.ls-valentine .ls-cloud, .ls-valentine .ls-cloud::before, .ls-valentine .ls-cloud::after { background: rgba(255,150,200,0.12); }
+.ls-valentine .ls-road { background: #2a1020; }
+.ls-valentine .ls-hospital { box-shadow: 0 0 20px rgba(255,64,129,0.12); }
+
+/* ── Star of Bethlehem ── */
+.ls-star-belen {
+  position: absolute; top: 8%; left: 25%; width: 14px; height: 14px; background: #ffd700;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  z-index: 6; animation: ls-belenGlow 2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(255,215,0,0.6));
+}
+.ls-star-belen::after {
+  content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 200px; background: linear-gradient(180deg, rgba(255,215,0,0.6), transparent);
+}
+.ls-star-belen::before {
+  content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 40px; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+}
+@keyframes ls-belenGlow {
+  0% { filter: brightness(1) drop-shadow(0 0 6px rgba(255,215,0,0.5)); transform: scale(1); }
+  100% { filter: brightness(1.5) drop-shadow(0 0 16px rgba(255,215,0,0.8)); transform: scale(1.15); }
+}
+
+/* Reyes overrides */
+.ls-reyes .ls-cloud, .ls-reyes .ls-cloud::before, .ls-reyes .ls-cloud::after { background: rgba(255,255,255,0.06); }
+.ls-reyes .ls-cloud--1 { animation-duration: 65s; opacity: 0.5; }
+.ls-reyes .ls-cloud--2 { animation-duration: 85s; opacity: 0.3; }
+.ls-reyes .ls-bldg--win-a::after {
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 70%, rgba(255,200,80,0.5) 70%, rgba(255,200,80,0.5) 82%, transparent 82%), repeating-linear-gradient(90deg, transparent, transparent 60%, rgba(255,200,80,0.5) 60%, rgba(255,200,80,0.5) 80%, transparent 80%);
+}
+.ls-reyes .ls-hospital { box-shadow: 0 0 20px rgba(255,215,0,0.1); }
+.ls-reyes .ls-road { background: #0f1525; }
+
+/* ── Cempasúchil (Día de Muertos) ── */
+.ls-cempasuchil {
+  position: absolute; inset: 0; pointer-events: none; z-index: 7; overflow: hidden; contain: strict;
+}
+.ls-cempasuchil::before, .ls-cempasuchil::after {
+  content: ""; position: absolute; top: -40px; left: 0; width: 100%; height: calc(100% + 40px);
+  background-image:
+    radial-gradient(4px 4px at 50px 30px, #f5a623 50%, transparent 50%),
+    radial-gradient(3px 3px at 150px 80px, #ffca28 50%, transparent 50%),
+    radial-gradient(5px 5px at 280px 50px, #f5a623 50%, transparent 50%),
+    radial-gradient(3px 3px at 400px 100px, #ffca28 50%, transparent 50%),
+    radial-gradient(4px 4px at 530px 20px, #f5a623 50%, transparent 50%),
+    radial-gradient(5px 5px at 660px 70px, #ffca28 50%, transparent 50%),
+    radial-gradient(3px 3px at 800px 40px, #f5a623 50%, transparent 50%),
+    radial-gradient(4px 4px at 930px 90px, #ffca28 50%, transparent 50%);
+  background-size: 1000px 120px; animation: ls-petalFall 8s linear infinite;
+}
+.ls-cempasuchil::after {
+  background-image:
+    radial-gradient(3px 3px at 80px 50px, #ffca28 50%, transparent 50%),
+    radial-gradient(4px 4px at 200px 20px, #f5a623 50%, transparent 50%),
+    radial-gradient(3px 3px at 350px 90px, #ffca28 50%, transparent 50%),
+    radial-gradient(5px 5px at 500px 40px, #f5a623 50%, transparent 50%),
+    radial-gradient(3px 3px at 650px 110px, #ffca28 50%, transparent 50%),
+    radial-gradient(4px 4px at 780px 60px, #f5a623 50%, transparent 50%);
+  background-size: 850px 130px; animation-duration: 11s; animation-delay: -5s;
+}
+@keyframes ls-petalFall { from { transform: translateY(-120px); } to { transform: translateY(130px); } }
+
+/* ── Papel picado ── */
+.ls-papel-picado {
+  position: absolute; top: 5%; left: 0; right: 0; height: 12px; z-index: 3;
+  background: repeating-linear-gradient(90deg, #e040fb 0 12px, transparent 12px 16px, #40c4ff 16px 28px, transparent 28px 32px, #ffca28 32px 44px, transparent 44px 48px, #69f0ae 48px 60px, transparent 60px 64px);
+  animation: ls-papelSway 3s ease-in-out infinite;
+}
+@keyframes ls-papelSway { 0%, 100% { transform: translateX(0) skewX(0); } 50% { transform: translateX(4px) skewX(-1deg); } }
+
+/* ── Calavera ── */
+.ls-calavera {
+  position: absolute; bottom: 115px; left: 55%; font-size: 24px; z-index: 3;
+  animation: ls-calaveraFloat 4s ease-in-out infinite;
+}
+@keyframes ls-calaveraFloat {
+  0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 4px rgba(224,64,251,0.4)); }
+  50% { transform: translateY(-6px); filter: drop-shadow(0 0 8px rgba(224,64,251,0.7)); }
+}
+
+/* Muertos overrides */
+.ls-muertos .ls-cloud, .ls-muertos .ls-cloud::before, .ls-muertos .ls-cloud::after { background: rgba(80,30,100,0.3); }
+.ls-muertos .ls-road { background: #1a1030; }
+.ls-muertos .ls-hospital { box-shadow: 0 0 20px rgba(224,64,251,0.12); }
+.ls-muertos .ls-pharmacy { box-shadow: 0 0 20px rgba(255,202,40,0.1); }
+
+/* Patrias overrides */
+.ls-patrias .ls-cloud, .ls-patrias .ls-cloud::before, .ls-patrias .ls-cloud::after { background: rgba(255,255,255,0.06); }
+.ls-patrias .ls-road { background: #101020; }
+
+/* 🎄 CHRISTMAS - Santa CSS Sleigh */
+.ls-santa { position: absolute; top: 12%; z-index: 8; display: none; animation: ls-santaFly 20s linear infinite; }
+.ls-christmas .ls-santa { display: block; }
+.ls-santa__sleigh { position: relative; width: 60px; height: 20px; }
+.ls-santa__sleigh::before { content: ""; position: absolute; bottom: -4px; left: -8px; width: 70px; height: 6px; background: #8B0000; border-radius: 0 0 8px 20px; }
+.ls-santa__sleigh::after { content: ""; position: absolute; bottom: 0; left: 0; width: 55px; height: 18px; background: linear-gradient(180deg, #cc0000, #990000); border-radius: 4px 4px 2px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.ls-santa__figure { position: absolute; bottom: 16px; left: 12px; width: 14px; height: 18px; background: #cc0000; border-radius: 4px 4px 2px 2px; }
+.ls-santa__figure::before { content: ""; position: absolute; top: -8px; left: 2px; width: 10px; height: 10px; background: #ffd4a8; border-radius: 50%; }
+.ls-santa__figure::after { content: ""; position: absolute; top: -14px; left: 1px; width: 12px; height: 8px; background: #cc0000; border-radius: 50% 50% 0 0; box-shadow: 6px -2px 0 0 #fff; }
+.ls-santa__bag { position: absolute; bottom: 16px; left: 30px; width: 20px; height: 22px; background: #8B4513; border-radius: 4px 6px 2px 2px; }
+.ls-santa__reindeer { position: absolute; bottom: 6px; right: -45px; width: 35px; height: 16px; background: #8B6914; border-radius: 10px 4px 4px 10px; }
+.ls-santa__reindeer::before { content: ""; position: absolute; top: -6px; right: -2px; width: 10px; height: 10px; background: #8B6914; border-radius: 50%; }
+.ls-santa__reindeer::after { content: ""; position: absolute; top: -12px; right: 0; width: 4px; height: 8px; background: #5a4520; border-radius: 2px; box-shadow: 6px 0 0 0 #5a4520; }
+.ls-santa__legs { position: absolute; bottom: -8px; right: -35px; width: 3px; height: 8px; background: #6B5010; animation: ls-legRun 0.4s ease-in-out infinite alternate; }
+.ls-santa__legs::before { content: ""; position: absolute; left: 8px; width: 3px; height: 8px; background: #6B5010; }
+.ls-santa__legs::after { content: ""; position: absolute; left: 20px; width: 3px; height: 8px; background: #6B5010; box-shadow: 8px 0 0 0 #6B5010; }
+.ls-santa__nose { position: absolute; top: -2px; right: -50px; width: 6px; height: 6px; background: #ff0000; border-radius: 50%; box-shadow: 0 0 8px 3px rgba(255,0,0,0.6); animation: ls-noseGlow 1s ease-in-out infinite alternate; }
+
+@keyframes ls-santaFly {
+  0% { transform: translateX(calc(100vw + 120px)) translateY(0); }
+  25% { transform: translateX(75vw) translateY(-15px); }
+  50% { transform: translateX(50vw) translateY(5px); }
+  75% { transform: translateX(25vw) translateY(-10px); }
+  100% { transform: translateX(-200px) translateY(0); }
+}
+@keyframes ls-legRun { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
+@keyframes ls-noseGlow { 0% { box-shadow: 0 0 6px 2px rgba(255,0,0,0.4); } 100% { box-shadow: 0 0 12px 5px rgba(255,0,0,0.8); } }
+
+/* 🎃 HALLOWEEN extras */
+.ls-halloween-skulls { position: absolute; bottom: 112px; left: 0; right: 0; height: 20px; z-index: 3; display: none; }
+.ls-halloween .ls-halloween-skulls { display: block; }
+.ls-halloween-skulls::before { content: "💀"; position: absolute; left: 15%; font-size: 16px; animation: ls-skullBob 3s ease-in-out infinite; }
+.ls-halloween-skulls::after { content: "☠️"; position: absolute; right: 22%; font-size: 14px; animation: ls-skullBob 3.5s ease-in-out infinite 1s; }
+@keyframes ls-skullBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+.ls-spider-web { position: absolute; top: 3%; right: 4%; width: 50px; height: 50px; border: 1px solid rgba(255,255,255,0.12); border-radius: 0 0 50% 0; z-index: 6; display: none; }
+.ls-halloween .ls-spider-web { display: block; }
+.ls-spider-web::before { content: ""; position: absolute; inset: 0; border: 1px solid rgba(255,255,255,0.08); border-radius: 0 0 50% 0; transform: scale(0.5); transform-origin: top left; }
+.ls-spider-web::after { content: "🕷️"; position: absolute; bottom: -12px; right: 8px; font-size: 14px; animation: ls-spiderDangle 4s ease-in-out infinite; }
+@keyframes ls-spiderDangle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+.ls-halloween-fog { position: absolute; bottom: 100px; left: 0; right: 0; height: 50px; z-index: 5; display: none; background: linear-gradient(180deg, transparent, rgba(100,50,120,0.15), transparent); animation: ls-fogDrift 8s ease-in-out infinite alternate; }
+.ls-halloween .ls-halloween-fog { display: block; }
+@keyframes ls-fogDrift { 0% { transform: translateX(-20px); opacity: 0.4; } 100% { transform: translateX(20px); opacity: 0.7; } }
+
+/* 🎆 AÑO NUEVO */
+.ls-newyear { --sky-1: #05001a; --sky-2: #100540; --sky-3: #200a60; --sky-4: #301080; }
+.ls-newyear .ls-stars { display: block; }
+.ls-newyear .ls-fireworks { display: block; }
+.ls-newyear .ls-newyear-banner { display: flex; }
+.ls-newyear .ls-confetti { display: block; }
+.ls-newyear .ls-city { filter: brightness(1.3) saturate(1.4); }
+.ls-newyear .ls-moon { background: radial-gradient(circle, #fffbe6 30%, #ffd700 80%); box-shadow: 0 0 40px rgba(255,215,0,0.5); display: block; }
+
+.ls-newyear-banner { position: absolute; top: 3%; left: 0; right: 0; display: none; flex-direction: column; align-items: center; z-index: 10; pointer-events: none; gap: 2px; }
+.ls-newyear-banner__greeting { font-size: 16px; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); letter-spacing: 4px; text-transform: uppercase; }
+.ls-newyear-banner__year { font-size: 48px; font-weight: 900; color: #ffd700; font-family: system-ui, sans-serif; text-shadow: 0 0 15px rgba(255,215,0,0.8), 0 0 30px rgba(255,215,0,0.5); animation: ls-yearShine 3s ease-in-out infinite; line-height: 1; }
+@keyframes ls-yearShine { 0%, 100% { filter: brightness(1); transform: scale(1); } 50% { filter: brightness(1.3); transform: scale(1.05); } }
+
+.ls-confetti { position: absolute; inset: 0; pointer-events: none; z-index: 7; overflow: hidden; display: none; }
+.ls-confetti::before, .ls-confetti::after {
+  content: ""; position: absolute; top: -20px; left: 0; width: 100%; height: calc(100% + 20px);
+  background-image:
+    radial-gradient(3px 6px at 60px 20px, #ffd700 50%, transparent 50%),
+    radial-gradient(4px 3px at 180px 50px, #ff4081 50%, transparent 50%),
+    radial-gradient(3px 5px at 320px 30px, #40c4ff 50%, transparent 50%),
+    radial-gradient(5px 3px at 450px 70px, #69f0ae 50%, transparent 50%),
+    radial-gradient(3px 4px at 580px 15px, #ffca28 50%, transparent 50%),
+    radial-gradient(4px 5px at 700px 55px, #e040fb 50%, transparent 50%),
+    radial-gradient(3px 3px at 830px 40px, #ff5252 50%, transparent 50%);
+  background-size: 900px 80px; animation: ls-confettiFall 5s linear infinite;
+}
+.ls-confetti::after { animation-duration: 7s; animation-delay: -3s; }
+@keyframes ls-confettiFall { from { transform: translateY(-80px); } to { transform: translateY(80px); } }
+
+/* 💝 SAN VALENTÍN extras */
+.ls-valentine-extras { position: absolute; inset: 0; pointer-events: none; z-index: 8; overflow: hidden; display: none; }
+.ls-valentine .ls-valentine-extras { display: block; }
+.ls-valentine-extras::before { content: "❤️"; position: absolute; font-size: 22px; top: 15%; left: 10%; animation: ls-heartFloat 6s ease-in-out infinite; }
+.ls-valentine-extras::after { content: "🌹"; position: absolute; font-size: 18px; top: 25%; right: 15%; animation: ls-heartFloat 7s ease-in-out infinite 2s; }
+@keyframes ls-heartFloat {
+  0% { transform: translateY(0) scale(1); opacity: 0.7; }
+  50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.7; }
+}
+
+/* Cupid arrow flying */
+.ls-cupid { position: absolute; top: 20%; z-index: 8; display: none; animation: ls-cupidFly 12s linear infinite; }
+.ls-valentine .ls-cupid { display: block; }
+.ls-cupid::before { content: "💘"; font-size: 28px; }
+@keyframes ls-cupidFly {
+  0% { transform: translateX(-50px) translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 50px)) translateY(-30px); opacity: 0; }
+}
+
+/* 👑 DÍA DE REYES - Three Kings */
+.ls-reyes-camels { position: absolute; bottom: 115px; z-index: 4; display: none; animation: ls-camelWalk 25s linear infinite; }
+.ls-reyes .ls-reyes-camels { display: block; }
+.ls-reyes-camels::before { content: "🐪👑🐪👑🐪👑"; font-size: 18px; letter-spacing: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+@keyframes ls-camelWalk {
+  0% { transform: translateX(calc(100vw + 100px)); }
+  100% { transform: translateX(-300px); }
+}
+
+/* Gift boxes on ground */
+.ls-reyes-gifts { position: absolute; bottom: 112px; left: 0; right: 0; z-index: 3; display: none; }
+.ls-reyes .ls-reyes-gifts { display: block; }
+.ls-reyes-gifts::before { content: "🎁"; position: absolute; left: 20%; font-size: 16px; }
+.ls-reyes-gifts::after { content: "🎁"; position: absolute; right: 25%; font-size: 14px; }
+
+/* 🌹 VIRGEN DE GUADALUPE - Elegant */
+.ls-guadalupe { --sky-1: #05001a; --sky-2: #0a0530; --sky-3: #150a45; --sky-4: #200f55; }
+.ls-guadalupe .ls-stars { display: block; }
+.ls-guadalupe .ls-moon { display: block; }
+.ls-guadalupe .ls-guadalupe-rays { display: block; }
+.ls-guadalupe .ls-guadalupe-candles { display: block; }
+.ls-guadalupe .ls-city { filter: brightness(0.9) saturate(0.8); }
+.ls-guadalupe .ls-moon { background: radial-gradient(circle, #fffbe6 20%, #ffd700 60%, #c8a800 100%); box-shadow: 0 0 50px rgba(255,215,0,0.4), 0 0 100px rgba(255,215,0,0.2); }
+
+/* Golden rays from sky */
+.ls-guadalupe-rays { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; display: none; pointer-events: none; background: radial-gradient(ellipse at 50% 20%, rgba(255,215,0,0.08) 0%, transparent 60%); animation: ls-raysGlow 4s ease-in-out infinite alternate; }
+@keyframes ls-raysGlow { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+/* Candle flames */
+.ls-guadalupe-candles { position: absolute; bottom: 112px; left: 0; right: 0; z-index: 3; display: none; }
+.ls-guadalupe .ls-guadalupe-candles { display: block; }
+.ls-guadalupe-candles::before { content: "🕯️"; position: absolute; left: 18%; font-size: 16px; animation: ls-candleFlicker 2s ease-in-out infinite alternate; }
+.ls-guadalupe-candles::after { content: "🕯️"; position: absolute; right: 18%; font-size: 16px; animation: ls-candleFlicker 2.5s ease-in-out infinite alternate 0.5s; }
+@keyframes ls-candleFlicker { 0% { filter: brightness(0.8); } 100% { filter: brightness(1.3); } }
+
+/* Roses floating up */
+.ls-roses { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; display: none; }
+.ls-guadalupe .ls-roses { display: block; }
+.ls-roses::before { content: "🌹"; position: absolute; bottom: -20px; left: 30%; font-size: 18px; animation: ls-roseFloat 10s ease-in-out infinite; }
+.ls-roses::after { content: "🌹"; position: absolute; bottom: -20px; right: 30%; font-size: 14px; animation: ls-roseFloat 13s ease-in-out infinite 3s; }
+@keyframes ls-roseFloat {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(calc(-100vh)) rotate(180deg); opacity: 0; }
+}
+
+/* ✝️ SEMANA SANTA - Solemn Purple */
+.ls-holyweek { --sky-1: #1a0a30; --sky-2: #2a1050; --sky-3: #3a1870; --sky-4: #4a2080; }
+.ls-holyweek .ls-city { filter: brightness(0.75) saturate(0.6) hue-rotate(10deg); }
+.ls-holyweek .ls-cloud, .ls-holyweek .ls-cloud::before, .ls-holyweek .ls-cloud::after { background: rgba(80,40,100,0.3); display: block; }
+.ls-holyweek .ls-holyweek-cross { display: block; }
+.ls-holyweek .ls-holyweek-dove { display: block; }
+.ls-holyweek .ls-road { background: #1a1025; }
+
+/* Cross silhouette */
+.ls-holyweek-cross { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); z-index: 6; display: none; }
+.ls-holyweek-cross::before { content: ""; position: absolute; width: 6px; height: 50px; background: linear-gradient(180deg, #4a2060, #2a1040); left: 50%; transform: translateX(-50%); border-radius: 2px; box-shadow: 0 0 20px rgba(100,50,150,0.3); }
+.ls-holyweek-cross::after { content: ""; position: absolute; width: 30px; height: 5px; background: linear-gradient(90deg, #4a2060, #3a1850, #4a2060); top: 12px; left: 50%; transform: translateX(-50%); border-radius: 2px; }
+
+/* Dove flying */
+.ls-holyweek-dove { position: absolute; top: 25%; z-index: 7; display: none; animation: ls-doveFly 15s ease-in-out infinite; }
+.ls-holyweek-dove::before { content: "🕊️"; font-size: 22px; }
+@keyframes ls-doveFly {
+  0% { transform: translateX(-40px) translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translateX(50vw) translateY(-20px); }
+  90% { opacity: 1; }
+  100% { transform: translateX(calc(100vw + 40px)) translateY(0); opacity: 0; }
+}
+
+/* 📜 CONSTITUCIÓN - Document & Eagle */
+.ls-constitucion { --sky-1: #0a1520; --sky-2: #142030; --sky-3: #1e3040; --sky-4: #284050; }
+.ls-constitucion .ls-stars { display: block; }
+.ls-constitucion .ls-tricolor { display: block; }
+.ls-constitucion .ls-constitucion-scroll { display: flex; }
+.ls-constitucion .ls-city { filter: brightness(1.05) saturate(1.1); }
+
+.ls-constitucion-scroll { position: absolute; top: 8%; left: 50%; transform: translateX(-50%); display: none; align-items: center; justify-content: center; z-index: 10; pointer-events: none; }
+.ls-constitucion-scroll::before { content: "📜"; font-size: 30px; animation: ls-scrollGlow 3s ease-in-out infinite alternate; }
+@keyframes ls-scrollGlow { 0% { filter: brightness(0.9) drop-shadow(0 0 4px rgba(255,215,0,0.3)); } 100% { filter: brightness(1.2) drop-shadow(0 0 10px rgba(255,215,0,0.6)); } }
+
+/* 🇲🇽 BANDERA - Waving Flag */
+.ls-bandera { --sky-1: #051510; --sky-2: #0a2520; --sky-3: #103530; --sky-4: #184540; }
+.ls-bandera .ls-tricolor { display: block; height: 8px; }
+.ls-bandera .ls-bandera-flag { display: block; }
+.ls-bandera .ls-stars { display: block; }
+.ls-bandera .ls-city { filter: brightness(1.1) saturate(1.2); }
+
+/* Big waving flag */
+.ls-bandera-flag { position: absolute; top: 8%; left: 50%; transform: translateX(-50%); z-index: 6; display: none; width: 60px; height: 40px; overflow: hidden; animation: ls-flagWave 2s ease-in-out infinite; }
+.ls-bandera-flag::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #006847 0%, #006847 33%, #fff 33%, #fff 66%, #ce1126 66%, #ce1126 100%); }
+.ls-bandera-flag::after { content: "🦅"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; }
+@keyframes ls-flagWave { 0%, 100% { transform: translateX(-50%) skewX(0deg); } 50% { transform: translateX(-50%) skewX(-3deg); } }
+
+/* 🎩 BENITO JUÁREZ - Dignified */
+.ls-juarez { --sky-1: #0a0a15; --sky-2: #151520; --sky-3: #202030; --sky-4: #2a2a40; }
+.ls-juarez .ls-stars { display: block; }
+.ls-juarez .ls-tricolor { display: block; }
+.ls-juarez .ls-juarez-banner { display: flex; }
+.ls-juarez .ls-city { filter: brightness(0.95) saturate(0.95) sepia(0.1); }
+
+.ls-juarez-banner { position: absolute; top: 6%; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; align-items: center; z-index: 10; pointer-events: none; }
+.ls-juarez-banner::before { content: "⚖️"; font-size: 28px; animation: ls-scrollGlow 3s ease-in-out infinite alternate; }
+
+/* 🎺 CINCO DE MAYO - Celebration */
+.ls-cincodemayo { --sky-1: #0a0520; --sky-2: #150a35; --sky-3: #201050; --sky-4: #2a1565; }
+.ls-cincodemayo .ls-stars { display: block; }
+.ls-cincodemayo .ls-fireworks { display: block; }
+.ls-cincodemayo .ls-tricolor { display: block; }
+.ls-cincodemayo .ls-papel-picado { display: block; }
+.ls-cincodemayo .ls-city { filter: brightness(1.15) saturate(1.3); }
+
+/* 🎊 FIESTAS PATRIAS - El Grito */
+.ls-patrias .ls-patrias-bell { display: block; }
+
+.ls-patrias-bell { position: absolute; top: 5%; left: 50%; transform: translateX(-50%); z-index: 10; display: none; }
+.ls-patrias-bell::before { content: "🔔"; font-size: 24px; animation: ls-bellRing 1s ease-in-out infinite; }
+@keyframes ls-bellRing { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(15deg); } 75% { transform: rotate(-15deg); } }
+
+/* 🌟 REVOLUCIÓN MEXICANA - Sepia Tones */
+.ls-revolucion { --sky-1: #1a1008; --sky-2: #2a1a10; --sky-3: #3a2818; --sky-4: #4a3520; }
+.ls-revolucion .ls-stars { display: block; }
+.ls-revolucion .ls-tricolor { display: block; }
+.ls-revolucion .ls-fireworks { display: block; }
+.ls-revolucion .ls-city { filter: brightness(0.9) saturate(0.7) sepia(0.4); }
+
+/* ⚒️ DÍA DEL TRABAJO - Bright Day */
+.ls-laborday { --sky-1: #2a7cc7; --sky-2: #4a9ee0; --sky-3: #72bdf5; --sky-4: #9ad4ff; }
+.ls-laborday .ls-sun { display: block; }
+.ls-laborday .ls-city { filter: brightness(1.15) saturate(1.1); }
