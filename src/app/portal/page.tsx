@@ -14,8 +14,13 @@ export default function ServicePortalPage() {
     categoryId: selectedCategory || undefined,
     search: searchQuery || undefined,
   });
+  const { data: publicForms, isLoading: formsLoading } = trpc.forms.list.useQuery({
+    limit: 20,
+    status: "PUBLISHED"
+  });
 
   const popularItems = items?.slice(0, 6) || [];
+  const availableForms = publicForms?.items.filter(f => f.isPublic) || [];
 
   // Check if portal is disabled
   if (configLoading) {
@@ -212,6 +217,68 @@ export default function ServicePortalPage() {
           </div>
         )}
       </div>
+
+      {/* Public Forms Section */}
+      {availableForms.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">Formularios Disponibles</h2>
+              <p className="text-gray-600 mt-1">Completa formularios de solicitud y registro</p>
+            </div>
+          </div>
+
+          {formsLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-48 bg-gray-200 rounded-xl animate-pulse"></div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {availableForms.map((form) => (
+                <Link
+                  key={form.id}
+                  href={`/f/${form.slug}`}
+                  className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all overflow-hidden group border-2 border-transparent hover:border-indigo-200"
+                >
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="text-4xl">📝</div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                          {form.name}
+                        </h3>
+                        <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full mt-1">
+                          Público
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    {form.description && (
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {form.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2 text-gray-500">
+                        <span>📋</span>
+                        <span>{form._count.fields} campos</span>
+                      </div>
+                      <span className="text-indigo-600 font-semibold group-hover:translate-x-1 transition-transform">
+                        Completar →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="bg-white border-t border-gray-200">
