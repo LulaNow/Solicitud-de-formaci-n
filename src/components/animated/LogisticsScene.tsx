@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc/client";
+import "./logistics-scene.css";
 
 type Scene =
   | "night"
@@ -232,24 +233,6 @@ export function LogisticsScene() {
   });
 
   useEffect(() => setMounted(true), []);
-
-  // Dynamic CSS loading - only load the active scene's CSS
-  useEffect(() => {
-    const linkId = `scene-css-${weather}`;
-    const existingLink = document.getElementById(linkId);
-
-    if (!existingLink) {
-      // Remove all other scene CSS
-      document.querySelectorAll('[id^="scene-css-"]').forEach(el => el.remove());
-
-      // Load only the active scene CSS
-      const link = document.createElement('link');
-      link.id = linkId;
-      link.rel = 'stylesheet';
-      link.href = `/styles/scenes/${weather}.css`;
-      document.head.appendChild(link);
-    }
-  }, [weather]);
 
   useEffect(() => {
     if (!config) return;
