@@ -103,7 +103,7 @@ export const formsRouter = router({
       description: form.description,
       version: form.version,
       isPublic: form.isPublic,
-      n8nWebhookUrl: form.n8nWebhookUrl,
+      // n8nWebhookUrl: form.n8nWebhookUrl, // ❌ SECURITY: Never expose webhook URLs to frontend
       fields: form.fields.map((f) => ({
         id: f.id,
         label: f.label,

@@ -2,11 +2,14 @@
 
 Esta carpeta contiene toda la documentación del **Portal Template Base** para proyectos futuros.
 
+> 🔒 **IMPORTANTE**: Antes de modificar o generar código del portal, **LEER OBLIGATORIAMENTE** `SECURITY.md` para evitar vulnerabilidades de seguridad.
+
 ## 📁 Contenido
 
 1. **PORTAL-TEMPLATE.md** - Estructura del portal público
 2. **FORM-TEMPLATE.md** - Patrón completo de formularios con validaciones y n8n
-3. **SETUP.md** - Configuración inicial del portal (este archivo)
+3. **SECURITY.md** - 🔒 **CRÍTICO**: Guías de seguridad y pentesting results
+4. **README.md** - Setup y configuración inicial del portal (este archivo)
 
 ---
 
@@ -25,7 +28,7 @@ npx tsx PORTAL_TEMPLATE_PROMPT/scripts/enable-portal.ts
 **Opción B: Via Base de Datos**
 
 ```sql
-INSERT INTO app_settings (key, value, type) 
+INSERT INTO app_settings (key, value, type)
 VALUES ('service_portal_enabled', 'true', 'boolean')
 ON CONFLICT (key) DO UPDATE SET value = 'true';
 ```
@@ -212,7 +215,7 @@ npx tsx PORTAL_TEMPLATE_PROMPT/scripts/enable-portal.ts
 
 **Causa**: No hay categorías o items en la BD
 
-**Solución**: 
+**Solución**:
 - Crear categorías y servicios desde admin UI
 - O ejecutar seed script (si existe)
 
@@ -246,6 +249,6 @@ npx tsx PORTAL_TEMPLATE_PROMPT/scripts/enable-portal.ts
 
 ---
 
-**Última actualización**: 2026-03-21  
-**Versión**: 1.0.0  
+**Última actualización**: 2026-03-21
+**Versión**: 1.0.0
 **Soporte**: Consultar documentación en esta carpeta
