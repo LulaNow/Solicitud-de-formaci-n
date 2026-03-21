@@ -299,26 +299,18 @@ export function LogisticsScene() {
       className={`ls-${weather} absolute inset-0 overflow-hidden select-none`}
       aria-hidden="true"
     >
-      <div className="absolute inset-0 ls-sky" />
+      {/* 3D City - Three.js (full background) */}
+      <City3D theme={weather} />
 
-      {/* Night / Christmas: stars + moon */}
-      <div className="ls-stars" />
-      <div className="ls-moon" />
-
-      {/* Sunny: sun + bright clouds */}
-      <div className="ls-sun" />
-      <div className="ls-sunny-cloud ls-sunny-cloud--1" />
-      <div className="ls-sunny-cloud ls-sunny-cloud--2" />
-
-      {/* Storm: rain + lightning + dark clouds */}
-      <div className="ls-rain" />
-      <div className="ls-lightning" />
-      <div className="ls-storm-cloud ls-storm-cloud--1" />
-      <div className="ls-storm-cloud ls-storm-cloud--2" />
-      <div className="ls-storm-cloud ls-storm-cloud--3" />
+      {/* CSS Weather overlays on top of 3D */}
+      <div className="ls-rain" style={{ zIndex: 5 }} />
+      <div className="ls-lightning" style={{ zIndex: 5 }} />
+      <div className="ls-storm-cloud ls-storm-cloud--1" style={{ zIndex: 4 }} />
+      <div className="ls-storm-cloud ls-storm-cloud--2" style={{ zIndex: 4 }} />
+      <div className="ls-storm-cloud ls-storm-cloud--3" style={{ zIndex: 4 }} />
 
       {/* Snow / Christmas: snowfall */}
-      <div className="ls-snowfall" />
+      <div className="ls-snowfall" style={{ zIndex: 5 }} />
 
       {/* Christmas: lights + tree + star + CSS Santa Sleigh */}
       <div className="ls-xmas-lights" />
@@ -389,13 +381,6 @@ export function LogisticsScene() {
 
       {/* Snow overlay (admin toggle — adds snow on any base scene) */}
       {showSnowOverlay && <div className="ls-snowfall" style={{ zIndex: 8 }} />}
-
-      {/* Shared clouds (styled per weather via CSS) */}
-      <div className="ls-cloud ls-cloud--1" />
-      <div className="ls-cloud ls-cloud--2" />
-
-      {/* 3D City - Three.js */}
-      <City3D theme={weather} />
 
       {/* Scene Selector Popup - Ctrl/Cmd + Shift + B */}
       <SceneSelectorPopup
