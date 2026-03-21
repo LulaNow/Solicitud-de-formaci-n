@@ -316,10 +316,14 @@ export function LogisticsScene() {
       {/* Snow / Christmas: snowfall */}
       <div className="ls-snowfall" />
 
-      {/* Christmas: lights + tree + star */}
+      {/* Christmas: lights + tree + star + Santa */}
       <div className="ls-xmas-lights" />
       <div className="ls-xmas-tree" />
       <div className="ls-xmas-star" />
+      <div className="ls-santa">🎅🦌</div>
+
+      {/* New Year: year counter + fireworks */}
+      <div className="ls-year-counter">{new Date().getFullYear() + 1}</div>
 
       {/* Halloween: bats + pumpkin */}
       <div className="ls-bats" />
@@ -336,6 +340,9 @@ export function LogisticsScene() {
 
       {/* San Valentín: hearts */}
       <div className="ls-hearts" />
+
+      {/* Virgen de Guadalupe: roses */}
+      <div className="ls-roses" />
 
       {/* Día de Reyes: Star of Bethlehem */}
       <div className="ls-star-belen" />

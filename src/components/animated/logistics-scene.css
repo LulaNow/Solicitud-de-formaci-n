@@ -56,10 +56,10 @@
   --sky-4: #b84070;
 }
 .ls-reyes {
-  --sky-1: #060a1a;
-  --sky-2: #0c1530;
-  --sky-3: #142048;
-  --sky-4: #1c2a55;
+  --sky-1: #0a0e2a;
+  --sky-2: #141a40;
+  --sky-3: #1e2858;
+  --sky-4: #283670;
 }
 
 .ls-sky {
@@ -1620,7 +1620,7 @@
   }
 }
 
-/* Christmas tree */
+/* Christmas tree - HUGE VERSION */
 .ls-xmas-tree {
   position: absolute;
   bottom: 110px;
@@ -1637,32 +1637,32 @@
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 18px solid transparent;
-  border-right: 18px solid transparent;
-  border-bottom: 40px solid #1a5c1a;
-  filter: drop-shadow(0 0 6px rgba(0, 80, 0, 0.3));
+  border-left: 45px solid transparent;
+  border-right: 45px solid transparent;
+  border-bottom: 100px solid #1a5c1a;
+  filter: drop-shadow(0 0 12px rgba(0, 150, 0, 0.5));
 }
 .ls-xmas-tree::after {
   content: "";
   position: absolute;
-  bottom: 30px;
+  bottom: 75px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-bottom: 30px solid #1f6b1f;
-  filter: drop-shadow(0 0 4px rgba(0, 80, 0, 0.2));
+  border-left: 35px solid transparent;
+  border-right: 35px solid transparent;
+  border-bottom: 75px solid #1f6b1f;
+  filter: drop-shadow(0 0 8px rgba(0, 150, 0, 0.4));
 }
 
-/* Tree star */
+/* Tree star - bigger */
 .ls-xmas-star {
   position: absolute;
-  bottom: 168px;
-  left: calc(28% - 3px);
-  width: 8px;
-  height: 8px;
+  bottom: 285px;
+  left: calc(28% - 6px);
+  width: 16px;
+  height: 16px;
   background: #ffd700;
   clip-path: polygon(
     50% 0%,
@@ -1684,10 +1684,38 @@
 }
 @keyframes ls-starGlow {
   0% {
-    filter: brightness(1) drop-shadow(0 0 2px #ffd700);
+    filter: brightness(1) drop-shadow(0 0 4px #ffd700);
   }
   100% {
-    filter: brightness(1.5) drop-shadow(0 0 6px #ffd700);
+    filter: brightness(1.8) drop-shadow(0 0 12px #ffd700);
+  }
+}
+
+/* Flying Santa Claus */
+.ls-santa {
+  position: absolute;
+  top: 15%;
+  left: -100px;
+  font-size: 40px;
+  z-index: 8;
+  animation: ls-santaFly 20s linear infinite;
+  display: none;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+.ls-christmas .ls-santa {
+  display: block;
+}
+@keyframes ls-santaFly {
+  0% {
+    left: -100px;
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    left: calc(100% + 100px);
+    transform: translateY(0);
   }
 }
 
@@ -1761,7 +1789,7 @@
    HALLOWEEN
    ═══════════════════════════════════════════════ */
 
-/* Bats — flying silhouettes */
+/* Bats — flying silhouettes with wing animation */
 .ls-bats {
   position: absolute;
   inset: 0;
@@ -1774,24 +1802,25 @@
 .ls-bats::after {
   content: "🦇";
   position: absolute;
-  font-size: 22px;
-  animation: ls-batFly 8s ease-in-out infinite;
+  font-size: 28px;
+  animation: ls-batFly 12s ease-in-out infinite, ls-batFlap 0.3s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
 }
 .ls-bats::before {
   top: 15%;
   left: -30px;
-  animation-duration: 7s;
+  animation-duration: 11s, 0.3s;
 }
 .ls-bats::after {
   top: 25%;
   left: -30px;
-  animation-duration: 10s;
-  animation-delay: -4s;
-  font-size: 16px;
+  animation-duration: 14s, 0.35s;
+  animation-delay: -5s, 0s;
+  font-size: 22px;
 }
 @keyframes ls-batFly {
   0% {
-    transform: translateX(0) translateY(0);
+    transform: translateX(0) translateY(0) scaleX(1);
     opacity: 0;
   }
   5% {
@@ -1806,6 +1835,14 @@
   100% {
     transform: translateX(calc(100vw + 60px)) translateY(10px);
     opacity: 0;
+  }
+}
+@keyframes ls-batFlap {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.85);
   }
 }
 
@@ -2356,6 +2393,209 @@
 }
 .ls-reyes .ls-road {
   background: #0f1525;
+}
+
+/* ═══════════════════════════════════════════════
+   AÑO NUEVO (NEW YEAR) - DYNAMIC YEAR COUNTER
+   ═══════════════════════════════════════════════ */
+.ls-newyear {
+  --sky-1: #0a0520;
+  --sky-2: #150a40;
+  --sky-3: #251060;
+  --sky-4: #351880;
+}
+.ls-newyear .ls-stars {
+  display: block;
+}
+.ls-newyear .ls-fireworks {
+  display: block;
+}
+.ls-newyear .ls-year-counter {
+  display: block;
+}
+.ls-newyear .ls-city {
+  filter: brightness(1.2) saturate(1.3);
+}
+
+/* Year counter - shows next year dynamically */
+.ls-year-counter {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 80px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow:
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6),
+    0 0 60px rgba(255, 215, 0, 0.4);
+  animation: ls-yearPulse 2s ease-in-out infinite;
+  z-index: 10;
+  display: none;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+@keyframes ls-yearPulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+    filter: brightness(1.3);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   VIRGEN DE GUADALUPE
+   ═══════════════════════════════════════════════ */
+.ls-guadalupe {
+  --sky-1: #0a0515;
+  --sky-2: #150a25;
+  --sky-3: #251040;
+  --sky-4: #351850;
+}
+.ls-guadalupe .ls-stars {
+  display: block;
+}
+.ls-guadalupe .ls-moon {
+  display: block;
+}
+.ls-guadalupe .ls-roses {
+  display: block;
+}
+.ls-guadalupe .ls-city {
+  filter: brightness(0.9) saturate(0.8) hue-rotate(-5deg);
+}
+
+/* Roses falling */
+.ls-roses {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  overflow: hidden;
+  display: none;
+}
+.ls-roses::before,
+.ls-roses::after {
+  content: "🌹";
+  position: absolute;
+  font-size: 20px;
+  animation: ls-rosesFall 12s linear infinite;
+}
+.ls-roses::before {
+  left: 20%;
+  animation-delay: 0s;
+}
+.ls-roses::after {
+  left: 70%;
+  animation-delay: -6s;
+  font-size: 16px;
+}
+@keyframes ls-rosesFall {
+  0% {
+    top: -30px;
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    transform: rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   CONSTITUCIÓN, BANDERA, JUÁREZ (Civic Holidays)
+   ═══════════════════════════════════════════════ */
+.ls-constitucion,
+.ls-bandera,
+.ls-juarez {
+  --sky-1: #050810;
+  --sky-2: #0a1020;
+  --sky-3: #101830;
+  --sky-4: #182040;
+}
+.ls-constitucion .ls-stars,
+.ls-bandera .ls-stars,
+.ls-juarez .ls-stars {
+  display: block;
+}
+.ls-constitucion .ls-tricolor,
+.ls-bandera .ls-tricolor,
+.ls-juarez .ls-tricolor {
+  display: block;
+}
+.ls-constitucion .ls-city,
+.ls-bandera .ls-city,
+.ls-juarez .ls-city {
+  filter: brightness(0.95) saturate(0.9);
+}
+
+/* ═══════════════════════════════════════════════
+   CINCO DE MAYO & REVOLUCIÓN
+   ═══════════════════════════════════════════════ */
+.ls-cincodemayo,
+.ls-revolucion {
+  --sky-1: #050810;
+  --sky-2: #0a1020;
+  --sky-3: #101830;
+  --sky-4: #182040;
+}
+.ls-cincodemayo .ls-stars,
+.ls-revolucion .ls-stars {
+  display: block;
+}
+.ls-cincodemayo .ls-fireworks,
+.ls-revolucion .ls-fireworks {
+  display: block;
+}
+.ls-cincodemayo .ls-tricolor,
+.ls-revolucion .ls-tricolor {
+  display: block;
+}
+.ls-cincodemayo .ls-city,
+.ls-revolucion .ls-city {
+  filter: brightness(1.1) saturate(1.2);
+}
+
+/* ═══════════════════════════════════════════════
+   DÍA DEL TRABAJO (LABOR DAY)
+   ═══════════════════════════════════════════════ */
+.ls-laborday {
+  --sky-1: #2a7cc7;
+  --sky-2: #4a9ee0;
+  --sky-3: #72bdf5;
+  --sky-4: #9ad4ff;
+}
+.ls-laborday .ls-sun {
+  display: block;
+}
+.ls-laborday .ls-city {
+  filter: brightness(1.1) saturate(1.1);
+}
+
+/* ═══════════════════════════════════════════════
+   SEMANA SANTA (HOLY WEEK)
+   ═══════════════════════════════════════════════ */
+.ls-holyweek {
+  --sky-1: #6a5a4a;
+  --sky-2: #8a7a6a;
+  --sky-3: #aa9a8a;
+  --sky-4: #cac0b0;
+}
+.ls-holyweek .ls-city {
+  filter: brightness(0.85) saturate(0.7) sepia(0.3);
+}
+.ls-holyweek .ls-cloud {
+  display: block;
 }
 
 /* ═══════════════════════════════════════════════
