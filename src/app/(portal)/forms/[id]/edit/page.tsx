@@ -83,13 +83,16 @@ export default function EditFormPage() {
   const [resizingField, setResizingField] = useState<number | null>(null);
   const [resizeStartX, setResizeStartX] = useState(0);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const utils = trpc.useUtils();
 
   const updateForm = trpc.forms.update.useMutation({
     onSuccess: () => {
+      utils.forms.getById.invalidate(formId);
       utils.forms.list.invalidate();
-      router.push("/forms");
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
     },
   });
 
@@ -578,11 +581,16 @@ export default function EditFormPage() {
         </div>
 
         <div className="flex items-center justify-end gap-3">
+          {saveSuccess && (
+            <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-sm text-green-700">
+              ✓ Cambios guardados correctamente
+            </div>
+          )}
           <Link
             href="/forms"
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
-            Cancelar
+            Volver
           </Link>
           <button
             type="submit"
