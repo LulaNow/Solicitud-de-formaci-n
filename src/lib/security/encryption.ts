@@ -6,10 +6,26 @@ const TAG_LENGTH = 16;
 
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
-  if (!key || key.length < 64) {
+  if (!key) {
     throw new Error("ENCRYPTION_KEY must be a 64-char hex string in .env");
   }
-  return Buffer.from(key, "hex");
+
+  // Trim whitespace and validate hex format
+  const cleanKey = key.trim();
+  
+  // Validate it's a valid hex string of exactly 64 characters
+  if (!/^[0-9a-fA-F]{64}$/.test(cleanKey)) {
+    throw new Error("ENCRYPTION_KEY must be a 64-char hex string in .env");
+  }
+
+  const buffer = Buffer.from(cleanKey, "hex");
+  
+  // AES-256 requires a 32-byte key
+  if (buffer.length !== 32) {
+    throw new Error("ENCRYPTION_KEY must be a 64-char hex string in .env");
+  }
+
+  return buffer;
 }
 
 export function encrypt(plaintext: string): string {
