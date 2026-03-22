@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: instancia_sso_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sso_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: sso_portal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sso_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sso_user -d sso_portal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: instancia_sso
+    restart: unless-stopped
+    ports:
+      - "8000:3000"
+    environment:
+      DATABASE_URL: postgresql://sso_user:${DB_PASSWORD}@postgres:5432/sso_portal
+      AUTH_SECRET: ${AUTH_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      ENCRYPTION_PEPPER: ${ENCRYPTION_PEPPER}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      SSO_APPSTORE_URL: ${SSO_APPSTORE_URL}
+      SSO_CLIENT_ID: ${SSO_CLIENT_ID}
+      SSO_CLIENT_SECRET: ${SSO_CLIENT_SECRET}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sso_network
+      - nginx-proxy-manager_default
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node server.js"
+
+networks:
+  sso_network:
+    driver: bridge
+  nginx-proxy-manager_default:
+    external: true
+
+volumes:
+  postgres_data:
