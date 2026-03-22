@@ -19,6 +19,7 @@ import {
   UserPlus,
   Users,
   Info,
+  ClipboardPaste,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -130,6 +131,75 @@ export default function SSOSettingsPage() {
     });
   }
 
+  const [pasteResult, setPasteResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  /**
+   * Parsea el texto del tab "Para IA" del AppStore y extrae:
+   * - Client ID
+   * - Client Secret
+   * - URL del AppStore (de los endpoints)
+   */
+  function parseAppStoreText(text: string): {
+    clientId?: string;
+    clientSecret?: string;
+    appstoreUrl?: string;
+  } {
+    const result: { clientId?: string; clientSecret?: string; appstoreUrl?: string } = {};
+
+    // Extraer Client ID: "- Client ID: XXXX" o "client_id: \"XXXX\""
+    const clientIdMatch = text.match(/Client ID:\s*([a-f0-9-]{36})/i)
+      || text.match(/client_id[":\s]+([a-f0-9-]{36})/i);
+    if (clientIdMatch) result.clientId = clientIdMatch[1];
+
+    // Extraer Client Secret: "- Client Secret: XXXX" o "client_secret: \"XXXX\""
+    const secretMatch = text.match(/Client Secret:\s*(nsk_[A-Za-z0-9_-]+)/i)
+      || text.match(/client_secret[":\s]+(nsk_[A-Za-z0-9_-]+)/i);
+    if (secretMatch) result.clientSecret = secretMatch[1];
+
+    // Extraer AppStore URL de los endpoints: "Authorization: https://XXXX/api/oauth/authorize"
+    const urlMatch = text.match(/(?:Authorization|Token|User Info):\s*(https?:\/\/[^/\s]+)/i);
+    if (urlMatch) result.appstoreUrl = urlMatch[1].replace(/\/$/, "");
+
+    return result;
+  }
+
+  async function handlePasteFromAppStore() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text || text.trim().length < 20) {
+        setPasteResult({ success: false, message: "El portapapeles está vacío o no contiene texto válido." });
+        setTimeout(() => setPasteResult(null), 4000);
+        return;
+      }
+
+      const parsed = parseAppStoreText(text);
+      const filled: string[] = [];
+
+      if (parsed.clientId) {
+        setClientId(parsed.clientId);
+        filled.push("Client ID");
+      }
+      if (parsed.clientSecret) {
+        setClientSecret(parsed.clientSecret);
+        filled.push("Client Secret");
+      }
+      if (parsed.appstoreUrl) {
+        setAppstoreUrl(parsed.appstoreUrl);
+        filled.push("URL del AppStore");
+      }
+
+      if (filled.length === 0) {
+        setPasteResult({ success: false, message: "No se encontraron credenciales en el texto pegado. Asegúrate de copiar el texto del tab 'Para IA' del AppStore." });
+      } else {
+        setPasteResult({ success: true, message: `✅ Se extrajeron: ${filled.join(", ")}` });
+      }
+      setTimeout(() => setPasteResult(null), 5000);
+    } catch {
+      setPasteResult({ success: false, message: "No se pudo acceder al portapapeles. Permite el acceso en tu navegador." });
+      setTimeout(() => setPasteResult(null), 4000);
+    }
+  }
+
   // Construir la callback URL completa para mostrar al admin
   const appUrl = typeof window !== "undefined" ? window.location.origin : "";
   const fullCallbackUrl = `${appUrl}${callbackPath}`;
@@ -200,14 +270,40 @@ export default function SSOSettingsPage() {
 
       {/* AppStore Connection */}
       <div className="mb-6 rounded-lg border border-border bg-white p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <Globe className="h-5 w-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">
-            Conexión con AppStore
-          </h2>
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              Conexión con AppStore
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={handlePasteFromAppStore}
+            className="flex items-center gap-2 rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
+            title='Pega el texto del tab "Para IA" del AppStore y se extraen automáticamente las credenciales'
+          >
+            <ClipboardPaste className="h-4 w-4" />
+            Pegar desde AppStore
+          </button>
         </div>
+
+        {/* Paste result feedback */}
+        {pasteResult && (
+          <div
+            className={`mb-4 rounded-lg border p-3 text-sm ${
+              pasteResult.success
+                ? "border-green-200 bg-green-50 text-green-700"
+                : "border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {pasteResult.message}
+          </div>
+        )}
+
         <p className="mb-4 text-sm text-gray-500">
-          Datos proporcionados al registrar este portal en el AppStore de NADRO
+          Datos proporcionados al registrar este portal en el AppStore de NADRO.
+          Puedes llenar los campos manualmente o usar <strong>&quot;Pegar desde AppStore&quot;</strong> para extraer automáticamente las credenciales del texto del tab &quot;Para IA&quot;.
         </p>
 
         <div className="space-y-4">
@@ -220,11 +316,12 @@ export default function SSOSettingsPage() {
               type="url"
               value={appstoreUrl}
               onChange={(e) => setAppstoreUrl(e.target.value)}
+              onBlur={() => setAppstoreUrl((v) => v.replace(/\/+$/, ""))}
               placeholder="https://appstore.nadro.dev"
               className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
             />
             <p className="mt-1 text-xs text-gray-400">
-              URL base del AppStore, sin / al final
+              URL base del AppStore, sin / al final (se limpia automáticamente)
             </p>
           </div>
 
