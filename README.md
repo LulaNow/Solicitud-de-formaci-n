@@ -1000,8 +1000,7 @@ Este proyecto es propiedad de NADRO y está destinado exclusivamente para uso in
 
 ## 👥 Equipo
 
-**Desarrollado por**: Sistema NADRO
-**Mantenedor**: [Tu Nombre](https://martinwebportafolio.netlify.app) — [Ver Portafolio](https://martinwebportafolio.netlify.app)
+**Desarrollado por**: NADRO
 **Última actualización**: Marzo 2026
 
 ---
