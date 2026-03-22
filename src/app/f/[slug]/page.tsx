@@ -31,23 +31,24 @@ export default function PublicFormPage() {
     setSubmitError(null);
 
     try {
-      if (form.n8nWebhookUrl) {
-        const response = await fetch(form.n8nWebhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            formId: form.id,
-            formName: form.name,
-            formSlug: form.slug,
-            submittedAt: new Date().toISOString(),
-            data: formData,
-          }),
-        });
+      // TODO: Add n8nWebhookUrl to form query if needed
+      // if (form.n8nWebhookUrl) {
+      //   const response = await fetch(form.n8nWebhookUrl, {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({
+      //       formId: form.id,
+      //       formName: form.name,
+      //       formSlug: form.slug,
+      //       submittedAt: new Date().toISOString(),
+      //       data: formData,
+      //     }),
+      //   });
 
-        if (!response.ok) {
-          throw new Error("Error al enviar el formulario");
-        }
-      }
+      //   if (!response.ok) {
+      //     throw new Error("Error al enviar el formulario");
+      //   }
+      // }
 
       setSubmitSuccess(true);
       setFormData({});
