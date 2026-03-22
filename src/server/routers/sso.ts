@@ -145,53 +145,52 @@ export const ssoRouter = router({
 
   /**
    * Admin — probar la conexión con el AppStore
-   * Hace un request de prueba para verificar que la URL es accesible
+   * Recibe los datos del formulario directamente (no necesita guardar primero)
    */
-  testConnection: adminProcedure.mutation(async ({ ctx }) => {
-    // Leer config actual de la DB
-    const settings = await ctx.prisma.appSetting.findMany({
-      where: { key: { startsWith: "sso." } },
-    });
+  testConnection: adminProcedure
+    .input(
+      z.object({
+        appstoreUrl: z.string(),
+        clientId: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { appstoreUrl, clientId } = input;
 
-    const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
-    const appstoreUrl = map["sso.appstore_url"];
-    const clientId = map["sso.client_id"];
-    const clientSecretEncrypted = map["sso.client_secret"];
-
-    if (!appstoreUrl || !clientId || !clientSecretEncrypted) {
-      return {
-        success: false,
-        message: "Configuración SSO incompleta. Configura URL, Client ID y Client Secret.",
-      };
-    }
-
-    try {
-      // Intentar hacer un request al endpoint de authorize (sin redirección)
-      const testUrl = `${appstoreUrl}/api/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=test&state=test`;
-      const response = await fetch(testUrl, {
-        method: "GET",
-        redirect: "manual", // No seguir redirects
-      });
-
-      // Si recibimos 302 o 400 (redirect o error de parámetro), la URL es accesible
-      if (response.status === 302 || response.status === 400 || response.status === 200) {
+      if (!appstoreUrl || !clientId) {
         return {
-          success: true,
-          message: `✅ Conexión exitosa con el AppStore (${appstoreUrl}). Status: ${response.status}`,
+          success: false,
+          message: "Configuración SSO incompleta. Ingresa URL del AppStore y Client ID.",
         };
       }
 
-      return {
-        success: false,
-        message: `⚠️ El AppStore respondió con status ${response.status}. Verifica la URL.`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: `❌ No se pudo conectar con ${appstoreUrl}. Verifica que la URL sea correcta y accesible.`,
-      };
-    }
-  }),
+      try {
+        // Intentar hacer un request al endpoint de authorize (sin redirección)
+        const testUrl = `${appstoreUrl}/api/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=test&state=test`;
+        const response = await fetch(testUrl, {
+          method: "GET",
+          redirect: "manual", // No seguir redirects
+        });
+
+        // Si recibimos 302 o 400 (redirect o error de parámetro), la URL es accesible
+        if (response.status === 302 || response.status === 400 || response.status === 200) {
+          return {
+            success: true,
+            message: `✅ Conexión exitosa con el AppStore (${appstoreUrl}). Status: ${response.status}`,
+          };
+        }
+
+        return {
+          success: false,
+          message: `⚠️ El AppStore respondió con status ${response.status}. Verifica la URL.`,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: `❌ No se pudo conectar con ${appstoreUrl}. Verifica que la URL sea correcta y accesible.`,
+        };
+      }
+    }),
 
   /**
    * Admin — obtener los roles disponibles para mapeo

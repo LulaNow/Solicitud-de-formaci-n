@@ -51,17 +51,21 @@ function Toggle({
 }
 
 export default function SSOSettingsPage() {
-  const { data: config, isLoading, refetch } = trpc.sso.getConfig.useQuery();
+  const { data: config, isLoading } = trpc.sso.getConfig.useQuery();
   const { data: roles } = trpc.sso.getAvailableRoles.useQuery();
   const saveMutation = trpc.sso.saveConfig.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: (_, variables) => {
+      // Actualizar hasClientSecret localmente si se envió un nuevo secret
+      if (variables.clientSecret) {
+        setHasSecret(true);
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     },
   });
   const testMutation = trpc.sso.testConnection.useMutation();
 
+  const [initialized, setInitialized] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [appstoreUrl, setAppstoreUrl] = useState("");
   const [clientId, setClientId] = useState("");
@@ -72,17 +76,20 @@ export default function SSOSettingsPage() {
   const [showSecret, setShowSecret] = useState(false);
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [hasSecret, setHasSecret] = useState(false);
 
+  // Solo inicializar el formulario UNA VEZ cuando llegan los datos de la DB
   useEffect(() => {
-    if (!config) return;
+    if (!config || initialized) return;
     setEnabled(config.enabled);
     setAppstoreUrl(config.appstoreUrl);
     setClientId(config.clientId);
     setCallbackPath(config.callbackPath || "/api/auth/sso/callback");
     setAutoCreateUsers(config.autoCreateUsers);
     setDefaultRoleOnCreate(config.defaultRoleOnCreate);
-    // No cargamos el secret — se mantiene vacío hasta que el admin ingrese uno nuevo
-  }, [config]);
+    setHasSecret(config.hasClientSecret);
+    setInitialized(true);
+  }, [config, initialized]);
 
   function handleCopy(text: string, label: string) {
     navigator.clipboard.writeText(text);
@@ -91,20 +98,36 @@ export default function SSOSettingsPage() {
   }
 
   async function handleSave() {
+    const trimmedUrl = appstoreUrl.replace(/\/$/, "");
+    const trimmedId = clientId.trim();
+    const trimmedSecret = clientSecret.trim();
+
+    // Actualizar state local para que la UI refleje los valores limpios
+    setAppstoreUrl(trimmedUrl);
+    setClientId(trimmedId);
+
     await saveMutation.mutateAsync({
       enabled,
-      appstoreUrl: appstoreUrl.replace(/\/$/, ""), // quitar trailing slash
-      clientId: clientId.trim(),
-      clientSecret: clientSecret.trim() || undefined,
+      appstoreUrl: trimmedUrl,
+      clientId: trimmedId,
+      clientSecret: trimmedSecret || undefined,
       callbackPath,
       autoCreateUsers,
       defaultRoleOnCreate,
     });
-    setClientSecret(""); // Limpiar el campo después de guardar
+
+    // Limpiar el campo secret después de guardar exitosamente
+    if (trimmedSecret) {
+      setClientSecret("");
+    }
   }
 
   async function handleTestConnection() {
-    await testMutation.mutateAsync();
+    // Usa los datos del formulario directamente, no necesita guardar primero
+    await testMutation.mutateAsync({
+      appstoreUrl: appstoreUrl.replace(/\/$/, ""),
+      clientId: clientId.trim(),
+    });
   }
 
   // Construir la callback URL completa para mostrar al admin
@@ -247,7 +270,7 @@ export default function SSOSettingsPage() {
                   value={clientSecret}
                   onChange={(e) => setClientSecret(e.target.value)}
                   placeholder={
-                    config?.hasClientSecret
+                    hasSecret
                       ? "••••••••  (ya configurado — dejar vacío para mantener)"
                       : "nsk_DwyerofstbUNnGCTfQjdUbpYE0aPhhfD3YlBqjjdIVY"
                   }
@@ -266,12 +289,12 @@ export default function SSOSettingsPage() {
                 </button>
               </div>
             </div>
-            {config?.hasClientSecret && (
+            {hasSecret && (
               <p className="mt-1 text-xs text-green-600">
                 ✅ Secret configurado y encriptado. Deja vacío para mantener el actual.
               </p>
             )}
-            {!config?.hasClientSecret && (
+            {!hasSecret && (
               <p className="mt-1 text-xs text-amber-600">
                 ⚠️ Sin secret configurado. Se muestra UNA SOLA VEZ al crear el portal en el AppStore.
               </p>
