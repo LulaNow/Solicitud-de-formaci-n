@@ -176,7 +176,7 @@ npm run db:studio
 ### 4. Sistema de Escenas Animadas (Login)
 
 #### Arquitectura
-**Componente**: `src/components/animated/LogisticsScene.tsx`  
+**Componente**: `src/components/animated/LogisticsScene.tsx`
 **Estilos**: `src/components/animated/logistics-scene.css`
 
 #### 10 Escenas Disponibles
@@ -267,13 +267,13 @@ const ALL_SCENES: Scene[] = [..., "nueva-escena"];
 // Si es evento de calendario:
 const CALENDAR_EVENTS: CalendarEvent[] = [
   ...,
-  { 
-    key: "event_nueva", 
-    scene: "nueva-escena", 
-    startMonth: 3, 
-    startDay: 15, 
-    endMonth: 3, 
-    endDay: 17 
+  {
+    key: "event_nueva",
+    scene: "nueva-escena",
+    startMonth: 3,
+    startDay: 15,
+    endMonth: 3,
+    endDay: 17
   },
 ];
 ```
@@ -289,24 +289,24 @@ const CALENDAR_EVENTS: CalendarEvent[] = [
 // src/app/(portal)/admin/settings/page.tsx
 const SCENE_MODES = [
   ...,
-  { 
-    value: "nueva-escena", 
-    label: "Nueva Escena", 
-    desc: "Descripción breve", 
-    icon: IconoLucide 
+  {
+    value: "nueva-escena",
+    label: "Nueva Escena",
+    desc: "Descripción breve",
+    icon: IconoLucide
   },
 ];
 
 // Si es calendario:
 const CALENDAR_EVENTS = [
   ...,
-  { 
-    key: "event_nueva", 
-    label: "Nueva Escena", 
-    emoji: "🎉", 
-    dates: "15-17 Marzo", 
-    icon: IconoLucide, 
-    color: "text-blue-500" 
+  {
+    key: "event_nueva",
+    label: "Nueva Escena",
+    emoji: "🎉",
+    dates: "15-17 Marzo",
+    icon: IconoLucide,
+    color: "text-blue-500"
   },
 ];
 ```
@@ -333,7 +333,7 @@ const eventKeys = [
 
 1. **`transform` en lugar de `left`/`top`**
    - Camión, autos, persona usan `translateX()` → GPU compositor
-   
+
 2. **`will-change` hints**
    ```css
    .ls-truck { will-change: transform, opacity; }
@@ -478,11 +478,11 @@ callbacks: {
     const dbUser = await prisma.user.findUnique({
       where: { id: user.id },
     });
-    
+
     if (dbUser?.twoFactorRequired && !dbUser.twoFactorSecret) {
       throw new Error("2FA requerido pero no configurado");
     }
-    
+
     return true;
   },
 }
@@ -661,9 +661,128 @@ npm run db:generate
 
 ---
 
-## 📝 CHANGELOG
+## � SSO READY PORTAL
 
-### v0.1.0 (Actual)
+> **Esta es la versión SSO Ready (v1.5.0)** — Este portal puede recibir autenticación SSO desde el AppStore.
+
+### ¿Qué es SSO Ready?
+
+Esta versión del portal incluye funcionalidad para recibir autenticación SSO desde el AppStore. Cuando un usuario hace clic en este portal desde el AppStore, es autenticado automáticamente si su cuenta existe localmente.
+
+### Flujo SSO
+
+```
+┌─────────────┐     1. Click en Portal       ┌─────────────┐
+│  AppStore   │ ───────────────────────────> │  Este Portal│
+│  (origen)   │     ?code=XXX                 │  (destino)  │
+└─────────────┘                                │             │
+                                               │  2. POST    │
+                                               │  exchange   │
+                                               │  token      │
+                                               └──────┬──────┘
+                                                      │
+                                               ┌──────▼──────┐
+                                               │  AppStore   │
+                                               │  valida y   │
+                                               │  devuelve   │
+                                               │  datos user │
+                                               └──────┬──────┘
+                                                      │
+                                               ┌──────▼──────┐
+                                               │  3. Buscar  │
+                                               │  usuario en │
+                                               │  DB LOCAL   │
+                                               └──────┬──────┘
+                                                      │
+                              ┌───────────────────────┼───────────────────────┐
+                              │                       │                       │
+                              ▼                       ▼                       ▼
+                        ┌──────────┐           ┌──────────┐           ┌──────────┐
+                        │ ✅ Existe│           │ ❌ No    │           │ 🚫 Error │
+                        │ → Login  │           │ existe   │           │ SSO     │
+                        │          │           │ →        │           │         │
+                        └──────────┘           │ Rechazar │           └──────────┘
+                                               │ con msg  │
+                                               └──────────┘
+```
+
+### Configuración SSO
+
+**Variables de Entorno Requeridas**:
+```env
+# ========= SSO (OBLIGATORIO) =========
+# URL donde corre el AppStore
+SSO_APPSTORE_URL="https://appstore.nadro.dev"
+
+# Client ID y Secret - Los obtienes al crear tu portal en el AppStore
+# (Admin > Portales > Nuevo Portal en AppStore)
+SSO_CLIENT_ID="tu_client_id"
+SSO_CLIENT_SECRET="nsk_tu_client_secret"
+
+# URL de ESTE portal (debe coincidir con Callback URL en AppStore)
+NEXT_PUBLIC_APP_URL="https://instanciasso.nadro.dev"
+```
+
+### Router SSO
+
+**Archivo**: `src/app/api/auth/sso/callback/route.ts`
+
+```typescript
+// Flujo:
+// 1. Recibe ?code=XXX desde AppStore
+// 2. Intercambia code por user data con AppStore
+// 3. Busca usuario en DB local por email
+// 4. Si existe → crea sesión → redirige a dashboard
+// 5. Si no existe → redirige a login con error
+```
+
+### Reglas de Seguridad SSO
+
+1. **Usuario debe existir localmente**: Si el usuario NO existe en la base de datos LOCAL de este portal, el SSO es RECHAZADO.
+2. **Estado ACTIVE requerido**: El usuario debe tener status "ACTIVE".
+3. **Code un solo uso**: El código de autorización se puede intercambiar una sola vez.
+4. **30 segundos TTL**: El código expira en 30 segundos.
+
+### Integración con AppStore
+
+Para que este portal aparezca en el AppStore:
+
+1. **En AppStore** (rama `appstore-tokens`):
+   - Admin > Portales > Nuevo Portal
+   - Nombre: Mi Portal
+   - Slug: `mi-portal`
+   - URL: `https://instanciasso.nadro.dev`
+   - Callback URL: `https://instanciasso.nadro.dev/api/auth/sso/callback`
+
+2. **Copiar credenciales**:
+   - Client ID: `copy_from_appstore`
+   - Client Secret: `nsk_...` (solo se muestra una vez)
+
+3. **Configurar este portal**:
+   - Pegar credenciales en `.env`
+   - Redeploy del contenedor
+
+### Versiones del Proyecto
+
+| Versión | Tag | Rama | Descripción |
+|---------|-----|------|-------------|
+| **Base SSO Ready** | `v1.5.0` | `main` | **Esta branch** - Portal con SSO |
+| **AppStore** | `appstore-v1.0.0` | `appstore-tokens` | Marketplace con SSO integrado |
+| **Legacy** | `v1.3.0` | — | Versión anterior (sin SSO) — congelada |
+
+---
+
+##  CHANGELOG
+
+### v1.5.0 (2026-03-22) — SSO Ready
+- ✅ **SSO Integration**: Portal puede recibir login desde AppStore
+- ✅ **OAuth 2.0 Callback**: `/api/auth/sso/callback` implementado
+- ✅ **Cross-platform animation fix**: Removido `prefers-reduced-motion` que bloqueaba animaciones en Windows/Linux
+- ✅ **Docker production**: `Dockerfile.production` unificado
+- ✅ **Version tags**: v1.5.0 para base SSO, appstore-v1.0.0 para AppStore
+- ✅ **SSH folder excluded**: Añadido a `.gitignore`
+
+### v0.1.0 (Legacy)
 - ✅ Sistema de autenticación con NextAuth.js
 - ✅ RBAC (Roles + Permisos)
 - ✅ 10 escenas animadas en login
@@ -684,6 +803,9 @@ npm run db:generate
 
 ---
 
-**Última actualización**: 20 de Marzo, 2026  
-**Mantenedor**: Sistema NADRO  
+**Última actualización**: 22 de Marzo, 2026
+**Versión**: v1.5.0 — SSO Ready
+**Branch**: `main`
+**Tag**: `v1.5.0`
+**Mantenedor**: Sistema NADRO
 **Licencia**: Privado — Uso interno NADRO
