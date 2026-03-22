@@ -20,11 +20,9 @@ export default function DashboardPage() {
   const cardsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let anime: typeof import("animejs");
     import("animejs").then((mod) => {
-      anime = mod;
       if (cardsRef.current) {
-        anime.default({
+        mod.default({
           targets: cardsRef.current.children,
           opacity: [0, 1],
           translateY: [20, 0],
