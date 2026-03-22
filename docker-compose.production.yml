@@ -42,7 +42,7 @@ services:
         condition: service_healthy
     networks:
       - sso_network
-    command: sh -c "npx prisma migrate deploy && npx prisma db seed && node server.js"
+    command: sh -c "node node_modules/.bin/prisma migrate deploy && node node_modules/.bin/prisma db seed && node server.js"
 
 networks:
   sso_network:
