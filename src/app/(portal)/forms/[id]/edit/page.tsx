@@ -122,12 +122,12 @@ export default function EditFormPage() {
           required: f.required,
           options: f.options
             ? Array.isArray(f.options)
-              ? f.options
+              ? (f.options as string[])
               : []
             : undefined,
           defaultValue: f.defaultValue || undefined,
           order: f.order,
-          gridColumn: f.gridColumn ?? 12,
+          gridColumn: f.gridColumn,
         }))
       );
     }
