@@ -42,14 +42,11 @@ services:
         condition: service_healthy
     networks:
       - sso_network
-      - nginx-proxy-manager_default
     command: sh -c "npx prisma migrate deploy && npx prisma db seed && node server.js"
 
 networks:
   sso_network:
     driver: bridge
-  nginx-proxy-manager_default:
-    external: true
 
 volumes:
   postgres_data:
