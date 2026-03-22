@@ -122,6 +122,124 @@ PORT=3001 npm run dev
 
 ---
 
+## 🐳 Deploy SSO Portal con Docker (Producción)
+
+### Prerrequisitos
+
+- Servidor con Docker y Docker Compose instalados
+- Base de datos PostgreSQL (puede ser Azure, AWS RDS, o local)
+- Nginx Proxy Manager (opcional, para SSL y dominio personalizado)
+
+### 1. Clonar y preparar en el servidor
+
+```bash
+# En el servidor de producción
+git clone https://github.com/MartinCrespoCalderon/BaseWeb_SSO.git
+cd BaseWeb_SSO
+git checkout main  # La rama main ahora incluye SSO Portal
+```
+
+### 2. Configurar variables de entorno
+
+```bash
+cp .env.example .env.production
+nano .env.production  # o vim
+```
+
+**Editar `.env.production`:**
+
+```env
+# === Database (Requerido) ===
+# Tu base de datos PostgreSQL (Azure, AWS, o local)
+DATABASE_URL="postgresql://usuario:contraseña@host:5432/mi_portal_db"
+
+# === Auth (Requerido) ===
+# Generar con: openssl rand -base64 32
+AUTH_SECRET="tu_secreto_aqui"
+AUTH_TRUST_HOST=true
+
+# === Security (Requerido) ===
+ENCRYPTION_KEY="clave-hex-64-caracteres"
+ENCRYPTION_PEPPER="tu-pepper-aqui"
+HMAC_SECRET="tu-hmac-aqui"
+
+# === URLs (Requerido) ===
+# URL pública de ESTE portal (dominio o IP)
+NEXT_PUBLIC_APP_URL="https://instanciasso.nadro.dev"
+NEXT_PUBLIC_APP_NAME="NADRO Portal SSO"
+
+# === SSO Configuration (Requerido para SSO) ===
+# URL del AppStore que autentica
+SSO_APPSTORE_URL="https://appstore.tudominio.com"
+# Obtener del AppStore: Admin > Portales > Nuevo Portal
+SSO_CLIENT_ID="tu_client_id"
+SSO_CLIENT_SECRET="nsk_tu_client_secret"
+
+# === n8n Integration (Opcional) ===
+N8N_BASE_URL="https://workflow.tudominio.com/"
+N8N_API_KEY="tu-api-key"
+N8N_WEBHOOK_SECRET="tu-webhook-secret"
+```
+
+### 3. Construir y desplegar
+
+```bash
+# Construir imagen Docker
+docker compose -f docker-compose.production.yml build
+
+# Iniciar contenedor
+docker compose -f docker-compose.production.yml up -d
+
+# Verificar logs
+docker logs instancia_sso --tail 50
+```
+
+### 4. Configurar Nginx Proxy Manager (SSL + Dominio)
+
+En la interfaz de NPM (http://tuservidor:81):
+
+1. **Proxy Hosts** → **Add Proxy Host**
+
+| Campo | Valor |
+|-------|-------|
+| **Domain Names** | `instanciasso.nadro.dev` |
+| **Scheme** | `http` |
+| **Forward Hostname/IP** | `instancia_sso` |
+| **Forward Port** | `3000` |
+
+2. **SSL** → **Request a new SSL Certificate**
+   - ✅ Force SSL
+   - ✅ HTTP/2 Support
+   - ✅ HSTS Enabled
+
+3. **Save**
+
+> **Importante**: Si Nginx Proxy Manager está en otro contenedor Docker, asegúrate de que ambos estén en la misma red (`nginx-proxy-manager`). El `docker-compose.production.yml` ya incluye esta configuración.
+
+### 5. Verificar despliegue
+
+```bash
+# Verificar contenedor corriendo
+docker ps | grep instancia_sso
+
+# Verificar logs
+docker logs instancia_sso --tail 20
+
+# Test desde el servidor
+curl -I http://localhost:8000/login
+```
+
+### 6. Actualizar AppStore con la nueva URL
+
+En el AppStore (rama `appstore-tokens`):
+
+1. **Admin > Portales** → Editar tu portal
+2. Actualizar **URL**: `https://instanciasso.nadro.dev`
+3. Actualizar **Callback URL**: `https://instanciasso.nadro.dev/api/auth/sso/callback`
+4. Guardar cambios
+
+---
+
 ## 🎯 CLONAR APPSTORE v1.3.0
 
 > **⚠️ IMPORTANTE**: El **AppStore** con todas sus funcionalidades (categorías, emojis, responsables) está en la rama `appstore-tokens`, **NO en `main`**.
