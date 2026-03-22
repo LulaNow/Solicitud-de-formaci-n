@@ -166,11 +166,6 @@ export async function GET(request: NextRequest) {
         action: "SSO_LOGIN",
         entity: "User",
         entityId: localUser.id,
-        details: JSON.stringify({
-          ssoToken,
-          ssoProvider: "AppStore",
-          ssoEmail: ssoUser.email,
-        }),
       },
     }).catch(() => {});
 
