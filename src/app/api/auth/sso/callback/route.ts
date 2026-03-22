@@ -169,6 +169,11 @@ export async function GET(request: NextRequest) {
       },
     }).catch(() => {});
 
+    // Set the NextAuth session cookie name
+    const cookieName = process.env.NODE_ENV === "production"
+      ? "__Secure-authjs.session-token"
+      : "authjs.session-token";
+
     // Create JWT token for NextAuth session
     const token = await encode({
       token: {
@@ -183,16 +188,12 @@ export async function GET(request: NextRequest) {
         ssoLogin: true,
       },
       secret: AUTH_SECRET,
+      salt: cookieName,
       maxAge: 8 * 60 * 60, // 8 hours
     });
 
     // Set the session cookie and redirect to dashboard
     const response = NextResponse.redirect(new URL("/dashboard", APP_URL));
-
-    // Set the NextAuth session cookie
-    const cookieName = process.env.NODE_ENV === "production"
-      ? "__Secure-authjs.session-token"
-      : "authjs.session-token";
 
     response.cookies.set(cookieName, token, {
       httpOnly: true,
