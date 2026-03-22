@@ -10,13 +10,29 @@
 [![tRPC](https://img.shields.io/badge/tRPC-11.0-2596BE?style=for-the-badge&logo=trpc)](https://trpc.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
+**Versión Base**: `v1.5.0` — SSO Ready • **Versión AppStore**: [`appstore-v1.0.0`](https://github.com/MartinCrespoCalderon/BaseWeb_SSO/releases/tag/appstore-v1.0.0)
+
 [Características](#-características-principales) • [Instalación](#-instalación-rápida) • [AppStore](#-clonar-appstore-v130) • [Uso](#-uso) • [Documentación](#-documentación)
 
 </div>
 
 ---
 
-## 🔐 SSO READY PORTAL (Rama: `SSO_READY_PORTAL`)
+## � Versiones del Proyecto
+
+Este repositorio contiene **dos versiones principales** en ramas separadas:
+
+| Versión | Tag | Rama | Descripción |
+|---------|-----|------|-------------|
+| **Base SSO Ready** | `v1.5.0` | `main` | Portal base con autenticación SSO (recibe login desde AppStore) |
+| **AppStore** | `appstore-v1.0.0` | `appstore-tokens` | Marketplace de aplicaciones con SSO integrado |
+| **Legacy** | `v1.3.0` | — | Versión anterior base (sin SSO) — **congelada** |
+
+> **⚠️ Importante**: Las versiones `v1.0.0` a `v1.3.0` son la **base original sin SSO**. A partir de `v1.5.0` (SSO Ready), `main` incluye la funcionalidad SSO para que portales externos puedan autenticarse.
+
+---
+
+## 🔐 SSO READY PORTAL (Rama: `main` — v1.5.0)
 
 > **Este template permite recibir SSO desde el AppStore.** Al hacer clic en un portal desde el AppStore, el usuario es autenticado automáticamente en este portal si su cuenta existe localmente.
 
