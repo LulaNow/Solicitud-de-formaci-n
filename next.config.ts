@@ -10,6 +10,19 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    config.externals = [...(config.externals || []), 'argon2'];
+    return config;
+  },
   async headers() {
     return [
       {
