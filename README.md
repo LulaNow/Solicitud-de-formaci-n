@@ -10,9 +10,111 @@
 [![tRPC](https://img.shields.io/badge/tRPC-11.0-2596BE?style=for-the-badge&logo=trpc)](https://trpc.io/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-[Características](#-características-principales) • [Instalación](#-instalación-rápida) • [Uso](#-uso) • [Crear Copia](#-crear-una-copia-para-otro-proyecto) • [Documentación](#-documentación)
+[Características](#-características-principales) • [Instalación](#-instalación-rápida) • [AppStore](#-clonar-appstore-v130) • [Uso](#-uso) • [Documentación](#-documentación)
 
 </div>
+
+---
+
+## 🎯 CLONAR APPSTORE v1.3.0
+
+> **⚠️ IMPORTANTE**: El **AppStore** con todas sus funcionalidades (categorías, emojis, responsables) está en la rama `appstore-tokens`, **NO en `main`**.
+
+### Instalación Completa del AppStore
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/MartinCrespoCalderon/BaseWeb_SSO.git
+cd BaseWeb_SSO
+
+# 2. Cambiar a la rama appstore-tokens
+git checkout appstore-tokens
+
+# 3. Instalar dependencias
+npm install
+
+# 4. Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tu DATABASE_URL y NEXTAUTH_SECRET
+
+# 5. Configurar base de datos
+npm run db:generate
+npm run db:push
+
+# 6. Crear roles necesarios
+npx tsx scripts/add-missing-roles.ts
+
+# 7. Crear usuario admin
+npx tsx scripts/reset-admin-password.ts
+
+# 8. Iniciar servidor
+npm run dev
+```
+
+### Credenciales de Acceso
+
+```
+Usuario: admin
+Contraseña: admin
+```
+
+### Funcionalidades del AppStore v1.3.0
+
+✅ **Sistema de Categorías**
+- CRUD completo de categorías de apps
+- Asignación de responsables por categoría
+- Organización visual de aplicaciones
+
+✅ **Selector de Emojis**
+- 200+ emojis organizados por categorías
+- Búsqueda en tiempo real
+- Selector visual integrado
+
+✅ **Gestión de Responsables**
+- Asignación de usuarios responsables a apps y categorías
+- Filtrado por roles: Developer, Admin, Gerencia, SubGerencia, Lider
+- Visualización de responsables en tarjetas
+
+✅ **Gestión de Usuarios**
+- Creación y edición con modales inline
+- Asignación de múltiples roles
+- Control de estado (Activo/Inactivo/Suspendido)
+
+✅ **Gestión de Roles**
+- Todos los roles disponibles para asignación
+- Sin restricciones por roles del usuario actual
+- Admin puede ver y gestionar todos los portales
+
+### Scripts Útiles
+
+```bash
+# Resetear contraseña de admin
+npx tsx scripts/reset-admin-password.ts
+
+# Verificar usuario admin
+npx tsx scripts/check-admin-user.ts
+
+# Crear roles faltantes
+npx tsx scripts/add-missing-roles.ts
+
+# Seed de categorías de prueba
+npx tsx scripts/seed-categories.ts
+
+# Seed de usuarios de prueba
+npx tsx scripts/seed-test-users.ts
+```
+
+### Estructura de Rutas Admin
+
+```
+/appstore/my-apps          → Mis aplicaciones
+/appstore                  → Marketplace (solo admin)
+/appstore/admin/apps       → Gestión de portales
+/appstore/admin/categories → Gestión de categorías
+/appstore/admin/users      → Gestión de usuarios
+/appstore/admin/roles      → Gestión de roles
+/appstore/profile          → Mi perfil
+```
 
 ---
 
@@ -209,11 +311,11 @@ Si eres el **dueño del repositorio original**:
    ```bash
    # Cambiar nombre del proyecto
    # package.json → "name": "mi-nuevo-proyecto"
-   
+
    # Cambiar branding
    # public/log.png → Tu logo
    # tailwind.config.ts → Tus colores
-   
+
    # Nueva base de datos
    # .env → DATABASE_URL con nueva DB
    npm run db:setup
@@ -658,8 +760,8 @@ Este proyecto es propiedad de NADRO y está destinado exclusivamente para uso in
 
 ## 👥 Equipo
 
-**Desarrollado por**: Sistema NADRO  
-**Mantenedor**: [Tu Nombre]  
+**Desarrollado por**: Sistema NADRO
+**Mantenedor**: [Tu Nombre]
 **Última actualización**: Marzo 2026
 
 ---
