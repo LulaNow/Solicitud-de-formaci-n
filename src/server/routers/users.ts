@@ -96,14 +96,20 @@ export const usersRouter = router({
         },
       });
 
-      await ctx.prisma.auditLog.create({
-        data: {
-          userId: ctx.user.id,
-          action: "CREATE",
-          entity: "User",
-          entityId: user.id,
-        },
-      });
+      // Create audit log (skip if user doesn't exist in local DB - e.g., SSO user)
+      try {
+        await ctx.prisma.auditLog.create({
+          data: {
+            userId: ctx.user.id,
+            action: "CREATE",
+            entity: "User",
+            entityId: user.id,
+          },
+        });
+      } catch (error) {
+        // Ignore audit log errors - don't block user creation
+        console.warn("[users.create] Failed to create audit log:", error);
+      }
 
       return { id: user.id };
     }),
@@ -136,14 +142,18 @@ export const usersRouter = router({
         });
       }
 
-      await ctx.prisma.auditLog.create({
-        data: {
-          userId: ctx.user.id,
-          action: "UPDATE",
-          entity: "User",
-          entityId: id,
-        },
-      });
+      try {
+        await ctx.prisma.auditLog.create({
+          data: {
+            userId: ctx.user.id,
+            action: "UPDATE",
+            entity: "User",
+            entityId: id,
+          },
+        });
+      } catch (error) {
+        console.warn("[users.update] Failed to create audit log:", error);
+      }
 
       return { success: true };
     }),
@@ -153,9 +163,13 @@ export const usersRouter = router({
       throw new TRPCError({ code: "BAD_REQUEST", message: "No puedes eliminarte a ti mismo" });
     }
     await ctx.prisma.user.delete({ where: { id: input } });
-    await ctx.prisma.auditLog.create({
-      data: { userId: ctx.user.id, action: "DELETE", entity: "User", entityId: input },
-    });
+    try {
+      await ctx.prisma.auditLog.create({
+        data: { userId: ctx.user.id, action: "DELETE", entity: "User", entityId: input },
+      });
+    } catch (error) {
+      console.warn("[users.delete] Failed to create audit log:", error);
+    }
     return { success: true };
   }),
 

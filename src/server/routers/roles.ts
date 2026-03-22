@@ -43,9 +43,13 @@ export const rolesRouter = router({
           },
         },
       });
-      await ctx.prisma.auditLog.create({
-        data: { userId: ctx.user.id, action: "CREATE", entity: "Role", entityId: role.id },
-      });
+      try {
+        await ctx.prisma.auditLog.create({
+          data: { userId: ctx.user.id, action: "CREATE", entity: "Role", entityId: role.id },
+        });
+      } catch (error) {
+        console.warn("[roles.create] Failed to create audit log:", error);
+      }
       return role;
     }),
 
@@ -76,9 +80,13 @@ export const rolesRouter = router({
         });
       }
 
-      await ctx.prisma.auditLog.create({
-        data: { userId: ctx.user.id, action: "UPDATE", entity: "Role", entityId: id },
-      });
+      try {
+        await ctx.prisma.auditLog.create({
+          data: { userId: ctx.user.id, action: "UPDATE", entity: "Role", entityId: id },
+        });
+      } catch (error) {
+        console.warn("[roles.update] Failed to create audit log:", error);
+      }
       return { success: true };
     }),
 
@@ -89,9 +97,13 @@ export const rolesRouter = router({
       throw new TRPCError({ code: "BAD_REQUEST", message: "No se puede eliminar un rol de sistema" });
     }
     await ctx.prisma.role.delete({ where: { id: input } });
-    await ctx.prisma.auditLog.create({
-      data: { userId: ctx.user.id, action: "DELETE", entity: "Role", entityId: input },
-    });
+    try {
+      await ctx.prisma.auditLog.create({
+        data: { userId: ctx.user.id, action: "DELETE", entity: "Role", entityId: input },
+      });
+    } catch (error) {
+      console.warn("[roles.delete] Failed to create audit log:", error);
+    }
     return { success: true };
   }),
 });
