@@ -16,6 +16,112 @@
 
 ---
 
+## 🔐 SSO READY PORTAL (Rama: `SSO_READY_PORTAL`)
+
+> **Este template permite recibir SSO desde el AppStore.** Al hacer clic en un portal desde el AppStore, el usuario es autenticado automáticamente en este portal si su cuenta existe localmente.
+
+### Flujo SSO
+
+```
+┌─────────────┐     1. Click "Abrir App"      ┌─────────────┐
+│  AppStore    │ ─────────────────────────────> │  Este Portal │
+│  (puerto     │     ?code=XXX                  │  (puerto     │
+│   3000)      │                                │   3001)      │
+│              │     2. Exchange code            │              │
+│  /api/trpc/  │ <───── POST exchangeToken ──── │ /api/auth/   │
+│  apps.       │                                │ sso/callback │
+│  exchangeToken│    3. User data               │              │
+│              │ ─────────────────────────────> │              │
+└─────────────┘                                 │  4. Buscar   │
+                                                │  usuario en  │
+                                                │  DB LOCAL    │
+                                                │              │
+                                                │  ✅ Existe → │
+                                                │  Sesión +    │
+                                                │  Dashboard   │
+                                                │              │
+                                                │  ❌ No existe│
+                                                │  → Rechazar  │
+                                                │  con mensaje │
+                                                └─────────────┘
+```
+
+### Instalación SSO Ready Portal
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/MartinCrespoCalderon/BaseWeb_SSO.git
+cd BaseWeb_SSO
+
+# 2. Cambiar a la rama SSO_READY_PORTAL
+git checkout SSO_READY_PORTAL
+
+# 3. Instalar dependencias
+npm install
+
+# 4. Configurar variables de entorno
+cp .env.example .env
+```
+
+### Configurar el `.env`
+
+Edita el `.env` con tus datos:
+
+```env
+# Tu base de datos PostgreSQL (NUEVA, separada del AppStore)
+DATABASE_URL="postgresql://usuario:contraseña@host:5432/mi_portal_db"
+
+# Secreto para sesiones (genera con: openssl rand -base64 32)
+AUTH_SECRET="tu_secreto_aqui"
+
+# ========= SSO (OBLIGATORIO) =========
+# URL donde corre el AppStore
+SSO_APPSTORE_URL="http://localhost:3000"
+
+# Client ID y Secret - Los obtienes al crear tu portal en el AppStore
+# (Admin > Portales > Nuevo Portal)
+SSO_CLIENT_ID="tu_client_id"
+SSO_CLIENT_SECRET="nsk_tu_client_secret"
+
+# URL de ESTE portal (debe coincidir con Callback URL en AppStore)
+NEXT_PUBLIC_APP_URL="http://localhost:3001"
+```
+
+### Configurar la Base de Datos
+
+```bash
+# 5. Crear tablas + seed (admin/admin123)
+npm run db:generate
+npm run db:push
+npm run db:seed
+```
+
+### Configurar en el AppStore
+
+En el **AppStore** (Admin > Portales > Nuevo Portal):
+
+| Campo | Valor |
+|-------|-------|
+| **Nombre** | Mi Portal |
+| **Slug** | mi-portal |
+| **URL** | `http://localhost:3001` |
+| **Callback URL** | `http://localhost:3001/api/auth/sso/callback` |
+
+Al crear el portal, **copia el Client ID y Client Secret** y pégalos en tu `.env`.
+
+### Iniciar el Portal
+
+```bash
+# 6. Iniciar en puerto 3001 (AppStore usa 3000)
+PORT=3001 npm run dev
+```
+
+### Regla de Seguridad
+
+> **⚠️ Si el usuario NO existe en la base de datos LOCAL de este portal, el SSO será RECHAZADO con un mensaje claro.** El admin del portal debe crear los usuarios que tendrán acceso.
+
+---
+
 ## 🎯 CLONAR APPSTORE v1.3.0
 
 > **⚠️ IMPORTANTE**: El **AppStore** con todas sus funcionalidades (categorías, emojis, responsables) está en la rama `appstore-tokens`, **NO en `main`**.

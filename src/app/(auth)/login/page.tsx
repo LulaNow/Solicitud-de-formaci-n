@@ -19,6 +19,27 @@ export default function LoginPage() {
   const errorRef = useRef<HTMLDivElement>(null);
 
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const ssoError = searchParams.get("error");
+  const ssoMessage = searchParams.get("message");
+
+  // SSO error messages mapping
+  const ssoErrorMessages: Record<string, string> = {
+    sso_user_not_found: "El usuario no está registrado en este portal. Contacte al administrador.",
+    sso_no_code: "No se recibió código de autorización del AppStore.",
+    sso_config: "El portal no tiene configuradas las credenciales SSO.",
+    sso_exchange_failed: "Error al validar con el AppStore. El código pudo haber expirado.",
+    sso_no_user: "No se recibieron datos del usuario desde el AppStore.",
+    sso_error: "Error inesperado durante el inicio de sesión SSO.",
+  };
+
+  // Show SSO errors on mount
+  useEffect(() => {
+    if (ssoError) {
+      const msg = ssoMessage || ssoErrorMessages[ssoError] || "Error de SSO desconocido.";
+      setError(msg);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ssoError, ssoMessage]);
 
   useEffect(() => {
     if (logoRef.current) {
@@ -106,8 +127,17 @@ export default function LoginPage() {
           {error && (
             <div
               ref={errorRef}
-              className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
+              className={`rounded-lg border p-3 text-sm ${
+                ssoError
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : "border-red-200 bg-red-50 text-red-600"
+              }`}
             >
+              {ssoError && (
+                <div className="mb-1 font-semibold">
+                  ⚠️ Acceso SSO Denegado
+                </div>
+              )}
               {error}
             </div>
           )}
