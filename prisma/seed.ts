@@ -350,6 +350,15 @@ async function main() {
       order: 5,
       permKey: "settings.manage",
     },
+    {
+      id: "admin-sso",
+      label: "SSO / Callback",
+      labelEs: "SSO / Callback",
+      icon: "Globe",
+      path: "/admin/settings/sso",
+      order: 6,
+      permKey: "settings.manage",
+    },
   ];
 
   for (const sub of adminSubMenus) {
@@ -398,6 +407,14 @@ async function main() {
     { key: "appearance.event_halloween", value: "true", type: "boolean" },
     { key: "appearance.event_muertos", value: "true", type: "boolean" },
     { key: "appearance.event_christmas", value: "true", type: "boolean" },
+    // SSO Configuration — deshabilitado por defecto, el admin lo configura desde la UI
+    { key: "sso.enabled", value: "false", type: "boolean" },
+    { key: "sso.appstore_url", value: "", type: "string" },
+    { key: "sso.client_id", value: "", type: "string" },
+    { key: "sso.client_secret", value: "", type: "encrypted" },
+    { key: "sso.callback_path", value: "/api/auth/sso/callback", type: "string" },
+    { key: "sso.auto_create_users", value: "false", type: "boolean" },
+    { key: "sso.default_role_on_create", value: "", type: "string" },
   ];
 
   for (const s of settings) {

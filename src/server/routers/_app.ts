@@ -9,6 +9,7 @@ import { tasksRouter } from "./tasks";
 import { mfaRouter } from "./mfa";
 import { appearanceRouter } from "./appearance";
 import { servicePortalRouter } from "./servicePortal";
+import { ssoRouter } from "./sso";
 
 export const appRouter = router({
   users: usersRouter,
@@ -21,6 +22,7 @@ export const appRouter = router({
   mfa: mfaRouter,
   appearance: appearanceRouter,
   servicePortal: servicePortalRouter,
+  sso: ssoRouter,
 });
 
 export type AppRouter = typeof appRouter;

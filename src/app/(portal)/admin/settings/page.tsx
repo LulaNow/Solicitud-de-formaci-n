@@ -19,6 +19,7 @@ import {
   Flag,
   Star,
   Ghost,
+  Globe,
 } from "lucide-react";
 
 const SCENE_MODES = [
@@ -358,6 +359,28 @@ export default function AdminSettingsPage() {
             {updatePortalConfig.isPending ? 'Guardando...' : 'Guardar Configuración del Portal'}
           </button>
         </div>
+      </div>
+
+      {/* SSO / Callback Configuration */}
+      <div className="mb-8 rounded-lg border border-border bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              SSO / Callback
+            </h2>
+          </div>
+          <a
+            href="/admin/settings/sso"
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Configurar SSO →
+          </a>
+        </div>
+        <p className="text-sm text-gray-500">
+          Configura la conexión OAuth 2.0 con el AppStore de NADRO para autenticación centralizada (Single Sign-On).
+          Las credenciales se almacenan encriptadas en la base de datos.
+        </p>
       </div>
 
       {/* Scene Mode */}

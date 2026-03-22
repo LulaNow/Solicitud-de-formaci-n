@@ -14,9 +14,18 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [ssoLoading, setSsoLoading] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const errorRef = useRef<HTMLDivElement>(null);
+
+  // SSO status from database
+  const [ssoConfig, setSsoConfig] = useState<{
+    enabled: boolean;
+    appstoreUrl: string;
+    clientId: string;
+    callbackPath: string;
+  } | null>(null);
 
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const ssoError = searchParams.get("error");
@@ -40,6 +49,14 @@ function LoginForm() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ssoError, ssoMessage]);
+
+  // Fetch SSO status from database
+  useEffect(() => {
+    fetch("/api/auth/sso/status")
+      .then((res) => res.json())
+      .then((data) => setSsoConfig(data))
+      .catch(() => setSsoConfig(null));
+  }, []);
 
   useEffect(() => {
     if (logoRef.current) {
@@ -98,6 +115,27 @@ function LoginForm() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSSOLogin() {
+    if (!ssoConfig?.enabled) return;
+    setSsoLoading(true);
+
+    // Generar state aleatorio para CSRF protection
+    const state = crypto.randomUUID();
+    sessionStorage.setItem("sso_state", state);
+
+    // Construir la URL de callback completa
+    const callbackUrl = `${window.location.origin}${ssoConfig.callbackPath}`;
+
+    // Redirigir al AppStore para autenticación
+    const authUrl = new URL(`${ssoConfig.appstoreUrl}/api/oauth/authorize`);
+    authUrl.searchParams.set("client_id", ssoConfig.clientId);
+    authUrl.searchParams.set("redirect_uri", callbackUrl);
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("state", state);
+
+    window.location.href = authUrl.toString();
   }
 
   return (
@@ -194,6 +232,38 @@ function LoginForm() {
               </span>
             )}
           </button>
+
+          {/* SSO Login Button — solo visible si SSO está habilitado en la DB */}
+          {ssoConfig?.enabled && (
+            <>
+              <div className="login-element relative flex items-center py-1">
+                <div className="flex-1 border-t border-white/30" />
+                <span className="mx-4 text-xs text-white/60">o</span>
+                <div className="flex-1 border-t border-white/30" />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSSOLogin}
+                disabled={ssoLoading}
+                className="login-element group relative w-full overflow-hidden rounded-xl border-2 border-white/30 bg-white/10 px-4 py-3 font-semibold text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:bg-white/20 hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                  </svg>
+                  {ssoLoading ? "Redirigiendo al AppStore..." : "Login con SSO"}
+                </span>
+                {ssoLoading && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  </span>
+                )}
+              </button>
+            </>
+          )}
         </form>
 
         <p className="login-element mt-4 text-center text-xs text-white/50">

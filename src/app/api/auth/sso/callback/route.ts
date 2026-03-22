@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { encode } from "next-auth/jwt";
+import { getSSOConfig } from "@/lib/sso/config";
 
-const SSO_APPSTORE_URL = process.env.SSO_APPSTORE_URL || "http://localhost:3000";
-const SSO_CLIENT_ID = process.env.SSO_CLIENT_ID || "";
-const SSO_CLIENT_SECRET = process.env.SSO_CLIENT_SECRET || "";
 const AUTH_SECRET = process.env.AUTH_SECRET || "";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
 
@@ -13,11 +11,13 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
  *
  * Flow:
  * 1. AppStore redirects user here with ?code=XXX
- * 2. We exchange the code with AppStore's exchangeToken endpoint
- * 3. We get back user data (email, username, name, roles)
- * 4. We look up the user in OUR LOCAL database
- * 5. If user exists locally → create session → redirect to dashboard
- * 6. If user does NOT exist → redirect to /login with error
+ * 2. We read SSO config from DATABASE (not env vars)
+ * 3. We exchange the code with AppStore's exchangeToken endpoint
+ * 4. We get back user data (email, username, name, roles)
+ * 5. We look up the user in OUR LOCAL database
+ * 6. If user exists locally → create session → redirect to dashboard
+ * 7. If auto-create is enabled and user doesn't exist → create user → session → dashboard
+ * 8. If user does NOT exist and auto-create is off → redirect to /login with error
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -31,13 +31,17 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Validate SSO configuration
-  if (!SSO_CLIENT_ID || !SSO_CLIENT_SECRET) {
-    console.error("[SSO] SSO_CLIENT_ID or SSO_CLIENT_SECRET not configured");
+  // Read SSO configuration from DATABASE
+  const ssoConfig = await getSSOConfig();
+
+  if (!ssoConfig || !ssoConfig.enabled) {
+    console.error("[SSO] SSO is not configured or not enabled in database");
     return NextResponse.redirect(
-      new URL("/login?error=sso_config&message=El portal no tiene configuradas las credenciales SSO", APP_URL)
+      new URL("/login?error=sso_config&message=El portal no tiene configuradas las credenciales SSO. Configure desde Admin → Configuración → SSO", APP_URL)
     );
   }
+
+  const { appstoreUrl, clientId, clientSecret, autoCreateUsers, defaultRoleOnCreate } = ssoConfig;
 
   try {
     // ==========================================
@@ -45,15 +49,15 @@ export async function GET(request: NextRequest) {
     // ==========================================
     console.log("[SSO] Exchanging authorization code with AppStore...");
 
-    const exchangeUrl = `${SSO_APPSTORE_URL}/api/trpc/apps.exchangeToken`;
+    const exchangeUrl = `${appstoreUrl}/api/trpc/apps.exchangeToken`;
     const exchangeResponse = await fetch(exchangeUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         json: {
           code,
-          clientId: SSO_CLIENT_ID,
-          clientSecret: SSO_CLIENT_SECRET,
+          clientId: clientId,
+          clientSecret: clientSecret,
         },
       }),
     });
@@ -112,42 +116,105 @@ export async function GET(request: NextRequest) {
     });
 
     // ==========================================
-    // STEP 3: REJECT if user does NOT exist locally
+    // STEP 3: Handle user not existing locally
     // ==========================================
+    let finalUser = localUser;
+
     if (!localUser) {
-      console.warn(`[SSO] ❌ User NOT FOUND in local database: ${ssoUser.email} (${ssoUser.username})`);
+      // Check if auto-create is enabled
+      if (autoCreateUsers) {
+        console.log(`[SSO] 🔄 Auto-creating user: ${ssoUser.email} (${ssoUser.username})`);
 
-      // Log the rejected SSO attempt
-      await prisma.auditLog.create({
-        data: {
-          userId: null as any, // No local user ID
-          action: "SSO_LOGIN_REJECTED",
-          entity: "User",
-          entityId: ssoUser.email, // Use email as identifier
-        },
-      }).catch(() => {
-        // Ignore audit log errors - don't block the response
-      });
+        // Generate a random password hash (user will only login via SSO)
+        const { hashPassword } = await import("@/lib/security/hash");
+        const randomPassword = crypto.randomUUID() + crypto.randomUUID();
+        const passwordHash = await hashPassword(randomPassword);
 
-      return NextResponse.redirect(
-        new URL(
-          `/login?error=sso_user_not_found&message=${encodeURIComponent(
-            `El usuario "${ssoUser.email}" no existe en este portal. Contacte al administrador para que lo registre.`
-          )}`,
-          APP_URL
-        )
-      );
+        // Create the user
+        const newUser = await prisma.user.create({
+          data: {
+            email: ssoUser.email,
+            username: ssoUser.username,
+            name: ssoUser.name || ssoUser.username,
+            passwordHash,
+            status: "ACTIVE",
+            lastLoginAt: new Date(),
+            ...(defaultRoleOnCreate
+              ? {
+                  userRoles: {
+                    create: {
+                      roleId: defaultRoleOnCreate,
+                    },
+                  },
+                }
+              : {}),
+          },
+          include: {
+            userRoles: {
+              include: {
+                role: {
+                  include: {
+                    rolePermissions: {
+                      include: { permission: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        // Audit log for auto-creation
+        await prisma.auditLog.create({
+          data: {
+            userId: newUser.id,
+            action: "SSO_AUTO_CREATE",
+            entity: "User",
+            entityId: newUser.id,
+            changes: {
+              email: ssoUser.email,
+              username: ssoUser.username,
+              name: ssoUser.name,
+              autoCreated: true,
+            },
+          },
+        }).catch(() => {});
+
+        console.log(`[SSO] ✅ User auto-created: ${newUser.email} (ID: ${newUser.id})`);
+        finalUser = newUser;
+      } else {
+        console.warn(`[SSO] ❌ User NOT FOUND in local database: ${ssoUser.email} (${ssoUser.username})`);
+
+        // Log the rejected SSO attempt
+        await prisma.auditLog.create({
+          data: {
+            userId: null as any,
+            action: "SSO_LOGIN_REJECTED",
+            entity: "User",
+            entityId: ssoUser.email,
+          },
+        }).catch(() => {});
+
+        return NextResponse.redirect(
+          new URL(
+            `/login?error=sso_user_not_found&message=${encodeURIComponent(
+              `El usuario "${ssoUser.email}" no existe en este portal. Contacte al administrador para que lo registre.`
+            )}`,
+            APP_URL
+          )
+        );
+      }
     }
 
-    console.log(`[SSO] ✅ User found in local database: ${localUser.email} (ID: ${localUser.id})`);
+    console.log(`[SSO] ✅ User ready: ${finalUser!.email} (ID: ${finalUser!.id})`);
 
     // ==========================================
     // STEP 4: Create NextAuth session
     // ==========================================
-    const roles = localUser.userRoles.map((ur) => ur.role.name);
+    const roles = finalUser!.userRoles.map((ur) => ur.role.name);
     const permissions = [
       ...new Set(
-        localUser.userRoles.flatMap((ur) =>
+        finalUser!.userRoles.flatMap((ur) =>
           ur.role.rolePermissions.map((rp) => rp.permission.key)
         )
       ),
@@ -155,17 +222,17 @@ export async function GET(request: NextRequest) {
 
     // Update last login
     await prisma.user.update({
-      where: { id: localUser.id },
+      where: { id: finalUser!.id },
       data: { lastLoginAt: new Date() },
     });
 
     // Create audit log
     await prisma.auditLog.create({
       data: {
-        userId: localUser.id,
+        userId: finalUser!.id,
         action: "SSO_LOGIN",
         entity: "User",
-        entityId: localUser.id,
+        entityId: finalUser!.id,
       },
     }).catch(() => {});
 
@@ -177,13 +244,13 @@ export async function GET(request: NextRequest) {
     // Create JWT token for NextAuth session
     const token = await encode({
       token: {
-        id: localUser.id,
-        email: localUser.email,
-        name: localUser.name,
-        username: localUser.username,
+        id: finalUser!.id,
+        email: finalUser!.email,
+        name: finalUser!.name,
+        username: finalUser!.username,
         roles,
         permissions,
-        sub: localUser.id,
+        sub: finalUser!.id,
         ssoToken, // Store SSO token for potential logout
         ssoLogin: true,
       },
@@ -203,7 +270,7 @@ export async function GET(request: NextRequest) {
       maxAge: 8 * 60 * 60, // 8 hours
     });
 
-    console.log(`[SSO] ✅ Session created for ${localUser.email} - redirecting to dashboard`);
+    console.log(`[SSO] ✅ Session created for ${finalUser!.email} - redirecting to dashboard`);
 
     return response;
   } catch (error) {

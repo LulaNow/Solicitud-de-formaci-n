@@ -9,11 +9,13 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FileText, Inbox, Shield, Users, UserCog,
   Key, Menu as MenuIcon, ChevronDown, LogOut, Loader2,
+  Settings, Globe,
 } from "lucide-react";
 import { useState } from "react";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard, FileText, Inbox, Shield, Users, UserCog, Key, Menu: MenuIcon,
+  Settings, Globe,
 };
 
 type MenuItem = {
