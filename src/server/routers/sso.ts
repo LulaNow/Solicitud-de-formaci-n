@@ -165,29 +165,46 @@ export const ssoRouter = router({
       }
 
       try {
-        // Intentar hacer un request al endpoint de authorize (sin redirección)
-        const testUrl = `${appstoreUrl}/api/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=test&state=test`;
+        // Probar conectividad con el AppStore haciendo un request simple
+        // Intentamos el endpoint raíz o un endpoint tRPC conocido
+        const testUrl = `${appstoreUrl}/api/trpc/apps.exchangeToken`;
         const response = await fetch(testUrl, {
-          method: "GET",
-          redirect: "manual", // No seguir redirects
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            json: {
+              code: "test_connection_probe",
+              clientId: clientId,
+              clientSecret: "test",
+            },
+          }),
         });
 
-        // Si recibimos 302 o 400 (redirect o error de parámetro), la URL es accesible
-        if (response.status === 302 || response.status === 400 || response.status === 200) {
+        // Si recibimos 401 (UNAUTHORIZED) significa que el endpoint existe y responde
+        // Si recibimos 200, también está bien
+        // Si recibimos 404, la URL es incorrecta
+        if (response.status === 401 || response.status === 200 || response.status === 400) {
           return {
             success: true,
-            message: `✅ Conexión exitosa con el AppStore (${appstoreUrl}). Status: ${response.status}`,
+            message: `✅ Conexión exitosa con el AppStore (${appstoreUrl}). El servidor responde correctamente.`,
+          };
+        }
+
+        if (response.status === 404) {
+          return {
+            success: false,
+            message: `❌ La URL del AppStore parece incorrecta. El endpoint no existe (404). Verifica: ${appstoreUrl}`,
           };
         }
 
         return {
           success: false,
-          message: `⚠️ El AppStore respondió con status ${response.status}. Verifica la URL.`,
+          message: `⚠️ El AppStore respondió con status ${response.status}. Puede que la URL no sea correcta.`,
         };
       } catch (error) {
         return {
           success: false,
-          message: `❌ No se pudo conectar con ${appstoreUrl}. Verifica que la URL sea correcta y accesible.`,
+          message: `❌ No se pudo conectar con ${appstoreUrl}. Verifica que la URL sea correcta y accesible desde este servidor.`,
         };
       }
     }),
