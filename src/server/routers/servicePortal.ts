@@ -8,7 +8,7 @@ export const servicePortalRouter = router({
     const enabled = await ctx.prisma.appSetting.findUnique({
       where: { key: "service_portal_enabled" },
     });
-    
+
     const maintenanceMessage = await ctx.prisma.appSetting.findUnique({
       where: { key: "service_portal_maintenance_message" },
     });
@@ -334,9 +334,9 @@ export const servicePortalRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      
+
       const updateData: any = { ...data };
-      if (input.isPublished === true && !data.publishedAt) {
+      if (input.isPublished === true) {
         updateData.publishedAt = new Date();
       }
 
@@ -395,13 +395,13 @@ export const servicePortalRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
-      
+
       const updateData: any = { ...data };
-      
+
       if (input.status === "COMPLETED" && !data.completedAt) {
         updateData.completedAt = new Date();
       }
-      
+
       if (input.status && ["REVIEWING", "APPROVED", "REJECTED"].includes(input.status)) {
         updateData.reviewedAt = new Date();
       }
