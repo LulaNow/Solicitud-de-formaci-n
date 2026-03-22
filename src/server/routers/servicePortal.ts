@@ -398,7 +398,7 @@ export const servicePortalRouter = router({
 
       const updateData: any = { ...data };
 
-      if (input.status === "COMPLETED" && !data.completedAt) {
+      if (input.status === "COMPLETED") {
         updateData.completedAt = new Date();
       }
 
