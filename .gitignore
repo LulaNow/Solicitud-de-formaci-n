@@ -45,3 +45,6 @@ prisma/migrations/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# ssh keys and scripts
+/ssh/
