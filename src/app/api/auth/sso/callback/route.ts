@@ -10,7 +10,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
 
 /**
  * SSO Callback Handler
- * 
+ *
  * Flow:
  * 1. AppStore redirects user here with ?code=XXX
  * 2. We exchange the code with AppStore's exchangeToken endpoint
@@ -123,13 +123,7 @@ export async function GET(request: NextRequest) {
           userId: null as any, // No local user ID
           action: "SSO_LOGIN_REJECTED",
           entity: "User",
-          entityId: "unknown",
-          details: JSON.stringify({
-            ssoEmail: ssoUser.email,
-            ssoUsername: ssoUser.username,
-            ssoName: ssoUser.name,
-            reason: "User does not exist in local database",
-          }),
+          entityId: ssoUser.email, // Use email as identifier
         },
       }).catch(() => {
         // Ignore audit log errors - don't block the response
