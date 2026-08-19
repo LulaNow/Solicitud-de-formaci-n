@@ -7,72 +7,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// AUTH & USERS
-// ============================================
-
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  username     String     @unique
-  passwordHash String     @map("password_hash")
-  name         String
-  status           UserStatus @default(ACTIVE)
-  lastLoginAt      DateTime?  @map("last_login_at")
-  mfaSecret        String?    @map("mfa_secret")
-  mfaEnabled       Boolean    @default(false) @map("mfa_enabled")
-  mfaVerified      Boolean    @default(false) @map("mfa_verified")
-  mfaBypassCount   Int        @default(0) @map("mfa_bypass_count")
-  createdAt        DateTime   @default(now()) @map("created_at")
-  updatedAt        DateTime   @updatedAt @map("updated_at")
-
-  userRoles      UserRole[]
-  forms          FormDefinition[]
-  requests       RequestRegistry[]
-  auditLogs      AuditLog[]
-  tasksAssigned  Task[] @relation("TaskAssignee")
-  tasksCreated   Task[] @relation("TaskCreator")
-  tasksUpdated   Task[] @relation("TaskUpdater")
-  serviceRequests ServiceRequest[] @relation("ServiceRequestUser")
-  assignedServiceRequests ServiceRequest[] @relation("ServiceRequestAssignee")
+  id                      String            @id @default(cuid())
+  email                   String            @unique
+  username                String            @unique
+  passwordHash            String            @map("password_hash")
+  name                    String
+  status                  UserStatus        @default(ACTIVE)
+  lastLoginAt             DateTime?         @map("last_login_at")
+  mfaSecret               String?           @map("mfa_secret")
+  mfaEnabled              Boolean           @default(false) @map("mfa_enabled")
+  mfaVerified             Boolean           @default(false) @map("mfa_verified")
+  mfaBypassCount          Int               @default(0) @map("mfa_bypass_count")
+  createdAt               DateTime          @default(now()) @map("created_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+  auditLogs               AuditLog[]
+  forms                   FormDefinition[]
+  requests                RequestRegistry[]
+  assignedServiceRequests ServiceRequest[]  @relation("ServiceRequestAssignee")
+  serviceRequests         ServiceRequest[]  @relation("ServiceRequestUser")
+  tasksAssigned           Task[]            @relation("TaskAssignee")
+  tasksCreated            Task[]            @relation("TaskCreator")
+  tasksUpdated            Task[]            @relation("TaskUpdater")
+  userRoles               UserRole[]
 
   @@map("users")
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-// ============================================
-// RBAC - Roles & Permissions
-// ============================================
-
 model Role {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  isSystem    Boolean  @default(false) @map("is_system")
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  userRoles       UserRole[]
-  rolePermissions RolePermission[]
+  id              String           @id @default(cuid())
+  name            String           @unique
+  description     String?
+  isSystem        Boolean          @default(false) @map("is_system")
+  isActive        Boolean          @default(true) @map("is_active")
+  createdAt       DateTime         @default(now()) @map("created_at")
   formAccess      FormRoleAccess[]
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
 
   @@map("roles")
 }
 
 model Permission {
-  id     String @id @default(cuid())
-  name   String
-  key    String @unique
-  module String
-  action String
-
-  rolePermissions RolePermission[]
+  id              String           @id @default(cuid())
+  name            String
+  key             String           @unique
+  module          String
+  action          String
   menuItems       MenuItem[]
+  rolePermissions RolePermission[]
 
   @@map("permissions")
 }
@@ -80,8 +63,8 @@ model Permission {
 model UserRole {
   userId String @map("user_id")
   roleId String @map("role_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
   @@map("user_roles")
@@ -90,88 +73,279 @@ model UserRole {
 model RolePermission {
   roleId       String     @map("role_id")
   permissionId String     @map("permission_id")
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
   @@map("role_permissions")
 }
 
-// ============================================
-// DYNAMIC MENU
-// ============================================
-
 model MenuItem {
-  id           String     @id @default(cuid())
+  id           String      @id @default(cuid())
   label        String
-  labelEs      String?    @map("label_es")
+  labelEs      String?     @map("label_es")
   icon         String?
   path         String?
-  parentId     String?    @map("parent_id")
-  parent       MenuItem?  @relation("MenuChildren", fields: [parentId], references: [id])
-  children     MenuItem[] @relation("MenuChildren")
-  order        Int        @default(0)
-  permissionId String?    @map("permission_id")
+  parentId     String?     @map("parent_id")
+  order        Int         @default(0)
+  permissionId String?     @map("permission_id")
+  isActive     Boolean     @default(true) @map("is_active")
+  parent       MenuItem?   @relation("MenuChildren", fields: [parentId], references: [id])
+  children     MenuItem[]  @relation("MenuChildren")
   permission   Permission? @relation(fields: [permissionId], references: [id])
-  isActive     Boolean    @default(true) @map("is_active")
 
   @@map("menu_items")
 }
 
-// ============================================
-// DYNAMIC FORMS
-// ============================================
-
 model FormDefinition {
-  id            String     @id @default(cuid())
+  id            String            @id @default(cuid())
   name          String
-  slug          String     @unique
+  slug          String            @unique
   description   String?
-  version       Int        @default(1)
-  status        FormStatus @default(DRAFT)
-  isPublic      Boolean    @default(false) @map("is_public")
-  n8nWebhookUrl String?    @map("n8n_webhook_url")
-  n8nWorkflowId String?    @map("n8n_workflow_id")
-  createdById   String     @map("created_by_id")
-  createdBy     User       @relation(fields: [createdById], references: [id])
-  publishedAt   DateTime?  @map("published_at")
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt @map("updated_at")
-
-  fields     FormField[]
-  roleAccess FormRoleAccess[]
-  registries RequestRegistry[]
-  serviceItems ServiceItem[]
+  version       Int               @default(1)
+  status        FormStatus        @default(DRAFT)
+  isPublic      Boolean           @default(false) @map("is_public")
+  n8nWebhookUrl String?           @map("n8n_webhook_url")
+  n8nWorkflowId String?           @map("n8n_workflow_id")
+  createdById   String            @map("created_by_id")
+  publishedAt   DateTime?         @map("published_at")
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+  createdBy     User              @relation(fields: [createdById], references: [id])
+  fields        FormField[]
+  roleAccess    FormRoleAccess[]
+  registries    RequestRegistry[]
+  serviceItems  ServiceItem[]
 
   @@index([slug])
   @@index([status])
   @@map("form_definitions")
 }
 
+model FormField {
+  id           String         @id @default(cuid())
+  formId       String         @map("form_id")
+  label        String
+  fieldKey     String         @map("field_key")
+  type         FieldType
+  placeholder  String?
+  helpText     String?        @map("help_text")
+  required     Boolean        @default(false)
+  options      Json?
+  validation   Json?
+  defaultValue String?        @map("default_value")
+  order        Int            @default(0)
+  gridColumn   Int            @default(12) @map("grid_column")
+  form         FormDefinition @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, fieldKey])
+  @@map("form_fields")
+}
+
+model FormRoleAccess {
+  formId String         @map("form_id")
+  roleId String         @map("role_id")
+  form   FormDefinition @relation(fields: [formId], references: [id], onDelete: Cascade)
+  role   Role           @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([formId, roleId])
+  @@map("form_role_access")
+}
+
+model RequestRegistry {
+  id             String         @id @default(cuid())
+  formId         String         @map("form_id")
+  formVersion    Int            @map("form_version")
+  submittedData  String         @map("submitted_data")
+  status         RequestStatus  @default(PENDING)
+  submittedById  String?        @map("submitted_by_id")
+  submitterEmail String?        @map("submitter_email")
+  submitterName  String?        @map("submitter_name")
+  n8nExecutionId String?        @map("n8n_execution_id")
+  processedAt    DateTime?      @map("processed_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  form           FormDefinition @relation(fields: [formId], references: [id])
+  submittedBy    User?          @relation(fields: [submittedById], references: [id])
+
+  @@index([formId])
+  @@index([status])
+  @@index([submittedById])
+  @@index([createdAt])
+  @@map("request_registry")
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  status       TaskStatus @default(PENDING)
+  assignedToId String?    @map("assigned_to_id")
+  createdById  String     @map("created_by_id")
+  updatedById  String?    @map("updated_by_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  assignedTo   User?      @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  createdBy    User       @relation("TaskCreator", fields: [createdById], references: [id])
+  updatedBy    User?      @relation("TaskUpdater", fields: [updatedById], references: [id])
+
+  @@index([assignedToId])
+  @@index([createdById])
+  @@index([status])
+  @@map("tasks")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  action    String
+  entity    String
+  entityId  String?  @map("entity_id")
+  changes   Json?
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model AppSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string")
+
+  @@map("app_settings")
+}
+
+model ServiceCategory {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  icon        String?
+  color       String?
+  order       Int           @default(0)
+  isActive    Boolean       @default(true) @map("is_active")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  items       ServiceItem[]
+
+  @@map("service_categories")
+}
+
+model ServiceItem {
+  id               String           @id @default(cuid())
+  name             String
+  slug             String           @unique
+  shortDescription String           @map("short_description")
+  description      String?
+  icon             String?
+  image            String?
+  categoryId       String           @map("category_id")
+  formId           String?          @map("form_id")
+  price            Float?
+  estimatedTime    String?          @map("estimated_time")
+  isAvailable      Boolean          @default(true) @map("is_available")
+  requiresApproval Boolean          @default(false) @map("requires_approval")
+  tags             String[]
+  order            Int              @default(0)
+  viewCount        Int              @default(0) @map("view_count")
+  requestCount     Int              @default(0) @map("request_count")
+  isPublished      Boolean          @default(false) @map("is_published")
+  publishedAt      DateTime?        @map("published_at")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  category         ServiceCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  form             FormDefinition?  @relation(fields: [formId], references: [id])
+  requests         ServiceRequest[]
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([isPublished, isAvailable])
+  @@map("service_items")
+}
+
+model ServiceRequest {
+  id             String                 @id @default(cuid())
+  itemId         String                 @map("item_id")
+  userId         String?                @map("user_id")
+  requesterName  String?                @map("requester_name")
+  requesterEmail String?                @map("requester_email")
+  requesterPhone String?                @map("requester_phone")
+  formData       Json                   @map("form_data")
+  status         ServiceRequestStatus   @default(PENDING)
+  priority       ServiceRequestPriority @default(MEDIUM)
+  assignedToId   String?                @map("assigned_to_id")
+  submittedAt    DateTime               @default(now()) @map("submitted_at")
+  reviewedAt     DateTime?              @map("reviewed_at")
+  completedAt    DateTime?              @map("completed_at")
+  notes          String?
+  internalNotes  String?                @map("internal_notes")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+  assignedTo     User?                  @relation("ServiceRequestAssignee", fields: [assignedToId], references: [id])
+  item           ServiceItem            @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user           User?                  @relation("ServiceRequestUser", fields: [userId], references: [id])
+
+  @@index([itemId])
+  @@index([userId])
+  @@index([status])
+  @@index([submittedAt])
+  @@map("service_requests")
+}
+
+model ceco {
+  Valor       String  @id
+  Descripcion String?
+}
+
+model PuestoTipoBeca {
+  id        String   @id @default(cuid())
+  puesto    String
+  tipoBeca  String   @map("tipo_beca")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("puestos_tipo_beca")
+}
+
+model Cdr {
+  id                     String   @id @default(cuid())
+  nombre                 String
+  valor                  String
+  gerenteTalentoCultura  String   @map("gerente_talento_cultura")
+  gerenteCdr             String   @map("gerente_cdr")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  @@map("cdrs")
+}
+
+model GrupoAsignacion {
+  id        String   @id @default(cuid())
+  nombre    String
+  usuario   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("grupos_asignacion")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
 enum FormStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
-}
-
-model FormField {
-  id           String    @id @default(cuid())
-  formId       String    @map("form_id")
-  form         FormDefinition @relation(fields: [formId], references: [id], onDelete: Cascade)
-  label        String
-  fieldKey     String    @map("field_key")
-  type         FieldType
-  placeholder  String?
-  helpText     String?   @map("help_text")
-  required     Boolean   @default(false)
-  options      Json?
-  validation   Json?
-  defaultValue String?   @map("default_value")
-  order        Int       @default(0)
-  gridColumn   Int       @default(12) @map("grid_column")
-
-  @@unique([formId, fieldKey])
-  @@map("form_fields")
 }
 
 enum FieldType {
@@ -190,43 +364,6 @@ enum FieldType {
   PHONE
 }
 
-model FormRoleAccess {
-  formId String @map("form_id")
-  roleId String @map("role_id")
-  form   FormDefinition @relation(fields: [formId], references: [id], onDelete: Cascade)
-  role   Role           @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  @@id([formId, roleId])
-  @@map("form_role_access")
-}
-
-// ============================================
-// REQUEST REGISTRY
-// ============================================
-
-model RequestRegistry {
-  id             String        @id @default(cuid())
-  formId         String        @map("form_id")
-  form           FormDefinition @relation(fields: [formId], references: [id])
-  formVersion    Int           @map("form_version")
-  submittedData  String        @map("submitted_data") // AES-256-GCM encrypted JSON
-  status         RequestStatus @default(PENDING)
-  submittedById  String?       @map("submitted_by_id")
-  submittedBy    User?         @relation(fields: [submittedById], references: [id])
-  submitterEmail String?       @map("submitter_email")
-  submitterName  String?       @map("submitter_name")
-  n8nExecutionId String?       @map("n8n_execution_id")
-  processedAt    DateTime?     @map("processed_at")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  updatedAt      DateTime      @updatedAt @map("updated_at")
-
-  @@index([formId])
-  @@index([status])
-  @@index([submittedById])
-  @@index([createdAt])
-  @@map("request_registry")
-}
-
 enum RequestStatus {
   PENDING
   IN_PROGRESS
@@ -235,169 +372,11 @@ enum RequestStatus {
   CANCELLED
 }
 
-// ============================================
-// TASKS
-// ============================================
-
-model Task {
-  id          String     @id @default(cuid())
-  name        String
-  description String?
-  status      TaskStatus @default(PENDING)
-
-  assignedToId String?   @map("assigned_to_id")
-  assignedTo   User?     @relation("TaskAssignee", fields: [assignedToId], references: [id])
-
-  createdById  String    @map("created_by_id")
-  createdBy    User      @relation("TaskCreator", fields: [createdById], references: [id])
-
-  updatedById  String?   @map("updated_by_id")
-  updatedBy    User?     @relation("TaskUpdater", fields: [updatedById], references: [id])
-
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-
-  @@index([assignedToId])
-  @@index([createdById])
-  @@index([status])
-  @@map("tasks")
-}
-
 enum TaskStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
   CANCELLED
-}
-
-// ============================================
-// AUDIT LOG
-// ============================================
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String?  @map("user_id")
-  user      User?    @relation(fields: [userId], references: [id])
-  action    String
-  entity    String
-  entityId  String?  @map("entity_id")
-  changes   Json?
-  ipAddress String?  @map("ip_address")
-  userAgent String?  @map("user_agent")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([entity, entityId])
-  @@index([userId])
-  @@index([createdAt])
-  @@map("audit_logs")
-}
-
-// ============================================
-// APP SETTINGS
-// ============================================
-
-model AppSetting {
-  id    String @id @default(cuid())
-  key   String @unique
-  value String
-  type  String @default("string") // string, boolean, number, json
-
-  @@map("app_settings")
-}
-
-// ============================================
-// SERVICE PORTAL - CATALOG
-// ============================================
-
-model ServiceCategory {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  icon        String?
-  color       String?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true) @map("is_active")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  items ServiceItem[]
-
-  @@map("service_categories")
-}
-
-model ServiceItem {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  shortDescription String  @map("short_description")
-  description     String?
-  icon            String?
-  image           String?
-  categoryId      String   @map("category_id")
-  category        ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  formId          String?  @map("form_id")
-  form            FormDefinition? @relation(fields: [formId], references: [id], onDelete: SetNull)
-
-  price           Float?
-  estimatedTime   String?  @map("estimated_time")
-  isAvailable     Boolean  @default(true) @map("is_available")
-  requiresApproval Boolean @default(false) @map("requires_approval")
-
-  tags            String[]
-  order           Int      @default(0)
-  viewCount       Int      @default(0) @map("view_count")
-  requestCount    Int      @default(0) @map("request_count")
-
-  isPublished     Boolean  @default(false) @map("is_published")
-  publishedAt     DateTime? @map("published_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
-
-  requests ServiceRequest[]
-
-  @@index([categoryId])
-  @@index([slug])
-  @@index([isPublished, isAvailable])
-  @@map("service_items")
-}
-
-model ServiceRequest {
-  id          String   @id @default(cuid())
-  itemId      String   @map("item_id")
-  item        ServiceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
-
-  userId      String?  @map("user_id")
-  user        User?    @relation("ServiceRequestUser", fields: [userId], references: [id], onDelete: SetNull)
-
-  requesterName  String? @map("requester_name")
-  requesterEmail String? @map("requester_email")
-  requesterPhone String? @map("requester_phone")
-
-  formData    Json     @map("form_data")
-
-  status      ServiceRequestStatus @default(PENDING)
-  priority    ServiceRequestPriority @default(MEDIUM)
-
-  assignedToId String? @map("assigned_to_id")
-  assignedTo   User?   @relation("ServiceRequestAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
-
-  submittedAt DateTime @default(now()) @map("submitted_at")
-  reviewedAt  DateTime? @map("reviewed_at")
-  completedAt DateTime? @map("completed_at")
-
-  notes       String?
-  internalNotes String? @map("internal_notes")
-
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@index([itemId])
-  @@index([userId])
-  @@index([status])
-  @@index([submittedAt])
-  @@map("service_requests")
 }
 
 enum ServiceRequestStatus {
@@ -415,4 +394,63 @@ enum ServiceRequestPriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+// Modelos para integración con n8n
+model Solicitud {
+  id              String          @id @default(uuid()) @db.Uuid
+  numeroTicket    String?         @unique @map("numero_ticket") @db.VarChar(20)
+  usuarioId       String          @map("usuario_id") @db.Uuid
+  tipoProceso     String?         @map("tipo_proceso") @db.VarChar(50)
+  estado          String          @default("abierto") @db.VarChar(20)
+  convocatoria    String?         @db.VarChar(4)
+  datosEntrada    Json?           @map("datos_entrada") @db.JsonB
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tareasFlujo     TareaFlujo[]
+  historialPasos  HistorialPaso[]
+
+  @@map("solicitudes")
+}
+
+model TareaFlujo {
+  id                String    @id @default(uuid()) @db.Uuid
+  solicitudId       String    @map("solicitud_id") @db.Uuid
+  nombreTarea       String?   @map("nombre_tarea") @db.VarChar(100)
+  tipoTarea         String?   @map("tipo_tarea") @db.VarChar(50)
+  asignadoARol      String?   @map("asignado_a_rol") @db.VarChar(50)
+  estadoTarea       String    @default("pendiente") @map("estado_tarea") @db.VarChar(20)
+  resultadoJson     Json?     @map("resultado_json") @db.JsonB
+  webhookResumeUrl  String?   @map("webhook_resume_url") @db.Text
+  vencimientoSla    DateTime? @map("vencimiento_sla") @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  solicitud         Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+
+  @@map("tareas_flujo")
+}
+
+model HistorialPaso {
+  id           Int       @id @default(autoincrement())
+  solicitudId  String    @map("solicitud_id") @db.Uuid
+  pasoNombre   String?   @map("paso_nombre") @db.Text
+  detalles     String?   @db.Text
+  fecha        DateTime  @default(now()) @db.Timestamptz(6)
+
+  solicitud    Solicitud @relation(fields: [solicitudId], references: [id])
+
+  @@map("historial_pasos")
+}
+
+model Parametro {
+  id                  String   @id @default(uuid()) @db.Uuid
+  numeroTicket        String   @map("numero_ticket") @db.VarChar(20)
+  jsonParametros      Json     @map("json_parametros") @db.JsonB
+  porcentajeAsignado  Decimal  @map("porcentaje_asignado") @db.Decimal(5, 2)
+  montoBeca           Decimal  @map("monto_beca") @db.Decimal(10, 2)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("parametros")
 }

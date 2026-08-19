@@ -25,10 +25,15 @@ function LoginForm() {
   // SSO error messages mapping
   const ssoErrorMessages: Record<string, string> = {
     sso_user_not_found: "El usuario no está registrado en este portal. Contacte al administrador.",
-    sso_no_code: "No se recibió código de autorización del AppStore.",
-    sso_config: "El portal no tiene configuradas las credenciales SSO.",
-    sso_exchange_failed: "Error al validar con el AppStore. El código pudo haber expirado.",
-    sso_no_user: "No se recibieron datos del usuario desde el AppStore.",
+    sso_no_code: "No se recibió código de autorización del sistema SSO.",
+    sso_no_state: "Falta parámetro de seguridad (state).",
+    sso_invalid_state: "Token de seguridad inválido o expirado. Intente nuevamente.",
+    sso_config: "El sistema no tiene configuradas las credenciales SSO.",
+    sso_token_failed: "Error al obtener token de acceso. El código puede haber expirado.",
+    sso_no_token: "No se recibió token de acceso del sistema SSO.",
+    sso_userinfo_failed: "Error al obtener información del usuario.",
+    sso_incomplete_user: "Datos de usuario incompletos del sistema SSO.",
+    sso_init_error: "Error al iniciar el proceso de SSO.",
     sso_error: "Error inesperado durante el inicio de sesión SSO.",
   };
 
@@ -98,6 +103,10 @@ function LoginForm() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleSSOLogin() {
+    window.location.href = "/api/auth/sso/login";
   }
 
   return (
@@ -195,6 +204,38 @@ function LoginForm() {
             )}
           </button>
         </form>
+
+        <div className="login-element relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/30"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white/20 px-4 text-white/70">O continuar con</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSSOLogin}
+          className="login-element group relative w-full overflow-hidden rounded-xl border-2 border-white/30 bg-white/10 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-white/50 hover:bg-white/20 hover:shadow-xl"
+        >
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+              />
+            </svg>
+            Login con SSO
+          </span>
+        </button>
 
         <p className="login-element mt-4 text-center text-xs text-white/50">
           NADRO Portal v1.0 — Todos los derechos reservados

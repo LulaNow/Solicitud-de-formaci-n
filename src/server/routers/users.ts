@@ -65,6 +65,10 @@ export const usersRouter = router({
     return user;
   }),
 
+  me: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.user;
+  }),
+
   create: adminProcedure
     .input(
       z.object({
@@ -173,18 +177,4 @@ export const usersRouter = router({
     return { success: true };
   }),
 
-  me: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.user.findUnique({
-      where: { id: ctx.user.id },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        name: true,
-        status: true,
-        lastLoginAt: true,
-        userRoles: { include: { role: true } },
-      },
-    });
-  }),
 });
