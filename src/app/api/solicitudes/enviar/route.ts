@@ -61,8 +61,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Enviar a n8n
+    const inicioSolicitud = new Date(Date.now() - 5000); // 5s de margen
     const resultado = await n8nService.enviarSolicitudFormacion(
       userId as string,
+      session.user.email as string,
       datosFormulario
     );
 
@@ -79,9 +81,67 @@ export async function POST(request: NextRequest) {
     console.log("[API Solicitudes] Solicitud enviada exitosamente");
     console.log("[API Solicitudes] Ticket:", resultado.numero_ticket);
 
+    // Buscar la solicitud creada por el workflow de n8n en la BD local
+    // (n8n responde "recibido" antes de insertar el registro)
+    let solicitudId = resultado.solicitud_id;
+    if (!solicitudId) {
+      const { prisma } = await import("@/lib/db/prisma");
+      const noEmpleado = datosFormulario.no_empleado;
+
+      for (let intento = 0; intento < 15 && !solicitudId; intento++) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Criterio 1: numero_ticket si n8n lo devolvió
+        let solicitudCreada = resultado.numero_ticket
+          ? await prisma.solicitud.findFirst({
+              where: { numeroTicket: resultado.numero_ticket },
+              orderBy: { createdAt: "desc" },
+              select: { id: true, numeroTicket: true },
+            })
+          : null;
+
+        // Criterio 2: coincidir por usuario y ventana de tiempo
+        if (!solicitudCreada) {
+          solicitudCreada = await prisma.solicitud.findFirst({
+            where: {
+              usuarioId: userId as string,
+              createdAt: { gte: inicioSolicitud },
+            },
+            orderBy: { createdAt: "desc" },
+            select: { id: true, numeroTicket: true },
+          });
+        }
+
+        // Criterio 3: coincidir por contenido de datos_entrada (no_empleado)
+        // en la ventana de tiempo — robusto aunque usuario_id difiera
+        if (!solicitudCreada && noEmpleado) {
+          solicitudCreada = await prisma.solicitud.findFirst({
+            where: {
+              createdAt: { gte: inicioSolicitud },
+              datosEntrada: {
+                path: ["no_empleado"],
+                equals: noEmpleado,
+              },
+            },
+            orderBy: { createdAt: "desc" },
+            select: { id: true, numeroTicket: true },
+          });
+        }
+
+        if (solicitudCreada) {
+          solicitudId = solicitudCreada.id;
+          console.log("[API Solicitudes] Solicitud encontrada en BD:", solicitudId, solicitudCreada.numeroTicket);
+        }
+      }
+
+      if (!solicitudId) {
+        console.warn("[API Solicitudes] No se encontró la solicitud en BD después de 15s");
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      solicitud_id: resultado.solicitud_id,
+      solicitud_id: solicitudId,
       numero_ticket: resultado.numero_ticket,
       message: resultado.message,
     });

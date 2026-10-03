@@ -48,3 +48,6 @@ prisma/migrations/
 
 # ssh keys and scripts
 /ssh/
+
+# archivos adjuntos subidos por usuarios
+/uploads/

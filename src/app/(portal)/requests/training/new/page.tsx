@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc/client";
-import { Calendar, Loader2, Search } from "lucide-react";
+import { Calendar, Loader2, Search, Upload, FileText, X, Paperclip } from "lucide-react";
 import { getLocalDate, formatDateES, getDaysDifference } from "@/lib/utils/date-utils";
 import { getEmpleado, getPuesto, getDepartamento, validarNumeroEmpleado } from "@/lib/api/empleados-api";
 import { getAutorizador } from "@/lib/api/autorizador-api";
@@ -13,6 +13,9 @@ export default function NewTrainingRequestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingEmpleado, setIsLoadingEmpleado] = useState(false);
   const [empleadoError, setEmpleadoError] = useState<string | null>(null);
+  const [archivosPendientes, setArchivosPendientes] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [tiposProgramaDisponibles, setTiposProgramaDisponibles] = useState<string[]>([
     "Curso",
     "Certificación",
@@ -400,9 +403,28 @@ export default function NewTrainingRequestPage() {
       console.log("[Formulario] Enviando solicitud a n8n...");
 
       // Preparar datos para n8n
+      const cdrOpciones: Record<string, string> = {
+        "1000": "CORPORATIVO",
+        "3000": "BAJIO",
+        "3010": "CHIHUAHUA",
+        "3020": "CULIACAN",
+        "3030": "GUADALAJARA",
+        "3040": "LA PAZ",
+        "3050": "MERIDA",
+        "3060": "MEXICO NORTE",
+        "3070": "MEXICO SUR",
+        "3080": "MONTERREY",
+        "3090": "MORELIA",
+        "3100": "PUEBLA",
+        "3110": "TIJUANA",
+        "3120": "TUXTLA",
+        "3130": "VERACRUZ",
+      };
+
       const datosFormulario = {
         fecha: formData.fecha,
         cdr: formData.cdr,
+        cdr_descripcion: cdrOpciones[formData.cdr] || "",
         evento: formData.evento,
         modalidad: formData.modalidad,
         tipo: formData.tipo,
@@ -470,8 +492,44 @@ export default function NewTrainingRequestPage() {
 
       console.log("[Formulario] Solicitud enviada exitosamente");
       console.log("[Formulario] Ticket:", data.numero_ticket);
+      console.log("[Formulario] Solicitud ID:", data.solicitud_id);
 
-      alert(`Solicitud creada exitosamente\nNúmero de ticket: ${data.numero_ticket || 'Pendiente'}`);
+      // Subir archivos adjuntos si hay
+      let archivosNoSubidos = 0;
+      if (archivosPendientes.length > 0) {
+        if (data.solicitud_id) {
+          setUploadingFiles(true);
+          try {
+            for (const file of archivosPendientes) {
+              const formDataUpload = new FormData();
+              formDataUpload.append("file", file);
+              formDataUpload.append("solicitudId", data.solicitud_id);
+              const uploadRes = await fetch("/api/solicitudes/archivos/upload", {
+                method: "POST",
+                body: formDataUpload,
+              });
+              if (!uploadRes.ok) {
+                archivosNoSubidos++;
+                console.error("[Formulario] Error al subir archivo:", file.name, await uploadRes.text());
+              }
+            }
+            console.log("[Formulario] Archivos subidos exitosamente");
+          } catch (uploadError) {
+            console.error("[Formulario] Error al subir archivos:", uploadError);
+            archivosNoSubidos = archivosPendientes.length;
+          } finally {
+            setUploadingFiles(false);
+          }
+        } else {
+          archivosNoSubidos = archivosPendientes.length;
+          console.warn("[Formulario] No se recibió solicitud_id, los archivos no se subieron");
+        }
+      }
+
+      const mensajeArchivos = archivosNoSubidos > 0
+        ? `\n⚠ ${archivosNoSubidos} archivo(s) no pudieron adjuntarse. Puedes agregarlos desde el detalle de la solicitud.`
+        : "";
+      alert(`Solicitud creada exitosamente\nNúmero de ticket: ${data.numero_ticket || 'Pendiente'}${mensajeArchivos}`);
       router.push("/dashboard");
     } catch (error) {
       console.error("[Formulario] Error al crear solicitud:", error);
@@ -982,6 +1040,69 @@ export default function NewTrainingRequestPage() {
           </div>
         </div>
 
+        {/* Archivos adjuntos */}
+        <div className="rounded-sm border border-border bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold text-gray-800">Archivos Adjuntos</h2>
+          <p className="mb-4 text-sm text-gray-500">
+            Puedes adjuntar archivos relacionados con la solicitud (cotizaciones, comprobantes, etc.)
+          </p>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            onChange={(e) => {
+              // Extraer archivos de forma SÍNCRONA antes de limpiar el input.
+              // e.target.files es una FileList viva: si limpiamos value primero,
+              // el updater de setState (que puede ejecutarse después) leería una lista vacía.
+              const selectedFiles = Array.from(e.target.files || []);
+              e.target.value = "";
+              console.log("[Formulario] Archivos seleccionados:", selectedFiles.length);
+              if (selectedFiles.length > 0) {
+                setArchivosPendientes(prev => [...prev, ...selectedFiles]);
+              }
+            }}
+            className="hidden"
+          />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="flex cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed border-gray-300 p-8 hover:border-brand-400 hover:bg-gray-50"
+          >
+            <Upload className="mb-2 h-8 w-8 text-gray-400" />
+            <p className="text-sm text-gray-500">
+              Haz clic para seleccionar archivos
+            </p>
+          </div>
+
+          {archivosPendientes.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {archivosPendientes.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-sm border border-gray-200 bg-gray-50 p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {file.size < 1024 ? `${file.size} B` : file.size < 1024 * 1024 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / (1024 * 1024)).toFixed(1)} MB`}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setArchivosPendientes(prev => prev.filter((_, i) => i !== index))}
+                    className="rounded p-1 text-gray-500 hover:bg-red-100 hover:text-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Botones de acción */}
         <div className="flex justify-end gap-3">
           <button
@@ -996,8 +1117,8 @@ export default function NewTrainingRequestPage() {
             disabled={isSubmitting}
             className="flex items-center gap-2 rounded-sm bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
           >
-            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Enviar
+            {(isSubmitting || uploadingFiles) && <Loader2 className="h-4 w-4 animate-spin" />}
+            {uploadingFiles ? "Subiendo archivos..." : "Enviar"}
           </button>
         </div>
       </form>

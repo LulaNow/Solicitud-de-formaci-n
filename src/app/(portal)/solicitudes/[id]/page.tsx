@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, CheckCircle, Clock, XCircle, Circle, User } from "lucide-react";
 import Link from "next/link";
+import ArchivosAdjuntos from "@/components/solicitudes/ArchivosAdjuntos";
 
 export default function SolicitudDetallePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -484,6 +485,9 @@ export default function SolicitudDetallePage({ params }: { params: Promise<{ id:
           </div>
         </div>
       )}
+
+      {/* Archivos adjuntos */}
+      <ArchivosAdjuntos solicitudId={id} />
     </div>
   );
 }

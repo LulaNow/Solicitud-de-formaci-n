@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useState, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ArchivosAdjuntos from "@/components/solicitudes/ArchivosAdjuntos";
 
 export default function TareaDetallePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -260,8 +261,14 @@ export default function TareaDetallePage({ params }: { params: Promise<{ id: str
             const responseData = await webhookResponse.json();
             console.log('[Webhook] Respuesta exitosa:', responseData);
           } else {
-            const errorData = await webhookResponse.json();
-            console.error('[Webhook] Error:', errorData);
+            const errorText = await webhookResponse.text();
+            let errorData: unknown = errorText;
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              // body no es JSON, mostrar texto plano
+            }
+            console.error('[Webhook] Error:', webhookResponse.status, errorData);
           }
         } catch (webhookError) {
           console.error('[Webhook] Error al llamar:', webhookError);
@@ -958,6 +965,9 @@ export default function TareaDetallePage({ params }: { params: Promise<{ id: str
           </div>
         </div>
       )}
+
+      {/* Apartado: Archivos Adjuntos (disponible durante todo el ciclo de vida) */}
+      {tarea.solicitudId && <ArchivosAdjuntos solicitudId={tarea.solicitudId} />}
 
       {/* Apartado 3: Comentarios y Acciones */}
       <div className="rounded-sm border border-border bg-white p-6">

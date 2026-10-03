@@ -6,6 +6,7 @@
 export interface SolicitudFormacionData {
   fecha: string;
   cdr: string;
+  cdr_descripcion: string;
   evento: string;
   modalidad: string;
   tipo: string;
@@ -36,6 +37,7 @@ export interface SolicitudFormacionData {
 
 export interface N8nSolicitudPayload {
   usuario_id: string;
+  usuario_email: string;
   tipo_proceso: string;
   convocatoria: string;
   datos_entrada: SolicitudFormacionData;
@@ -67,6 +69,7 @@ class N8nService {
    */
   async enviarSolicitudFormacion(
     usuarioId: string,
+    usuarioEmail: string,
     datosFormulario: SolicitudFormacionData
   ): Promise<N8nResponse> {
     try {
@@ -79,6 +82,7 @@ class N8nService {
 
       const payload: N8nSolicitudPayload = {
         usuario_id: usuarioId,
+        usuario_email: usuarioEmail,
         tipo_proceso: 'Solicitud de formación',
         convocatoria: currentYear,
         datos_entrada: datosFormulario,
