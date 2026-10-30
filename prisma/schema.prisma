@@ -405,12 +405,14 @@ model Solicitud {
   estado          String          @default("abierto") @db.VarChar(20)
   convocatoria    String?         @db.VarChar(4)
   datosEntrada    Json?           @map("datos_entrada") @db.JsonB
+  reembolsoNadro  Decimal?        @map("reembolso_nadro") @db.Decimal(12, 2)
   createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   tareasFlujo     TareaFlujo[]
   historialPasos  HistorialPaso[]
   archivos        ArchivoSolicitud[]
+  pagos           PagoSolicitud[]
 
   @@map("solicitudes")
 }
@@ -469,4 +471,31 @@ model Parametro {
   updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("parametros")
+}
+
+model PagoSolicitud {
+  id              String    @id @default(uuid()) @db.Uuid
+  solicitudId     String    @map("solicitud_id") @db.Uuid
+  numeroPago      Int       @map("numero_pago")
+  fechaProgramada DateTime? @map("fecha_programada") @db.Date
+  programa        Decimal?  @db.Decimal(12, 2)
+  pagoBeca        Decimal?  @map("pago_beca") @db.Decimal(12, 2)
+  pagoEmpleado    Decimal?  @map("pago_empleado") @db.Decimal(12, 2)
+  estatusPago     String?   @map("estatus_pago") @db.VarChar(100)
+  pagare          String?   @db.VarChar(150)
+  factura         String?   @db.VarChar(150)
+  montoFactura    Decimal?  @map("monto_factura") @db.Decimal(12, 2)
+  observaciones   String?   @db.Text
+  calificaciones  String?   @db.Text
+  fileName      String?   @map("file_name") @db.VarChar(255)
+  contentType   String?   @map("content_type") @db.VarChar(100)
+  sizeBytes     Int?      @map("size_bytes")
+  hash          String?   @db.VarChar(64)
+  filePath      String?   @map("file_path") @db.VarChar(500)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  solicitud     Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+
+  @@map("pagos_solicitud")
 }

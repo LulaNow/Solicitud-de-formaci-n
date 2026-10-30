@@ -2,14 +2,16 @@
 
 import { trpc } from "@/lib/trpc/client";
 import { use } from "react";
+import { useSession } from "next-auth/react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, CheckCircle, Clock, XCircle, Circle, User } from "lucide-react";
+import { ArrowLeft, CheckCircle, Clock, XCircle, Circle, User, CreditCard } from "lucide-react";
 import Link from "next/link";
 import ArchivosAdjuntos from "@/components/solicitudes/ArchivosAdjuntos";
 
 export default function SolicitudDetallePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { data: session } = useSession();
   const { data: solicitud, isLoading } = trpc.requests.getSolicitudDetail.useQuery(id);
   const { data: parametrosData } = trpc.requests.getParametros.useQuery(
     solicitud?.numeroTicket || "",
@@ -33,6 +35,11 @@ export default function SolicitudDetallePage({ params }: { params: Promise<{ id:
   }
 
   const datosEntrada = solicitud.datosEntrada as Record<string, any>;
+
+  // El botón de pagos se muestra al creador de la solicitud y a administradores
+  const rolesUsuario = ((session?.user as { roles?: string[] })?.roles || []) as string[];
+  const esCreador = (session?.user as { id?: string })?.id === solicitud.usuarioId;
+  const puedeVerPagos = esCreador || rolesUsuario.includes("Administrador");
 
   // Función para obtener descripción del CDR
   const getCDRDescripcion = (cdr: string) => {
@@ -160,6 +167,17 @@ export default function SolicitudDetallePage({ params }: { params: Promise<{ id:
           <h1 className="text-2xl font-bold text-gray-900">Detalle de Solicitud</h1>
           <p className="text-sm text-gray-500">{solicitud.numeroTicket}</p>
         </div>
+        {/* Botón Tabla de pagos: solo para solicitudes Completadas,
+            visible para el creador de la solicitud y administradores */}
+        {solicitud.estado === "Completado" && puedeVerPagos && (
+          <Link
+            href={`/solicitudes/${id}/pagos`}
+            className="ml-auto flex items-center gap-2 rounded-sm bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+          >
+            <CreditCard className="h-4 w-4" />
+            Tabla de pagos
+          </Link>
+        )}
       </div>
 
       {/* Progreso Horizontal Compacto */}

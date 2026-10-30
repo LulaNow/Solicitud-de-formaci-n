@@ -387,8 +387,9 @@ export const requestsRouter = router({
         });
       }
 
-      // Verificar que el usuario sea el dueño de la solicitud
-      if (solicitud.usuarioId !== ctx.user.id) {
+      // Verificar que el usuario sea el dueño de la solicitud o administrador
+      const esAdmin = ctx.user.roles.includes("Administrador");
+      if (solicitud.usuarioId !== ctx.user.id && !esAdmin) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'No tienes permiso para ver esta solicitud',
@@ -468,5 +469,168 @@ export const requestsRouter = router({
       });
 
       return reporte;
+    }),
+
+  getPagosData: protectedProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      const solicitud = await ctx.prisma.solicitud.findUnique({
+        where: { id: input },
+      });
+
+      if (!solicitud) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Solicitud no encontrada' });
+      }
+
+      // Solo el creador de la solicitud o un administrador pueden ver la tabla de pagos
+      const esCreador = solicitud.usuarioId === ctx.user.id;
+      const esAdmin = ctx.user.roles.includes("Administrador");
+      if (!esCreador && !esAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'No tienes permiso para ver la tabla de pagos',
+        });
+      }
+
+      const parametro = solicitud.numeroTicket
+        ? await ctx.prisma.parametro.findFirst({
+            where: { numeroTicket: solicitud.numeroTicket },
+          })
+        : null;
+
+      const pagos = await ctx.prisma.pagoSolicitud.findMany({
+        where: { solicitudId: input },
+        orderBy: { numeroPago: 'asc' },
+        select: {
+          id: true,
+          numeroPago: true,
+          fechaProgramada: true,
+          programa: true,
+          pagoBeca: true,
+          pagoEmpleado: true,
+          estatusPago: true,
+          pagare: true,
+          factura: true,
+          montoFactura: true,
+          observaciones: true,
+          calificaciones: true,
+          fileName: true,
+          createdAt: true,
+        },
+      });
+
+      return { solicitud, parametro, pagos };
+    }),
+
+  savePagos: protectedProcedure
+    .input(
+      z.object({
+        solicitudId: z.string(),
+        reembolsoNadro: z.number().nullable().optional(),
+        pagos: z.array(
+          z.object({
+            id: z.string().optional(),
+            tempId: z.string().optional(),
+            numeroPago: z.number().int(),
+            fechaProgramada: z.string().optional(),
+            programa: z.number().nullable().optional(),
+            pagoBeca: z.number().nullable().optional(),
+            pagoEmpleado: z.number().nullable().optional(),
+            estatusPago: z.string().optional(),
+            pagare: z.string().optional(),
+            factura: z.string().optional(),
+            montoFactura: z.number().nullable().optional(),
+            observaciones: z.string().optional(),
+            calificaciones: z.string().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const solicitud = await ctx.prisma.solicitud.findUnique({
+        where: { id: input.solicitudId },
+      });
+
+      if (!solicitud) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Solicitud no encontrada' });
+      }
+
+      if (solicitud.estado !== 'Completado') {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Solo se pueden registrar pagos en solicitudes completadas',
+        });
+      }
+
+      const esCreador = solicitud.usuarioId === ctx.user.id;
+      const esAdmin = ctx.user.roles.includes("Administrador");
+      if (!esCreador && !esAdmin) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'No tienes permiso para guardar pagos en esta solicitud',
+        });
+      }
+
+      // Sincronizar: eliminar pagos que ya no vienen en la lista
+      const existentes = await ctx.prisma.pagoSolicitud.findMany({
+        where: { solicitudId: input.solicitudId },
+      });
+      const idsEnviados = input.pagos
+        .filter((p) => p.id)
+        .map((p) => p.id as string);
+      const aEliminar = existentes.filter((e) => !idsEnviados.includes(e.id));
+
+      // Borrar archivos de disco de los pagos eliminados
+      const { unlink } = await import('fs/promises');
+      for (const pago of aEliminar) {
+        if (pago.filePath) {
+          try {
+            await unlink(pago.filePath);
+          } catch {
+            // El archivo ya no existe en disco, continuar
+          }
+        }
+      }
+      if (aEliminar.length > 0) {
+        await ctx.prisma.pagoSolicitud.deleteMany({
+          where: { id: { in: aEliminar.map((p) => p.id) } },
+        });
+      }
+
+      // Crear/actualizar filas — mapaIds traduce tempId (fila nueva) a id real
+      const mapaIds: Record<string, string> = {};
+      for (const row of input.pagos) {
+        const data = {
+          numeroPago: row.numeroPago,
+          fechaProgramada: row.fechaProgramada ? new Date(row.fechaProgramada) : null,
+          programa: row.programa ?? null,
+          pagoBeca: row.pagoBeca ?? null,
+          pagoEmpleado: row.pagoEmpleado ?? null,
+          estatusPago: row.estatusPago || null,
+          pagare: row.pagare || null,
+          factura: row.factura || null,
+          montoFactura: row.montoFactura ?? null,
+          observaciones: row.observaciones || null,
+          calificaciones: row.calificaciones || null,
+        };
+
+        if (row.id) {
+          await ctx.prisma.pagoSolicitud.update({ where: { id: row.id }, data });
+          if (row.tempId) mapaIds[row.tempId] = row.id;
+        } else {
+          const creado = await ctx.prisma.pagoSolicitud.create({
+            data: { ...data, solicitudId: input.solicitudId },
+          });
+          if (row.tempId) mapaIds[row.tempId] = creado.id;
+        }
+      }
+
+      // Persistir el reembolso Nadro en la solicitud
+      await ctx.prisma.solicitud.update({
+        where: { id: input.solicitudId },
+        data: { reembolsoNadro: input.reembolsoNadro ?? null },
+      });
+
+      return { ok: true, mapaIds };
     }),
 });
