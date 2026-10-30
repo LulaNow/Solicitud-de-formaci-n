@@ -13,6 +13,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import Link from "next/link";
+import ArchivosAdjuntos from "@/components/solicitudes/ArchivosAdjuntos";
 
 interface PagoRow {
   tempId: string;
@@ -744,6 +745,9 @@ export default function TablaPagosPage({ params }: { params: Promise<{ id: strin
           </div>
         )}
       </div>
+
+      {/* Apartado 4: Documentos adjuntos a la solicitud */}
+      <ArchivosAdjuntos solicitudId={id} />
     </div>
   );
 }
